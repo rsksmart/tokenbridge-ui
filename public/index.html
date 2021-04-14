@@ -39,9 +39,17 @@
 
         <!-- SEO -->
         <title>Token Bridge between RSK and Ethereum</title>
-        <meta name=”description” content=”The Token Bridge  between RSK and Ethereum allows to cross ERC20 tokens back and forth between the two blockchains.”>
-        <meta name="keywords" content="Token, Bridge, RSK, Ethereum, blockchain, token, crypto, ERC20">
+        <meta name=”description” content=”The Token Bridge between RSK and Ethereum allows to cross ERC20 tokens back and forth between the two blockchains.”>
+        <meta name="keywords" content="Token, Bridge, RSK, Ethereum, blockchain, token, crypto, ERC20, cross, swap, rbtc">
         <meta name="author" content="RSK">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@RSKsmart">
+        <meta name="twitter:creator" content="@RSKsmart">
+        <meta name="twitter:title" content="Token Bridge between Ethereum and RSK">
+        <meta name="twitter:description" content="Move tokens back and forth between Ethereum and RSK, taking advantages of RSK low fees and Ethereum massive users">
+        <meta name="twitter:image" content="logo.jpg">
+        <meta name="twitter:image:alt" content="token bridge between ethereum and rsk logo">
+
         <!-- Hotjar Tracking Code for https://tokenbridge.rsk.co/ -->
         <script>
             (function(h,o,t,j,a,r){
@@ -54,528 +62,7 @@
             })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
         </script>
         <!-- Custom Styles -->
-        <style>
-            body {
-              font-family: 'Quicksand', sans-serif !important;
-              font-size: 12px!important;
-            }
-            body .btn {
-                font-size: 14px;
-            }
-            h5 {
-                font-size: 25px;
-                line-height: 31px;
-            }
-            h1 {
-              color: #00B520;
-              font-weight: 700;
-              font-size: 36px;
-              line-height: 45px;
-              margin-top: 15px;
-              padding-bottom: 0;
-            }
-            .align-center {
-                margin-left: auto;
-                margin-right: auto;
-            }
-            #transferTab {
-                max-width: 660px;
-                margin-bottom: 30px;
-                padding: 40px 20px;
-            }
-            #previousTxnsEmptyTab {
-                display: none;
-            }
-            #previousTxnsTab {
-                display: none;
-            }
-            #cross {
-                display: none;
-            }
-            .approve-deposit {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-            .form-check {
-                margin-top: -1em;
-            }
-            .form-check label {
-                position: relative;
-                bottom: 1px;
-                color: black;
-            }
-            #approve {
-                min-width: 10em;
-            }
-            #deposit {
-                align-self: flex-start;
-                min-width: 10em;
-            }
-            .form-control:disabled {
-                background-color: transparent;
-                color: #BFBDBD;
-            }
-            label {
-                font-weight: 500;
-                font-size: 12px;
-                line-height: 15px;
-                color: #BFBDBD;
-                margin-bottom: 0px;
-            }
-            .max {
-                color: #00B520;
-            }
-            .network {
-                color: #00B520;
-                font-size: 20px;
-                font-weight: 500;
-                line-height: 25px;
-                margin-bottom: 20px;
-            }
-            .bootstrap-select .dropdown-toggle .filter-option {
-                font-family: 'Quicksand';
-                font-size: 20px;
-                line-height: 25px;
-                text-align: center;
-            }
-            .dropdown-item, .form-control-plaintext {
-                font-family: 'Quicksand';
-                font-size: 20px;
-                line-height: 25px;
-            }
-            .fees {
-                font-family: 'Roboto';
-                font-size: 14px;
-                line-height: 30px;
-                color: #919191;
-            }
-            .fees p {
-                margin-bottom: -10px;
-            }
-            .black {
-                color: #000;
-                font-weight: bold;
-            }
-            #amount {
-                font-size: 18px;
-                line-height: 22px;
-            }
-            #amount.ok {
-                border-color: #00B520;;
-            }
-            .invalid-feedback {
-                font-size: 12px;
-            }
-            .inputs-area {
-                font-family: 'Quicksand';
-                font-size: 20px;
-                line-height: 25px;
-                border: 1px solid #000000;
-                box-sizing: border-box;
-                border-radius: 10px;
-                padding: 2px;
-            }
-            .outline {
-                border: 1px solid #000;
-            }
-            .outline, .outline-rounded, .badge-outline {
-                background-color: transparent;
-                line-height: 1.5;
-                padding-right: .6em;
-                padding-left: .6em;
-            }
-            .outline-rounded, .badge-outline {
-                border: 1px solid #00B520;
-            }
-
-            .disabled, .disabled .network, .max:disabled {
-                color: #E5E5E5;
-            }
-            .disabled .outline, .disabled .outline-rounded, .disabled .badge-outline,
-            .outline:disabled, .outline-rounded:disabled, .badge-outline:disabled {
-                color: #E5E5E5;
-                border: 1px solid #E5E5E5;
-            }
-            .outline-rounded {
-                color: #00B520;
-                border-radius: .6em;
-                padding: .375rem .75rem;
-            }
-            .outline-rounded-warning {
-                color: #FEAD0D;
-                border: 1px solid #FEAD0D;
-            }
-            .badge-outline {
-                color: #00B520;
-                border-radius: 10rem;
-                padding: .375rem .75rem;
-            }
-            .btn-light, .btn-light.disabled, .btn-light.disabled,
-            .show>.btn-light.dropdown-toggle {
-                background-color: transparent;
-                border-color: transparent;
-            }
-            .btn-light:hover {
-                background-color: transparent;
-            }
-            .bootstrap-select>.dropdown-toggle.bs-placeholder:hover,
-            .bootstrap-select>.dropdown-toggle.bs-placeholder {
-                color: #000;
-            }
-            .dropdown.bootstrap-select.disabled > .disabled {
-                color: #BFBDBD;
-            }
-
-            .btn-toolbar {
-                justify-content: center;
-            }
-            .btn-primary {
-                font-family: 'Quicksand';
-                color: #fff;
-                background-color: #00B520;
-                border-color: #00B520;
-                border-radius: 10px;
-            }
-            .btn-primary:hover, .btn-primary:not(:disabled):not(.disabled):active {
-                color: #fff;
-                background-color: #03a335;
-                border-color: #03a335;
-            }
-            .btn-primary.disabled, .btn-primary:disabled {
-                color: #fff;
-                background-color:  #E5E5E5;
-                border-color:  #E5E5E5;
-            }
-            .navbar-dark.bg-dark {
-                background-color: white!important;
-            }
-            input::placeholder {
-              color: grey !important;
-              font-weight: normal;
-            }
-            #home {
-              padding-top: 20px;
-              padding-bottom: 20px;
-            }
-            #footer {
-              margin-top: 0;
-            }
-            .title {
-              text-align: center;
-              margin-bottom: 20px;
-            }
-            .subtitle {
-              text-align: center;
-              margin-bottom: 5px;
-            }
-            .logo {
-                width: 106px;
-                height: auto;
-                transition: all 0.5s ease;
-            }
-            .navbar, .navbar a {
-                font-family: 'Rubik';
-                color: #00B520;
-                font-size: 14px;
-            }
-            a:hover {
-                color: #03a335;
-                text-decoration: none;
-            }
-            #warning-tx a:hover {
-                color: #007bff;
-                font-weight: bold;
-            }
-
-            .navbar-item {
-                margin-top: 15px;
-            }
-            .nav-tabs .nav-link {
-                font-weight: bold;
-                color: #00B520;
-            }
-            .nav-tabs .nav-link:hover {
-                color: black;
-            }
-            .config-section {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              text-align: center;
-            }
-            .config-section .config-value {
-              font-size: 36px;
-              font-weight: bold;
-              color: #00B520;
-            }
-            .config-section .config-title {
-              font-weight: bold;
-            }
-            .config-section .config-address {
-              font-size: 13px;
-              color: #00B520;
-              font-weight: bold;
-            }
-            .fed-addresses {
-                text-align: left;
-                display: block;
-            }
-            .config-section p {
-              font-size: 11px;
-              line-height: 14px;
-              margin: 0 20px;
-            }
-            #tokenListTab {
-                font-size: 13px;
-                max-width: 500px;
-                margin-bottom: 110px;
-                margin-top: 25px;
-            }
-            .tab-content .col-sm-10, .tab-content .col-sm-9, .tab-content .col-sm-8, .tab-content .col-sm-7, .tab-content .col-sm-6, 
-            .tab-content .col-sm-4, .tab-content .col-sm-3, .tab-content .col-sm-2, .tab-content .col-sm-2, .tab-content .col-sm-1
-            {
-              padding-right: 0;
-              padding-left: 0;
-            }
-            #tokenListTab .btn{
-              font-size: 14px;
-              padding: 0px;
-            }
-            #tokenListTab a {
-                color: #000;
-            }
-            @keyframes lds-circle {
-                0%, 100% {
-                    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
-                }
-                0% {
-                    transform: rotateY(0deg);
-                }
-                50% {
-                    transform: rotateY(1800deg);
-                    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
-                }
-                100% {
-                    transform: rotateY(3600deg);
-                }
-            }
-            .indicator span {
-                position: relative;
-                margin-left: 5px;
-                padding-left: 3px;
-            }
-            .indicator.btn-outline-danger span:before {
-                background-color: #dc3545;
-            }
-            .indicator span:before {
-                position: absolute;
-                right: 98%;
-                top: 50%;
-                -webkit-transform: translate(-5px,-50%);
-                transform: translate(-5px,-50%);
-                content: "";
-                display: block;
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: #40d512;
-            }
-            .token-logo {
-                width: 1.2rem;
-                height: 1.2rem;
-                margin-right: 0.5rem;
-            }
-            .dropup .dropdown-toggle::after {
-                content: "\f106";
-                font-family: 'Font Awesome 5 Free';
-                font-weight: 900;
-                border: 0;
-            }
-            .dropdown-toggle::after {
-                content: "\f107";
-                font-family: 'Font Awesome 5 Free';
-                font-weight: 900;
-                border: 0;
-                display: inline-block;
-                vertical-align: .255em;
-            }
-            .bootstrap-select>.dropdown-toggle:after {
-                margin-top: 0px;
-                font-size: 20px;
-                vertical-align: middle;
-                line-height: 25px;
-                text-align: center;
-            }
-            #wait {
-                font-family: 'Rubik';
-                font-size: 16px;
-                line-height: 19px;
-                color: #919191;
-            }
-            #txBridge, #txBridge:hover {
-                font-family: 'Rubik';
-                font-size: 12px;
-                line-height: 14px;
-                color: #919191;
-            }
-            #success, #warning, #mobile-warning {
-                padding: 0px;
-                max-width: 222px;
-            }
-            .confirmed {
-                color: #00B520;
-            }
-            .pending {
-                color: #FEAD0D;
-            }
-
-            /*Spinner*/
-            .sk-fading-circle {
-            margin: 40px auto;
-            width: 80px;
-            height: 80px;
-            position: relative;
-            }
-
-            .sk-fading-circle .sk-circle {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            left: 0;
-            top: 0;
-            }
-
-            .sk-fading-circle .sk-circle:before {
-            content: '';
-            display: block;
-            margin: 0 auto;
-            width: 15%;
-            height: 15%;
-            background-color: #333;
-            border-radius: 100%;
-            -webkit-animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
-                    animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
-            }
-            .sk-fading-circle .sk-circle2 {
-            -webkit-transform: rotate(30deg);
-                -ms-transform: rotate(30deg);
-                    transform: rotate(30deg);
-            }
-            .sk-fading-circle .sk-circle3 {
-            -webkit-transform: rotate(60deg);
-                -ms-transform: rotate(60deg);
-                    transform: rotate(60deg);
-            }
-            .sk-fading-circle .sk-circle4 {
-            -webkit-transform: rotate(90deg);
-                -ms-transform: rotate(90deg);
-                    transform: rotate(90deg);
-            }
-            .sk-fading-circle .sk-circle5 {
-            -webkit-transform: rotate(120deg);
-                -ms-transform: rotate(120deg);
-                    transform: rotate(120deg);
-            }
-            .sk-fading-circle .sk-circle6 {
-            -webkit-transform: rotate(150deg);
-                -ms-transform: rotate(150deg);
-                    transform: rotate(150deg);
-            }
-            .sk-fading-circle .sk-circle7 {
-            -webkit-transform: rotate(180deg);
-                -ms-transform: rotate(180deg);
-                    transform: rotate(180deg);
-            }
-            .sk-fading-circle .sk-circle8 {
-            -webkit-transform: rotate(210deg);
-                -ms-transform: rotate(210deg);
-                    transform: rotate(210deg);
-            }
-            .sk-fading-circle .sk-circle9 {
-            -webkit-transform: rotate(240deg);
-                -ms-transform: rotate(240deg);
-                    transform: rotate(240deg);
-            }
-            .sk-fading-circle .sk-circle10 {
-            -webkit-transform: rotate(270deg);
-                -ms-transform: rotate(270deg);
-                    transform: rotate(270deg);
-            }
-            .sk-fading-circle .sk-circle11 {
-            -webkit-transform: rotate(300deg);
-                -ms-transform: rotate(300deg);
-                    transform: rotate(300deg);
-            }
-            .sk-fading-circle .sk-circle12 {
-            -webkit-transform: rotate(330deg);
-                -ms-transform: rotate(330deg);
-                    transform: rotate(330deg);
-            }
-            .sk-fading-circle .sk-circle2:before {
-            -webkit-animation-delay: -1.1s;
-                    animation-delay: -1.1s;
-            }
-            .sk-fading-circle .sk-circle3:before {
-            -webkit-animation-delay: -1s;
-                    animation-delay: -1s;
-            }
-            .sk-fading-circle .sk-circle4:before {
-            -webkit-animation-delay: -0.9s;
-                    animation-delay: -0.9s;
-            }
-            .sk-fading-circle .sk-circle5:before {
-            -webkit-animation-delay: -0.8s;
-                    animation-delay: -0.8s;
-            }
-            .sk-fading-circle .sk-circle6:before {
-            -webkit-animation-delay: -0.7s;
-                    animation-delay: -0.7s;
-            }
-            .sk-fading-circle .sk-circle7:before {
-            -webkit-animation-delay: -0.6s;
-                    animation-delay: -0.6s;
-            }
-            .sk-fading-circle .sk-circle8:before {
-            -webkit-animation-delay: -0.5s;
-                    animation-delay: -0.5s;
-            }
-            .sk-fading-circle .sk-circle9:before {
-            -webkit-animation-delay: -0.4s;
-                    animation-delay: -0.4s;
-            }
-            .sk-fading-circle .sk-circle10:before {
-            -webkit-animation-delay: -0.3s;
-                    animation-delay: -0.3s;
-            }
-            .sk-fading-circle .sk-circle11:before {
-            -webkit-animation-delay: -0.2s;
-                    animation-delay: -0.2s;
-            }
-            .sk-fading-circle .sk-circle12:before {
-            -webkit-animation-delay: -0.1s;
-                    animation-delay: -0.1s;
-            }
-
-            /* this is added because rLogin is wrongly displayed */
-            .navbar {
-                position: inherit;
-            }
-
-            @-webkit-keyframes sk-circleFadeDelay {
-            0%, 39%, 100% { opacity: 0; }
-            40% { opacity: 1; }
-            }
-
-            @keyframes sk-circleFadeDelay {
-            0%, 39%, 100% { opacity: 0; }
-            40% { opacity: 1; }
-            }
-
-            table.table tr th:last-child, table.table tr td:last-child {
-                text-align: center;
-            }
-        </style>
+        <link href="./styles.css" rel="stylesheet">
     </head>
     <body>
         <section id="main">
@@ -613,7 +100,12 @@
                     <h1 id="title">RSK bridges with Ethereum</h1>
                     <h5 class="subtitle">You can convert your tokens from RSK to Ethereum and viceversa.</h5>
                 </div>
-                <div id="transferTab" class="align-center disabled">
+                <div class="row justify-content-center">
+                    <div class="text-center col-lg-4 col-md-6 col-12">
+                        <img src="logo.jpg" alt="token bridge logo">
+                    </div>
+                </div>
+                <div id="transferTab" class=" align-center disabled">
                     <div class="row justify-content-center network">
                         <div class="col-4 text-center">
                             <span class="fromNetwork">From Network</span>
@@ -656,21 +148,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="" style="min-height: 60px;">
-                            <div class="fees text-center mt-2" style="display:none">
-                                <p>Service fee: <span id="serviceFee"></span> <span class="selectedToken"></span></p>
-                                <p>Total cost: <span class="black"><span id="totalCost"></span> <span class="selectedToken"></span></span></p>
-                            </div>
+                        <div class="fees text-center mt-2" style="display:none">
+                            <p>Service fee: <span id="serviceFee"></span> <span class="selectedToken"></span></p>
+                            <p>Total cost: <span class="black"><span id="totalCost"></span> <span class="selectedToken"></span></span></p>
                         </div>
-
                         <div class="row justify-content-center">
                             <div class="mt-2">Estimated time to cross tokens <b id="timeToCross"></b></div>
                         </div>
                         <div class="row justify-content-center">
                             <div class="approve-deposit">
                                 <button disabled id="approve" class="btn btn-primary mr-3 mt-3 mb-3">Approve</button>
+                                <div class="form-check">
+                                    <input disabled checked type="checkbox" class="form-check-input" id="doNotAskAgain">
+                                    <label class="form-check-label" for="doNotAskAgain">Do not ask me again</label>
+                                </div>
                             </div>
-                            <button disabled id="deposit" type="submit" class="btn btn-primary ml-3 mt-3 mb-3">Convert tokens</button>
+                            <button disbaled id="deposit" type="submit" class="btn btn-primary ml-3 mt-3 mb-3">Convert tokens</button>
                         </div>
 
                         <div id="wait" class="mt-3 align-center text-center" style="max-width:350px; line-height: 16px; display:none;">
@@ -696,28 +189,11 @@
                                 Please <b>do not close this tab</b> until the process has finished.
                             </div>
                         </div>
-                        <div id="mobile-warning" class="mt-3 align-center text-center alert alert-dismissible fade show" style="display:none;">
-                            <div class="outline-rounded outline-rounded-warning">
-                                <div style="font-size: 32px;"><i class="fas fa-exclamation"></i></div>
-                                <div>Please recall that if you are connecting with Defiant wallet, using MetaMask derivation path is recommended for your Ethereum & RSK addresses to match </div>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        </div>
+
                         <div id="success" class="mt-3 align-center text-center alert alert-dismissible fade show" style="display:none;">
                             <div class="outline-rounded">
                                 <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
                                 <div>You will receive <span id="receive" class="black">126 rKovDAI</span> in your wallet in aproximately <span id="confirmationTime">X minutes</span></div>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="warning" class="mt-3 align-center text-center alert alert-dismissible fade show" style="display:none;">
-                            <div class="outline-rounded outline-rounded-warning">
-                                <div style="font-size: 32px;"><i class="fas fa-exclamation"></i></div>
-                                <div>Your transaction <span id="warning-tx" class="black"></span> could not be confirmed, Please check it manually</div>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -806,14 +282,14 @@
                             <span class="config-value mb-2" id="config-max">-</span>
                             <span class="config-title">Max transfer allowed</span>
                             <p>
-                                The max value of tokens that can be tranferred per day
+                                The max value of tokens that can be tranferred per operation
                             </p>
                         </div>
                         <div class="col-md-4 col-sm-4 mb-5 config-section">
                             <span class="config-value mb-2" id="config-min">-</span>
                             <span class="config-title">Min transfer allowed</span>
                             <p>
-                                The min value of tokens that can be transferred per day
+                                The min value of tokens that can be transferred per operation
                             </p>
                         </div>
                         <div class="col-md-4 col-sm-4 mb-5 config-section">
@@ -945,24 +421,27 @@
         </footer>
         <div id="js">
             <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js" integrity="sha512-/DXTXr6nQodMUiq+IUJYCt2PPOUjrHJ9wFrqpJ3XkgPNOZVfMok7cRw6CSxyCQxXn6ozlESsSh1/sMCTF1rL/g==" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
             <!-- Bootstrap Select https://developer.snapappointments.com/bootstrap-select/ -->
             <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js" integrity="sha384-SfMwgGnc3UiUUZF50PsPetXLqH2HSl/FmkMW/Ja3N2WaJ/fHLbCHPUsXzzrM6aet" crossorigin="anonymous"></script>
             <!-- Updated Web3.js as MetaMsak uses 0.20.7 version -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.3.5/web3.min.js" integrity="sha512-S/O+gH5szs/+/dUylm15Jp/JZJsIoWlpSVMwT6yAS4Rh7kazaRUxSzFBwnqE2/jBphcr7xovTQJaopiEZAzi+A==" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.2/web3.min.js" integrity="sha384-5twr//DBZLxyCKhyQ993lJO6PM05f8HW/rTdv6zWhe8xgS8XAHH15oIcGFBTdwmM" crossorigin="anonymous"></script>
             <!-- bignumber.js -->
             <script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/9.0.0/bignumber.min.js" integrity="sha384-W92bSiy/NxoN+p5YNhm8ybWnIFnqtH0/Bxc4l9jojSsPK2KQdOvQonrRBon0O/om" crossorigin="anonymous"></script>
             <!-- Copy to Clipboard https://clipboardjs.com/ -->
             <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha384-8CYhPwYlLELodlcQV713V9ZikA3DlCVaXFDpjHfP8Z36gpddf/Vrt47XmKDsCttu" crossorigin="anonymous"></script>
             <!-- rLogin -->
-            <script src="https://unpkg.com/@rsksmart/rlogin@0.1.2/dist/main.js" integrity="sha384-OF4i3QYuqobWkAUdUS5XJ8XNKpsfo8TQ7ABflBzTmH9m1AlsrTsVDypZ/wNJgEZZ" crossorigin="anonymous"></script>
+            <script src="https://unpkg.com/@rsksmart/rlogin@0.1.1/dist/main.js" integrity="sha384-BxkfkiqvSWCwmBJpdpHlhY1vJDZj/fYQI76nvqsTCMoYgoJEWGXQW2O/1wqNeudb" crossorigin="anonymous"></script>
             <!-- Wallet Connect -->
             <script src="https://unpkg.com/@walletconnect/web3-provider@1.3.1/dist/umd/index.min.js" integrity="sha384-DOJahViDNA9y40Y+NIb/qcO4Cxfe58MRJvtlIzdHdHRrnnhppgFGnipStRNW2DXG" crossorigin="anonymous"></script>
             <!-- async-await-retry  https://github.com/VoodooTeam/async-await-retry -->
             <script src="./txns-storage.js"></script>
             <!--- local Storage Static utilities -->
+            <!-- --------- TOKENS import TOKENS variable  -------------- -->
+            <script src="./tokens.js"></script>
+            <!-- async-await-retry  https://github.com/VoodooTeam/async-await-retry -->
             <script>
                 const getPromise = (fn, args) => {
                     return new Promise((resolve, reject) => {
@@ -1030,6 +509,8 @@
 
                     return intervalId;
                 };
+
+
 
                 async function waitForReceipt(txHash) {
                     let timeElapsed = 0;
@@ -1123,11 +604,6 @@
                 let pollingLastBlockIntervalId = 0;
 
                 $(document).ready(function() {
-
-                    if(window.matchMedia("(max-width: 767px)").matches){
-                        showMobileMessage();
-                    }
-
                     new ClipboardJS('.copy');
                     $('[data-toggle="tooltip"]').tooltip();
                     $('.selectpicker').selectpicker();
@@ -1150,26 +626,20 @@
                     disableInputs(true);
                     disableApproveCross({
                         approvalDisable: true,
+                        doNotAskDisabled: true,
                         crossDisabled: true
                     });
-
-                    const amountInput = $('#amount')[0];
-                    amountInput.addEventListener('input', function() {
-                        var duration = 1000;
-                        clearTimeout(amountInput._timer);
-                        amountInput._timer = setTimeout(checkAllowance, duration);
-                    })
 
                     $('#logIn').attr('onclick', 'onLogInClick()');
 
                     let rpc = {
-                        1: 'https://mainnet.infura.io/v3/71a25cd2ef2b4f6ab89b2e47a5b81b84',
+                        1: 'https://mainnet.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
                         30: 'https://public-node.rsk.co',
                     };
                     supportedChains = [1,30];
                     if(isTestnet) {
                         rpc = {
-                            42: 'https://kovan.infura.io/v3/71a25cd2ef2b4f6ab89b2e47a5b81b84',
+                            42: 'https://kovan.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
                             31: 'https://public-node.testnet.rsk.co',
                         };
                         supportedChains = [42,31];
@@ -1256,6 +726,24 @@
                     // isInstalled(); - uncomment to show popup on page load
                 });
 
+                async function waitForReceipt(txHash) {
+                    let timeElapsed = 0;
+                    let interval = 10_000;
+                    return new Promise((resolve, reject) => {
+                        const checkInterval = setInterval(async () => {
+                            timeElapsed += interval;
+                            let receipt = await web3.eth.getTransactionReceipt(txHash);
+                            if(receipt != null) {
+                                clearInterval(checkInterval);
+                                resolve(receipt);
+                            }
+                            if(timeElapsed > 90_000) {
+                                reject(new Error(`Operation took too long <a target="_blank" href="${config.explorer}/tx/${txHash}">check Tx on the explorer</a>`));
+                            }
+                        }, interval);
+                    });
+                }
+
                 function onLogInClick() {
                     if(!config) {
                         $('#logIn').html('<i class="fas fa-sync fa-spin">');
@@ -1306,20 +794,26 @@
                 async function setInfoTab() {
                   try {
                     // Dinamically get the values, this is comented as the public node some times throws errors
-                    [maxWithdraw, maxAllowed, minAllowed, federators] = await Promise.all([
-                      retry3Times(allowTokensContract.methods.dailyLimit().call),
-                      retry3Times(allowTokensContract.methods.getMaxTokensAllowed().call),
-                      retry3Times(allowTokensContract.methods.getMinTokensAllowed().call),
-                      retry3Times(federationContract.methods.getMembers().call),
-                    ]);
-                    minTokensAllowed = parseInt(web3.utils.fromWei(minAllowed, 'ether'));
-                    maxTokensAllowed = parseInt(web3.utils.fromWei(maxAllowed, 'ether'));
-                    maxDailyLimit = parseInt(web3.utils.fromWei(maxWithdraw, 'ether'));
-
+                    // let [maxWithdraw, maxAllowed, minAllowed, federators, isValidatingAllowedTokens] = await Promise.all([
+                    //   retry3Times(allowTokensContract.methods.dailyLimit().call),
+                    //   retry3Times(allowTokensContract.methods.getMaxTokensAllowed().call),
+                    //   retry3Times(allowTokensContract.methods.getMinTokensAllowed().call),
+                    //   retry3Times(federationContract.methods.getMembers().call),
+                    //   retry3Times(allowTokensContract.methods.isValidatingAllowedTokens().call),
+                    // ]);
+                    // minTokensAllowed = parseInt(web3.utils.fromWei(minAllowed, 'ether'));
+                    // maxTokensAllowed = parseInt(web3.utils.fromWei(maxAllowed, 'ether'));
+                    // maxDailyLimit = parseInt(web3.utils.fromWei(maxWithdraw, 'ether'));
+                    
+                    //Harcoded values that don't change often to reduce load on the public server
+                    minTokensAllowed = 1;
+                    maxTokensAllowed = 10_000;
+                    maxDailyLimit = 100_000;
                     feePercentage = await retry3Times(bridgeContract.methods.getFeePercentage().call);
                     fee = feePercentage/feePercentageDivider;
                     let feeFormated = (fee*100).toFixed(2) + '%';
                     let isValidatingAllowedTokens = true;
+                    let federators = await retry3Times(federationContract.methods.getMembers().call);
 
                     $('#fee').html(feeFormated);
                     $('#config-fee').text(feeFormated);
@@ -1365,12 +859,14 @@
                 }
 
                 async function approveSpend() {
+
                     var tokenToCross = $('#tokenAddress').val();
                     var token = TOKENS.find(element => element.token == tokenToCross);
                     if(!token) {
                         crossTokenError('Choose a token to cross');
                         return;
                     }
+                    const isUnlimitedApproval = $('#doNotAskAgain').prop('checked');
                     const BN = web3.utils.BN;
                     const amount = $('#amount').val();
 
@@ -1384,7 +880,21 @@
                     }
 
                     const decimals = token[config.networkId].decimals;
-                    const amountBN = new BN(web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'));
+                    const splittedAmount = amount.split('.');
+                    var amountWithDecimals = splittedAmount[0];
+                    for(i=0; i < decimals; i++) {
+                        if(splittedAmount[1] && i < splittedAmount[1].length) {
+                            amountWithDecimals += splittedAmount[1][i];
+                        } else {
+                            amountWithDecimals += '0';
+                        }
+                    }
+
+                    const amountBN = isUnlimitedApproval ?
+                        new BN(web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether')) :
+                        new BN(amountWithDecimals)
+                            .mul(new BN(feePercentageDivider))
+                            .div(new BN(feePercentageDivider - feePercentage));
 
                     var gasPriceParsed = 0;
                     if(config.networkId >= 30 && config.networkId <= 33) {
@@ -1399,84 +909,45 @@
                     gasPrice = `0x${Math.ceil(gasPriceParsed).toString(16)}`;
 
                     $('#wait').show();
-                    // approve disabled, cross tokens enabled
-                    disableApproveCross({
-                        approvalDisable: true,
-                        crossDisabled: true
-                    });
 
-                    return Promise.resolve().then(() => {
-                        return new Promise(async (resolve, reject) => {
-                            if (config.networkId == 1 && token.token === 'USDT') {
-                                const allowance = await retry3Times(tokenContract.methods.allowance(address, bridgeContract.options.address).call);
-                                if (allowance.toString() != '0') {
-                                    // To change the approve amount you first have to reduce the addresses
-                                    // allowance to zero by calling `approve(_spender, 0)` for USDT
-                                    // https://etherscan.io/address/0xdac17f958d2ee523a2206206994597c13d831ec7#code
-                                    tokenContract.methods.approve(bridgeContract.options.address, '0')
-                                        .send({from: address, gasPrice:gasPrice, gas:70_000}, async (err, txHash) => {
-                                        if (err) return reject(err);
-                                            try {
-                                            let receipt = await waitForReceipt(txHash);
-                                            if(receipt.status) {
-                                                resolve(receipt);
-                                            }
-                                        } catch(err) {
-                                            reject(err);
-                                        }
-                                        reject(new Error(`Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`));
-                                    });
-                                } else {
-                                    resolve();
+                    return new Promise((resolve, reject) => {
+
+                        tokenContract.methods.approve(bridgeContract.options.address, amountBN.mul(new BN(101)).div(new BN(100)).toString())
+                            .send({from: address, gasPrice:gasPrice, gas:70_000}, async (err, txHash) => {
+                            if (err) return reject(err);
+                                try {
+                                let receipt = await waitForReceipt(txHash);
+                                if(receipt.status) {
+                                    resolve(receipt);
                                 }
-                            } else {
-                                resolve();
+                            } catch(err) {
+                                reject(err);
                             }
-                        })
+                            reject(new Error(`Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`));
+                        });
                     }).then(() => {
-                        return new Promise(async (resolve, reject) => {
-                            tokenContract.methods.approve(bridgeContract.options.address, amountBN.toString())
-                                .send({from: address, gasPrice:gasPrice, gas:70_000}, async (err, txHash) => {
-                                if (err) return reject(err);
-                                    try {
-                                    let receipt = await waitForReceipt(txHash);
-                                    if(receipt.status) {
-                                        resolve(receipt);
-                                    }
-                                } catch(err) {
-                                    reject(err);
-                                }
-                                reject(new Error(`Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`));
-                            });
-                        })
-                    }).then(() => {
+
                         $('#wait').hide();
+
                         // approve disabled, cross tokens enabled
                         disableApproveCross({
                             approvalDisable: true,
+                            doNotAskDisabled: true,
                             crossDisabled: false
                         });
                     })
                     .catch((err) => {
 
-                        const { code = 0 } = err;
-                        if(code === 4001) { // user rejected Approve txn
-                           // approve enabled, cross tokens disabled
-                            disableApproveCross({
-                                approvalDisable: false,
-                                crossDisabled: true
-                            });
-                        }  else {
-                            console.error(err);
-                            crossTokenError(`Couldn't approve amount. ${err.message}`);
-
-                            // all options disabled:
-                            disableApproveCross({
-                                approvalDisable: true,
-                                crossDisabled: true
-                            });
-                        }
                         $('#wait').hide();
+                        console.error(err);
+                        crossTokenError(`Couldn't approve amount. ${err.message}`);
+
+                        // all options disabled:
+                        disableApproveCross({
+                            approvalDisable: true,
+                            doNotAskDisabled: true,
+                            crossDisabled: true
+                        });
                     })
                 }
 
@@ -1522,13 +993,6 @@
                     $('#wait').show();
                     let gasPrice = '';
 
-                    // approve disabled, cross tokens disabled
-                    disableApproveCross({
-                        approvalDisable: true,
-                        crossDisabled: true
-                    });
-
-                    let txn_hash = '';
                     return retry3Times(tokenContract.methods.balanceOf(address).call)
                     .then(async (balance) => {
                         const balanceBN = new BN(balance);
@@ -1560,8 +1024,13 @@
                                 .send({from: address, gasPrice:gasPrice, gas:250_000}, async (err, txHash) => {
                                 if (err) return reject(err);
                                 try {
-                                    txn_hash = txHash;
                                     let receipt = await waitForReceipt(txHash);
+
+                                    disableApproveCross({
+                                        approvalDisable: true,
+                                        doNotAskDisabled: true,
+                                        crossDisabled: true
+                                    })
 
                                     if(receipt.status) {
                                         resolve(receipt);
@@ -1593,27 +1062,9 @@
                         showActiveAddressTXNs();
 
                     }).catch((err) => {
-                        if(err.name === 'Timeout') {
-                            // save pending transaction to local storage...
-                            TXN_Storage.addTxn(address, config.name, {
-                                networkId: config.networkId,
-                                tokenFrom: token[config.networkId].symbol,
-                                tokenTo: token[config.crossToNetwork.networkId].symbol,
-                                amount,
-                                transactionHash: txn_hash,
-                                status: false
-                            });
-
-                            updateActiveAddressTXNs(address);
-                            showActiveTxnsTab();
-                            showActiveAddressTXNs();
-                            warningMessage(txn_hash);
-                        } else {
-                            console.error(err);
-                            crossTokenError(`Couln't cross the tokens. ${err.message}`);
-                        }
-
                         $('#wait').hide();
+                        console.error(err);
+                        crossTokenError(`Couln't cross the tokens. ${err.message}`);
                     });
                 }
 
@@ -1624,22 +1075,6 @@
                 function cleanAlertError() {
                     $('#alert-danger-text').html('');
                     $('#alert-danger').hide();
-                }
-
-                function showMobileMessage() {
-                    $('#mobile-warning').show();
-                }
-
-                function warningMessage(txn) {
-                    const txnLink = `<a target="_blank" href="${config.explorer}/tx/${txn}">
-                        ${`${txn.substring(0, 4)}...${txn.slice(-4)}`}
-                    </a>`;
-                    $('#warning-tx').html(txnLink);
-                    $('#warning').show();
-                }
-
-                function cleanWarningMessage() {
-                    $('#warning').hide();
                 }
 
                 function crossTokenError(err) {
@@ -1676,19 +1111,22 @@
                     tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
 
                     let allowance = await retry3Times(tokenContract.methods.allowance(address, bridgeContract.options.address).call);
-                    let allowanceBN = (new BigNumber(allowance.toString())).div(10**(token[config.networkId].decimals));
+                    allowance = web3.utils.fromWei(allowance);
+                    let allowanceBN = new BigNumber(allowance);
 
                     if(totalCost.lte(allowanceBN)) {
                         $('.approve-deposit').hide();
                         // straight to convert
                         disableApproveCross({
                             approvalDisable: true,
+                            doNotAskDisabled: true,
                             crossDisabled: false
                         });
                     } else {
                         // user must first approve amount
                         disableApproveCross({
                             approvalDisable: false,
+                            doNotAskDisabled: false,
                             crossDisabled: true
                         });
                         $('.approve-deposit').show();
@@ -1704,17 +1142,19 @@
 
                         disableApproveCross({
                             approvalDisable: true,
+                            doNotAskDisabled: true,
                             crossDisabled: true
                         });
 
                         return;
                     }
                     let parsedAmount = new BigNumber(amount);
-                    if (parsedAmount <= 0) {
+                    if(parsedAmount <= 0) {
                         markInvalidAmount("Must be bigger than 0");
 
                         disableApproveCross({
                             approvalDisable: true,
+                            doNotAskDisabled: true,
                             crossDisabled: true
                         });
 
@@ -1742,6 +1182,7 @@
 
                         disableApproveCross({
                             approvalDisable: true,
+                            doNotAskDisabled: true,
                             crossDisabled: true
                         });
 
@@ -1776,11 +1217,9 @@
                         showActiveTxnsTab();
                     });
                     provider.on('accountsChanged', function(newAddresses) {
+                        checkAllowance();
                         updateAddress(newAddresses).then(
-                            (addr) => {
-                                updateActiveAddressTXNs(addr);
-                                checkAllowance();
-                            }
+                            (addr) => updateActiveAddressTXNs(addr)
                         ).then(() => showActiveAddressTXNs());
                     });
                     return chainId;
@@ -1804,11 +1243,14 @@
                     address = '';
                 }
 
+
                 function disableApproveCross({
                     approvalDisable = true,
+                    doNotAskDisabled = true,
                     crossDisabled = true
                 }) {
                     $('#approve').prop('disabled', approvalDisable);
+                    $('#doNotAskAgain').prop('disabled', doNotAskDisabled);
                     $('#deposit').prop('disabled', crossDisabled);
                 }
 
@@ -1829,6 +1271,7 @@
                     disableInputs(false);
                     disableApproveCross({
                         approvalDisable: true,
+                        doNotAskDisabled: true,
                         crossDisabled: true
                     });
                 }
@@ -2066,8 +1509,7 @@
                         if (TXN_Storage.isStorageAvailable('localStorage')) {
                             console.log(`Local Storage Available!`);
                         } else {
-                            // TODO this should be a popup warning the user
-                            console.error(`Local Storage Unavailable!`);
+                            console.log(`Local Storage Unavailable!`);
                         }
 
                     } catch(err) {
@@ -2170,7 +1612,7 @@
                     explorer: 'https://explorer.testnet.rsk.co',
                     explorerTokenTab: '?__tab=tokens%20transfers',
                     confirmations: 10,
-                    confirmationTime: '50 seconds',
+                    confirmationTime: '3 minutes',
                     secondsPerBlock: 30,
                     crossToNetwork: KOVAN_CONFIG
                 };
@@ -2206,127 +1648,24 @@
                 // --------- CONFIGS  END --------------
 
                 // --------- ABI --------------
-                const BRIDGE_ABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_tokenAddress","type":"address"},{"indexed":true,"internalType":"address","name":"_to","type":"address"},{"indexed":false,"internalType":"uint256","name":"_amount","type":"uint256"},{"indexed":false,"internalType":"uint8","name":"_decimals","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"_granularity","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"_formattedAmount","type":"uint256"},{"indexed":false,"internalType":"uint8","name":"_calculatedDecimals","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"_calculatedGranularity","type":"uint256"}],"name":"AcceptedCrossTransfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_tokenAddress","type":"address"},{"indexed":true,"internalType":"address","name":"_to","type":"address"},{"indexed":false,"internalType":"uint256","name":"_amount","type":"uint256"},{"indexed":false,"internalType":"string","name":"_symbol","type":"string"},{"indexed":false,"internalType":"bytes","name":"_userData","type":"bytes"},{"indexed":false,"internalType":"uint8","name":"_decimals","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"_granularity","type":"uint256"}],"name":"Cross","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"_newFederation","type":"address"}],"name":"FederationChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"FeePercentageChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_newSideTokenAddress","type":"address"},{"indexed":true,"internalType":"address","name":"_originalTokenAddress","type":"address"},{"indexed":false,"internalType":"string","name":"_newSymbol","type":"string"},{"indexed":false,"internalType":"uint256","name":"_granularity","type":"uint256"}],"name":"NewSideToken","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Paused","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"}],"name":"PauserAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"}],"name":"PauserRemoved","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"_newSideTokenFactory","type":"address"}],"name":"SideTokenFactoryChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Unpaused","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bool","name":"isUpgrading","type":"bool"}],"name":"Upgrading","type":"event"},{"constant":false,"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"addPauser","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"allowTokens","outputs":[{"internalType":"contract AllowTokens","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"feePercentageDivider","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isOwner","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"isPauser","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isUpgrading","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"knownTokens","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"mappedTokens","outputs":[{"internalType":"contract ISideToken","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"originalTokens","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"pause","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"processed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"renounceOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"renouncePauser","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"sideTokenFactory","outputs":[{"internalType":"contract ISideTokenFactory","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"spentToday","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbolPrefix","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"unpause","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_manager","type":"address"},{"internalType":"address","name":"_federation","type":"address"},{"internalType":"address","name":"_allowTokens","type":"address"},{"internalType":"address","name":"_sideTokenFactory","type":"address"},{"internalType":"string","name":"_symbolPrefix","type":"string"}],"name":"initialize","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"initialize","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"initialize","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"version","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"},{"internalType":"address","name":"receiver","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"string","name":"symbol","type":"string"},{"internalType":"bytes32","name":"blockHash","type":"bytes32"},{"internalType":"bytes32","name":"transactionHash","type":"bytes32"},{"internalType":"uint32","name":"logIndex","type":"uint32"},{"internalType":"uint8","name":"decimals","type":"uint8"},{"internalType":"uint256","name":"granularity","type":"uint256"}],"name":"acceptTransfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"tokenToUse","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"receiveTokens","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"bytes","name":"","type":"bytes"}],"name":"tokensReceived","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"bytes32","name":"_blockHash","type":"bytes32"},{"internalType":"bytes32","name":"_transactionHash","type":"bytes32"},{"internalType":"address","name":"_receiver","type":"address"},{"internalType":"uint256","name":"_amount","type":"uint256"},{"internalType":"uint32","name":"_logIndex","type":"uint32"}],"name":"getTransactionId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"setFeePercentage","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getFeePercentage","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"calcMaxWithdraw","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"newFederation","type":"address"}],"name":"changeFederation","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getFederation","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"newSideTokenFactory","type":"address"}],"name":"changeSideTokenFactory","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"startUpgrade","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"endUpgrade","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]
-                const ALLOW_TOKENS_ABI = [{"inputs":[{"internalType":"address","name":"_manager","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_tokenAddress","type":"address"}],"name":"AllowedTokenAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_tokenAddress","type":"address"}],"name":"AllowedTokenRemoved","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bool","name":"_enabled","type":"bool"}],"name":"AllowedTokenValidation","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"dailyLimit","type":"uint256"}],"name":"DailyLimitChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_maxTokens","type":"uint256"}],"name":"MaxTokensAllowedChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_minTokens","type":"uint256"}],"name":"MinTokensAllowedChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"allowedTokens","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"dailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isOwner","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"renounceOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"isValidatingAllowedTokens","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getMaxTokensAllowed","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getMinTokensAllowed","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"isTokenAllowed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"addAllowedToken","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"removeAllowedToken","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"enableAllowedTokensValidation","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"disableAllowedTokensValidation","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"maxTokens","type":"uint256"}],"name":"setMaxTokensAllowed","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"minTokens","type":"uint256"}],"name":"setMinTokensAllowed","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"_dailyLimit","type":"uint256"}],"name":"changeDailyLimit","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"tokenToUse","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"spentToday","type":"uint256"},{"internalType":"bool","name":"isSideToken","type":"bool"}],"name":"isValidTokenTransfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"uint256","name":"spentToday","type":"uint256"}],"name":"calcMaxWithdraw","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}];
-
-                const ERC20_ABI = [{"inputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"symbol","type":"string"},{"internalType":"uint8","name":"decimals","type":"uint8"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":true,"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}];
-
-                const FEDERATION_ABI = [{"inputs":[{"internalType":"address[]","name":"_members","type":"address[]"},{"internalType":"uint256","name":"_required","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"bridge","type":"address"}],"name":"BridgeChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"transactionId","type":"bytes32"}],"name":"Executed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"member","type":"address"}],"name":"MemberAddition","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"member","type":"address"}],"name":"MemberRemoval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"required","type":"uint256"}],"name":"RequirementChange","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":true,"internalType":"bytes32","name":"transactionId","type":"bytes32"},{"indexed":false,"internalType":"address","name":"originalTokenAddress","type":"address"},{"indexed":false,"internalType":"address","name":"receiver","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"string","name":"symbol","type":"string"},{"indexed":false,"internalType":"bytes32","name":"blockHash","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"transactionHash","type":"bytes32"},{"indexed":false,"internalType":"uint32","name":"logIndex","type":"uint32"},{"indexed":false,"internalType":"uint8","name":"decimals","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"granularity","type":"uint256"}],"name":"Voted","type":"event"},{"constant":true,"inputs":[],"name":"MAX_MEMBER_COUNT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"bridge","outputs":[{"internalType":"contract IBridge_v1","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"isMember","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isOwner","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"members","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"processed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"renounceOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"required","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"},{"internalType":"address","name":"","type":"address"}],"name":"votes","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_bridge","type":"address"}],"name":"setBridge","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"originalTokenAddress","type":"address"},{"internalType":"address","name":"receiver","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"string","name":"symbol","type":"string"},{"internalType":"bytes32","name":"blockHash","type":"bytes32"},{"internalType":"bytes32","name":"transactionHash","type":"bytes32"},{"internalType":"uint32","name":"logIndex","type":"uint32"},{"internalType":"uint8","name":"decimals","type":"uint8"},{"internalType":"uint256","name":"granularity","type":"uint256"}],"name":"voteTransaction","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"bytes32","name":"transactionId","type":"bytes32"}],"name":"getTransactionCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"bytes32","name":"transactionId","type":"bytes32"}],"name":"hasVoted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"bytes32","name":"transactionId","type":"bytes32"}],"name":"transactionWasProcessed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"originalTokenAddress","type":"address"},{"internalType":"address","name":"receiver","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"string","name":"symbol","type":"string"},{"internalType":"bytes32","name":"blockHash","type":"bytes32"},{"internalType":"bytes32","name":"transactionHash","type":"bytes32"},{"internalType":"uint32","name":"logIndex","type":"uint32"},{"internalType":"uint8","name":"decimals","type":"uint8"},{"internalType":"uint256","name":"granularity","type":"uint256"}],"name":"getTransactionId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"payable":false,"stateMutability":"pure","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_newMember","type":"address"}],"name":"addMember","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_oldMember","type":"address"}],"name":"removeMember","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getMembers","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"_required","type":"uint256"}],"name":"changeRequirement","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+                $.ajaxSetup({ cache: false });
+                var BRIDGE_ABI;
+                $.getJSON("/abis/bridge.json", function(json) {
+                    BRIDGE_ABI = json;
+                });
+                var ALLOW_TOKENS_ABI;
+                $.getJSON("/abis/allowTokens.json", function(json) {
+                    ALLOW_TOKENS_ABI = json;
+                });
+                var ERC20_ABI;
+                $.getJSON("/abis/erc20.json", function(json) {
+                    ERC20_ABI = json;
+                });
+                var FEDERATION_ABI;
+                $.getJSON("/abis/federation.json", function(json) {
+                    FEDERATION_ABI = json;
+                });
                 // --------- ABI  END --------------
-
-                // --------- TOKENS --------------
-                const DOC_TOKEN = { token: 'DOC', name: 'Dollar on Chain', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/doc.png',
-                    30:{symbol:'DOC', address:'0xe700691da7b9851f2f35f8b8182c69c53ccad9db', decimals:18},
-                    31:{symbol:'DOC', address:'0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0', decimals:18},
-                    1:{symbol:'eDOC', address:'0x69f6d4D4813F8e2e618DAE7572e04b6D5329E207', decimals:18},
-                    42:{symbol:'eDOC', address:'0x09a8f2041Be23e8eC3c72790C9A92089BC70FbCa', decimals:18}
-                };
-
-                const DAI_TOKEN = { token: 'DAI', name: 'Dai Stablecoin', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-                    30:{symbol:'rDAI', address:'0x6b1a73d547f4009a26b8485b63d7015d248ad406', decimals:18},
-                    31:{symbol:'rKovDAI', address:'0x7b846216a194c69bb1ea52ea8faa92d314866451', decimals:18},
-                    1:{symbol:'DAI', address:'0x6b175474e89094c44da98b954eedeac495271d0f', decimals:18},
-                    42:{symbol:'DAI', address:'0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', decimals:18}
-                };
-
-                const SAI_TOKEN = { token: 'SAI', name: 'Sai Stablecoin', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-testnet-contract-metadata/master/images/sai.png',   
-                    31:{symbol:'rKovSAI', address:'0x0d86fca9be034a363cf12c9834af08d54a10451c', decimals:18},
-                    42:{symbol:'SAI', address:'0xc7cc3413f169a027dccfeffe5208ca4f38ef0c40', decimals:18}
-                };
-
-                const INV_TOKEN = { token: 'INV', name: 'Invest', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/inv.png',
-                    30:{symbol:'INV', address:'0xe0cff8a40f540657c62eb4cac34b915e5ed8d8ff', decimals:18},
-                    42:{symbol:'DAI', address:'0xc7cc3413f169a027dccfeffe5208ca4f38ef0c40', decimals:18}
-                };
-
-                const BITPRO_TOKEN = { token: 'BITPRO', name: 'BitPro', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/bpro.png',
-                    31:{symbol:'BITPRO', address:'0x4da7997a819bb46b6758b9102234c289dd2ad3bf', decimals:18},
-                    42:{symbol:'eBITPRO', address:'0xB3c9ec8833bfA0d382a183EcED27aBc079520928', decimals:18},
-                };
-
-                const RIF_TOKEN = { token: 'RIF', name: 'RIF', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/rif.png',
-                    30:{symbol:'RIF', address:'0x2acc95758f8b5f583470ba265eb685a8f45fc9d5', decimals:18},
-                    31:{symbol:'tRIF', address:'0x19f64674d8a5b4e652319f5e239efd3bc969a1fe', decimals:18},
-                    1:{symbol:'eRIF', address:'0x73c08467e23f7dcb7ddbbc8d05041b74467a498a', decimals:18},
-                    42:{symbol:'etRIF', address:'0x69f6d4d4813f8e2e618dae7572e04b6d5329e207', decimals:18}
-                };
-
-                const TUSD_TOKEN = { token: 'TUSD', name: 'True USD', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x0000000000085d4780B73119b644AE5ecd22b376/logo.png',
-                    31:{symbol:'rKovTUSD', address:'0x0a8d098e31a60da2b9c874d97de6e6b385c28e9d', decimals:18},
-                    42:{symbol:'TUSD', address:'0x0000000000085d4780B73119b644AE5ecd22b376', decimals:18},
-                };
-
-                const WETH_TOKEN = { token: 'WETH', name: 'Wrapped Ether', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
-                    31:{symbol:'rKovWETH', address:'0xd15cDD74DfF1A6A81Ca639B038839B126BC01FF9', decimals:18},
-                    42:{symbol:'WETH', address:'0xd0A1E359811322d97991E03f863a0C30C2cF029C', decimals:18},
-                };
-
-                const ZRX_TOKEN = { token: 'ZRX', name: '0x Protocol', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xE41d2489571d322189246DaFA5ebDe1F4699F498/logo.png',
-                    31:{symbol:'rKovZRX', address:'0x823b3d62cb5a4ed97f26ed9888ea721b569afe27', decimals:18},
-                    42:{symbol:'ZRX', address:'0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa', decimals:18},
-                };
-
-                const LINK_TOKEN = { token: 'LINK', name: 'Chainlink Token', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x514910771AF9Ca656af840dff83E8264EcF986CA/logo.png',
-                    30:{symbol:'rLINK', address:'0x14adae34bef7ca957ce2dde5add97ea050123827', decimals:18},
-                    31:{symbol:'rKovLINK', address:'0x8bbbd80981fe76d44854d8df305e8985c19f0e78', decimals:18},
-                    1:{symbol:'LINK', address:'0x514910771af9ca656af840dff83e8264ecf986ca', decimals:18},
-                    42:{symbol:'LINK', address:'0xa36085F69e2889c224210F603D836748e7dC0088', decimals:18},
-                };
-
-                const USDT_TOKEN = { token: 'USDT', name: 'Tether USD', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png',
-                    30:{symbol:'rUSDT', address:'0xef213441a85df4d7acbdae0cf78004e1e486bb96', decimals:18},
-                    31:{symbol:'rKovUSDT', address:'0x4cfE225cE54c6609a525768b13F7d87432358C57', decimals:18},
-                    1:{symbol:'USDT', address:'0xdac17f958d2ee523a2206206994597c13d831ec7', decimals:6},
-                    42:{symbol:'USDT', address:'0x13512979ade267ab5100878e2e0f485b568328a4', decimals:6},
-                };
-
-                const USDC_TOKEN = { token: 'USDC', name: 'USD Coin', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-                    30:{symbol:'rUSDC', address:'0x1bda44fda023f2af8280a16fd1b01d1a493ba6c4', decimals:18},
-                    31:{symbol:'rKovUSDC', address:'0xed3334adb07a3a5947d268e5a8c67b84f5464963', decimals:18},
-                    1:{symbol:'USDC', address:'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', decimals:6},
-                    42:{symbol:'USDC', address:'0xe22da380ee6b445bb8273c81944adeb6e8450422', decimals:6},
-                };
-
-                const FLIXX_TOKEN = { token: 'FLIXX', name: 'Flixxo', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/flixx.png',
-                    30:{symbol:'rFLIXX', address:'0x73c08467e23f7dcb7ddbbc8d05041b74467a498a', decimals:18},
-                    1:{symbol:'FLIXX', address:'0xf04a8ac553fcedb5ba99a64799155826c136b0be', decimals:18},
-                    //FLIXX does not have a testnet token
-                };
-
-                const RFOX_TOKEN = { token: 'RFOX', name: 'RedFOX Labs', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/rfox.png',
-                    30:{symbol:'rRFOX', address:'0x9c3a5f8d686fade293c0ce989a62a34408c4e307', decimals:18},
-                    1:{symbol:'RFOX', address:'0xa1d6df714f91debf4e0802a542e13067f31b8262', decimals:18},
-                    //RFOX does not have a testnet token
-                };
-
-                const OLD_TOKEN = { token: 'Ω', name: 'Ω Old Mintable', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xE41d2489571d322189246DaFA5ebDe1F4699F498/logo.png',
-                    31:{symbol:'rΩ', address:'0xdFFF789Db00907D2a59007a58e5b551aa3AD66Ea', decimals:18},
-                    42:{symbol:'Ω', address:'0x865f275121113b3fe8f91632aeaa4637e8a9f861', decimals:18},
-                };
-
-                const BUND_TOKEN = { token: 'BUND', name: 'Bundles Finance', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/bund.png',
-                    30:{symbol:'rBUND', address:'0x4991516df6053121121274397a8c1dad608bc95b', decimals:18},
-                    31:{symbol:'rBUND', address:'0xe95afdfec031f7b9cd942eb7e60f053fb605dfcd', decimals:18},
-                    1:{symbol:'BUND', address:'0x8d3e855f3f55109d473735ab76f753218400fe96', decimals:18},
-                    42:{symbol:'BUND', address:'0x8d3e855f3f55109d473735ab76f753218400fe96', decimals:18},
-                };
-
-                const AMLT_TOKEN = { token: 'AMLT', name: 'AMLT Coinfirm', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/amlt.png',
-                    30:{symbol:'rAMLT', address:'0xff9ea341d9ea91cb7c54342354377f5104fd403f', decimals:18},
-                    1:{symbol:'AMLT', address:'0xca0e7269600d353f70b14ad118a49575455c0f2f', decimals:18},
-                    //AMLT does not have a testnet token
-                };
-
-                const UBI_TOKEN = { token: 'UBI', name: 'Universal Basic Income', icon: 'https://raw.githubusercontent.com/DemocracyEarth/ubi/master/docs/logo/ubi_token.png',
-                    30:{symbol:'rUBI', address:'0x70566d8541beabe984c8babf8a816ed908514ba8', decimals:18},
-                    31:{symbol:'rUBI', address:'0x1c85316116131133cf6fdb0cde836b23035ea775', decimals:18},
-                    1:{symbol:'UBI', address:'0xdd1ad9a21ce722c151a836373babe42c868ce9a4', decimals:18},
-                    42:{symbol:'UBI', address:'0xddade19b13833d1bf52c1fe1352d41a8dd9fe8c9', decimals:18},
-                };
-
-                // Remove INV token because its paused on mainnet
-                const TOKENS = [ BUND_TOKEN, USDT_TOKEN, DAI_TOKEN, SAI_TOKEN, WETH_TOKEN, LINK_TOKEN, DOC_TOKEN, BITPRO_TOKEN, RIF_TOKEN, TUSD_TOKEN, USDC_TOKEN, ZRX_TOKEN, FLIXX_TOKEN, RFOX_TOKEN, OLD_TOKEN, AMLT_TOKEN, UBI_TOKEN, ];
-                // --------- TOKENS  END --------------
             </script>
         </div>
     </body>
