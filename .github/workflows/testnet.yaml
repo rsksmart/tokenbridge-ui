@@ -1,0 +1,23 @@
+name: "UI deploy TestNet"
+on:
+  release:
+    types: [published]
+jobs:
+  deploy-testnet:
+    name: Deploy to TestNet site
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.TESTNET_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.TESTNET_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.TESTNET_AWS_REGION }}
+    - name: Deploy site to S3
+      run: |
+        aws s3 sync --delete --only-show-errors public/ ${{ secrets.MAINNET_S3_BUCKET }}
+    - name: Invalidate CloudFront cache
+      run: |
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.TESTNET_CLOUDFRONT_DISTRIBUTION }} --paths "/*"
