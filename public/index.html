@@ -1555,7 +1555,7 @@
                         return new Promise((resolve, reject) => {
                             bridgeContract.methods
                                 .receiveTokens(tokenContract.options.address, amountBN.toString())
-                                .send({from: address, gasPrice:gasPrice, gas:200_000}, async (err, txHash) => {
+                                .send({from: address, gasPrice:gasPrice, gas:250_000}, async (err, txHash) => {
                                 if (err) return reject(err);
                                 try {
                                     txn_hash = txHash;
@@ -2315,8 +2315,15 @@
                     //AMLT does not have a testnet token
                 };
 
+                const UBI_TOKEN = { token: 'UBI', name: 'Universal Basic Income', icon: 'https://raw.githubusercontent.com/DemocracyEarth/ubi/master/docs/logo/ubi_token.png',
+                    30:{symbol:'rUBI', address:'0x70566d8541beabe984c8babf8a816ed908514ba8', decimals:18},
+                    31:{symbol:'rUBI', address:'0x1c85316116131133cf6fdb0cde836b23035ea775', decimals:18},
+                    1:{symbol:'UBI', address:'0xdd1ad9a21ce722c151a836373babe42c868ce9a4', decimals:18},
+                    42:{symbol:'UBI', address:'0xddade19b13833d1bf52c1fe1352d41a8dd9fe8c9', decimals:18},
+                };
+
                 // Remove INV token because its paused on mainnet
-                const TOKENS = [ BUND_TOKEN, USDT_TOKEN, DAI_TOKEN, SAI_TOKEN, WETH_TOKEN, LINK_TOKEN, DOC_TOKEN, BITPRO_TOKEN, RIF_TOKEN, TUSD_TOKEN, USDC_TOKEN, ZRX_TOKEN, FLIXX_TOKEN, RFOX_TOKEN, OLD_TOKEN, AMLT_TOKEN, ];
+                const TOKENS = [ BUND_TOKEN, USDT_TOKEN, DAI_TOKEN, SAI_TOKEN, WETH_TOKEN, LINK_TOKEN, DOC_TOKEN, BITPRO_TOKEN, RIF_TOKEN, TUSD_TOKEN, USDC_TOKEN, ZRX_TOKEN, FLIXX_TOKEN, RFOX_TOKEN, OLD_TOKEN, AMLT_TOKEN, UBI_TOKEN, ];
                 // --------- TOKENS  END --------------
             </script>
         </div>
