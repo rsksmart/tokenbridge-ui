@@ -1043,7 +1043,9 @@
                                 resolve(receipt);
                             }
                             if(timeElapsed > 300_000) {
-                                const err = new Error(`Operation took too long <a target="_blank" href="${config.explorer}/tx/${txHash}">check Tx on the explorer</a>`)
+                                const regExp = new RegExp(/^0x[0-9A-F]+$/i);
+                                const sanitizedTxHash =  regExp.test(txHash) ? txHash : '';
+                                const err = new Error(`Operation took too long <a target="_blank" href="${config.explorer}/tx/${sanitizedTxHash}">check Tx on the explorer</a>`)
                                 err.name = 'Timeout';
                                 reject(err);
                             }
