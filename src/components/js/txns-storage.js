@@ -1,9 +1,9 @@
-class TXN_Storage {
-    
+export default class TXN_Storage {
+
     static Storage;
 
     static isStorageAvailable(type) {
-        
+
         try {
             this.Storage = window[type];
             let x = '__storage_test__';

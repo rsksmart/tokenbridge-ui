@@ -101,7 +101,7 @@ const AMLT_TOKEN = { token: 'AMLT', name: 'AMLT Coinfirm', icon: 'https://raw.gi
     //AMLT does not have a testnet token
 };
 
-const UBI_TOKEN = { token: 'UBI', name: 'Universal Basic Income', icon: 'https://raw.githubusercontent.com/DemocracyEarth/ubi/master/docs/logo/ubi_token.png',
+const UBI_TOKEN = { token: 'UBI', name: 'Universal Basic Income', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/ubi.png',
     30:{symbol:'rUBI', address:'0x70566d8541beabe984c8babf8a816ed908514ba8', decimals:18},
     31:{symbol:'rUBI', address:'0x1c85316116131133cf6fdb0cde836b23035ea775', decimals:18},
     1:{symbol:'UBI', address:'0xdd1ad9a21ce722c151a836373babe42c868ce9a4', decimals:18},
@@ -109,6 +109,6 @@ const UBI_TOKEN = { token: 'UBI', name: 'Universal Basic Income', icon: 'https:/
 };
 
 // Remove INV token because its paused on mainnet
-const TOKENS = [ BUND_TOKEN, USDT_TOKEN, DAI_TOKEN, SAI_TOKEN, WETH_TOKEN, LINK_TOKEN,
+export default [ BUND_TOKEN, USDT_TOKEN, DAI_TOKEN, SAI_TOKEN, WETH_TOKEN, LINK_TOKEN,
     DOC_TOKEN, BITPRO_TOKEN, RIF_TOKEN, TUSD_TOKEN, USDC_TOKEN, ZRX_TOKEN, FLIXX_TOKEN,
     RFOX_TOKEN, OLD_TOKEN, AMLT_TOKEN, UBI_TOKEN, ];
