@@ -40,107 +40,137 @@
                   <img src="@/assets/img/logo.jpg" alt="token bridge logo">
               </div>
           </div>
-          <div id="transferTab" class=" align-center disabled">
-              <div class="row justify-content-center network">
-                  <div class="col-4 text-center">
+          <form id="crossForm" name="crossForm">
+            <div id="newTransferTab" class="align-center">
+                <div class="leftColumn transferGridRow">
+                  <div class="text-center upperRow network"> 
+                    <div class="text-center">
                       <span class="fromNetwork">From Network</span>
+                    </div>
+                   </div>
+                  <div class="text-center middleUpRow"> 
+                    <div class="text-center">
+                      <label class="tokenAddress-label" for="tokenAddress">You own</label>
+                      <div class="input-group">
+                          <select class="selectpicker" id="tokenAddress" name="tokenAddress" data-width="100%" title="Select token" disabled required>
+                              <!-- Dinamic content made with JS -->
+                          </select>
+                      </div>
+                      <div class="invalid-feedback"></div>
+                    </div>
                   </div>
-                  <div class="col-4 col-md-3 text-center">
+                  <div class="text-center middleBottomRow">
+                    <div class="amount-bottom">
+                      <label class="amount-label" for="amount"><a id="max" class="max">Max</a></label>
+                      <div class="form-group amount">
+                        <input name="amount" id="amount" class="outline form-control text-center align-center" placeholder="Amount" required>
+                        <div class="invalid-feedback"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="middleColumn transferGridRow">
+                  <div class="text-center upperRow"> 
+                    <div>
                       <span id="changeNetwork" class="outline-rounded" style="padding-left: 1.5rem; padding-right: 1.5rem;">
-                          <i class="fas fa-exchange-alt"></i>
+                        <i class="fas fa-exchange-alt"></i>
                       </span>
+                    </div>
+                     <div class="mt-2">Estimated time to cross tokens <b id="timeToCross"></b></div>
                   </div>
-                  <div class="col-4 text-center">
+                  <div class="text-center middleUpRow"> 
+                    <div class="approve-deposit">
+                      <button disabled id="approve" class="btn btn-primary ml-3 mr-3">Approve</button>
+                    </div>
+                  </div>
+                  <div class="text-center middleBottomRow"> 
+                    <button disbaled id="deposit" type="submit" class="btn btn-primary ml-3 mr-3">Convert tokens</button>
+                  </div>
+                </div>
+  
+                <div class="rightColumn transferGridRow">
+                  <div class="text-center upperRow network"> 
+                    <div class="text-center">
                       <span class="toNetwork">To Network</span>
+                    </div>
                   </div>
-              </div>
-              <form id="crossForm" name="crossForm">
-                  <div class="row justify-content-center inputs-area mb-3">
-                      <div class="col-4 text-center">
-                          <label class="tokenAddress-label" for="tokenAddress">You own</label>
-                          <div class="input-group">
-                              <select class="selectpicker" id="tokenAddress" name="tokenAddress" data-width="100%" title="Select token" disabled required>
-                                  <!-- Dinamic content made with JS -->
-                              </select>
+                  <div class="text-center middleUpRow">
+                    <div class="text-center">
+                      <div class="form-group willReceive">
+                        <label class="willReceive-label" for="willReceive">You will receive</label>
+                        <div class="input-group">
+                          <div class="form-control-plaintext" id="willReceive" name="willReceive">
+                            <span id="willReceiveToken" class="willReceiveToken" name="willReceiveToken"></span>
                           </div>
-                          <div class="invalid-feedback"></div>
+                        </div>
                       </div>
-                      <div class="col-4 col-md-3 text-center">
-                          <label class="amount-label" for="amount"><a id="max" class="max">Max</a></label>
-                          <div class="form-group amount">
-                              <input name="amount" id="amount" class="outline form-control text-center align-center" placeholder="Amount" required>
-                              <div class="invalid-feedback"></div>
-                          </div>
+                    </div>
+                  </div>
+                  <div class="text-center middleBottomRow">
+                    <div class="amount-bottom">
+                      <label class="amount-label" for="amount"><a id="max" class="max">Converted amount</a></label>
+                      <div class="form-group amount">
+                        <input name="receive-amount" id="receive-amount" class="outline form-control text-center align-center" readonly value="">
+                        <div class="invalid-feedback"></div>
                       </div>
-                      <div class="col-4 text-center">
-                          <div class="form-group willReceive">
-                              <label class="willReceive-label" for="willReceive">You will receive</label>
-                              <div class="input-group">
-                                  <div class="form-control-plaintext" id="willReceive" name="willReceive">
-                                      <span id="willReceiveToken" class="willReceiveToken" name="willReceiveToken"></span>
-                                  </div>
-                              </div>
-                          </div>
+                    </div>
+                  </div>
+                  <div class="text-center bottomRow">
+                    <div class="amount-bottom">
+                      <label class="amount-label" for="amount"><a id="max" class="max">Receiver address</a></label>
+                      <div class="form-group amount">
+                        <input type="text" name="receive-address" id="receive-address" class="outline form-control text-center align-center" placeholder="0x00...af">
+                        <div class="invalid-feedback"></div>
                       </div>
+                    </div>
                   </div>
-                  <div class="fees text-center mt-2" style="display:none">
-                      <p>Service fee: <span id="serviceFee"></span> <span class="selectedToken"></span></p>
-                      <p>Total cost: <span class="black"><span id="totalCost"></span> <span class="selectedToken"></span></span></p>
-                  </div>
-                  <div class="row justify-content-center">
-                      <div class="mt-2">Estimated time to cross tokens <b id="timeToCross"></b></div>
-                  </div>
-                  <div class="row justify-content-center">
-                      <div class="approve-deposit">
-                          <button disabled id="approve" class="btn btn-primary mr-3 mt-3 mb-3">Approve</button>
-                      </div>
-                      <button disbaled id="deposit" type="submit" class="btn btn-primary ml-3 mt-3 mb-3">Convert tokens</button>
-                  </div>
+                </div>
+            </div> <!--End of newTransferTab-->
 
-                  <div id="wait" class="mt-3 align-center text-center" style="max-width:350px; line-height: 16px; display:none;">
-                      <!-- Spinner <div class="spinner-border mb-4" style="height:70px; width:70px"></div> -->
-                      <!-- https://tobiasahlin.com/spinkit/ -->
-                      <div class="sk-fading-circle">
-                          <div class="sk-circle1 sk-circle"></div>
-                          <div class="sk-circle2 sk-circle"></div>
-                          <div class="sk-circle3 sk-circle"></div>
-                          <div class="sk-circle4 sk-circle"></div>
-                          <div class="sk-circle5 sk-circle"></div>
-                          <div class="sk-circle6 sk-circle"></div>
-                          <div class="sk-circle7 sk-circle"></div>
-                          <div class="sk-circle8 sk-circle"></div>
-                          <div class="sk-circle9 sk-circle"></div>
-                          <div class="sk-circle10 sk-circle"></div>
-                          <div class="sk-circle11 sk-circle"></div>
-                          <div class="sk-circle12 sk-circle"></div>
-                      </div>
-                      <div class="mt-2">
-                          Wait for aproximately <b><span id="secondsPerBlock">X</span> seconds:</b> 
-                          the waiting period is required to confirm the transaction on the blockchain. 
-                          Please <b>do not close this tab</b> until the process has finished.
-                      </div>
-                  </div>
+            <div id="wait" class="mt-3 align-center text-center" style="max-width:350px; line-height: 16px; display:none;">
+                <!-- Spinner <div class="spinner-border mb-4" style="height:70px; width:70px"></div> -->
+                <!-- https://tobiasahlin.com/spinkit/ -->
+                <div class="sk-fading-circle">
+                    <div class="sk-circle1 sk-circle"></div>
+                    <div class="sk-circle2 sk-circle"></div>
+                    <div class="sk-circle3 sk-circle"></div>
+                    <div class="sk-circle4 sk-circle"></div>
+                    <div class="sk-circle5 sk-circle"></div>
+                    <div class="sk-circle6 sk-circle"></div>
+                    <div class="sk-circle7 sk-circle"></div>
+                    <div class="sk-circle8 sk-circle"></div>
+                    <div class="sk-circle9 sk-circle"></div>
+                    <div class="sk-circle10 sk-circle"></div>
+                    <div class="sk-circle11 sk-circle"></div>
+                    <div class="sk-circle12 sk-circle"></div>
+                </div>
+                <div class="mt-2">
+                    Wait for aproximately <b><span id="secondsPerBlock">X</span> seconds:</b> 
+                    the waiting period is required to confirm the transaction on the blockchain. 
+                    Please <b>do not close this tab</b> until the process has finished.
+                </div>
+            </div>
+            <div id="success" class="mt-3 align-center text-center alert alert-dismissible fade show" style="display:none;">
+                <div class="outline-rounded">
+                    <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
+                    <div>You will receive <span id="receive" class="black">126 rKovDAI</span> in your wallet in aproximately <span id="confirmationTime">X minutes</span></div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div id="alert-danger" class="alert alert-danger alert-dismissible fade show" role="alert" style="display:none">
+                    <h4 class="alert-heading">Ups! there was an error</h4>
+                    <p id="alert-danger-text"></p>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                </div>
+            </div>
+          </form>
 
-                  <div id="success" class="mt-3 align-center text-center alert alert-dismissible fade show" style="display:none;">
-                      <div class="outline-rounded">
-                          <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
-                          <div>You will receive <span id="receive" class="black">126 rKovDAI</span> in your wallet in aproximately <span id="confirmationTime">X minutes</span></div>
-                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                          </button>
-                      </div>
-                  </div>
-                  <div class="mt-3">
-                      <div id="alert-danger" class="alert alert-danger alert-dismissible fade show" role="alert" style="display:none">
-                          <h4 class="alert-heading">Ups! there was an error</h4>
-                          <p id="alert-danger-text"></p>
-                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                      </div>
-                  </div>
-              </form>
-          </div> <!--End of transferTab-->
 
           <div id="previousTxnsEmptyTab">
               <h5 class="subtitle">Active account transactions</h5>
