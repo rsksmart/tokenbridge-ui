@@ -28,18 +28,10 @@
               </div>
           </div>
       </nav>
-      <div class="navbar_bottom_shape"></div>
       <section id="home">
         <div class="container">
-          <div class="title">
-              <h1 id="title">RSK bridges with Ethereum</h1>
-              <h5 class="subtitle">You can convert your tokens from RSK to Ethereum and viceversa.</h5>
-          </div>
-          <div class="row justify-content-center">
-              <div class="text-center col-lg-4 col-md-6 col-12">
-                  <img src="@/assets/img/logo.jpg" alt="token bridge logo">
-              </div>
-          </div>
+          <BridgeInfo :isTestnet="isTestnet" />
+          <Bridge />
           <form id="crossForm" name="crossForm">
             <div id="newTransferTab" class="align-center">
                 <div class="leftColumn transferGridRow">
@@ -407,118 +399,28 @@ import 'bootstrap'
 import 'bootstrap-select'
 import ClipboardJS from 'clipboard'
 
+
+import {
+  Paginator,
+  retry3Times,
+  poll4LastBlockNumber
+} from '@/utils';
+
+import Bridge from '@/components/bridge/Bridge.vue'
+import BridgeInfo from '@/components/bridgeInfo/BridgeInfo.vue'
+
 export default {
   name: 'Home',
-  created: function () {
-    // async-await-retry  https://github.com/VoodooTeam/async-await-retry
-    const getPromise = (fn, args) => {
-        return new Promise((resolve, reject) => {
-            if (!args) args = [];
-            args.push((err, data) => {
-                if (err) return reject(err);
-                return resolve(data);
-            });
-            fn.apply(null, args);
-        });
-    };
-
-    const clone = (obj) => {
-        if (obj === null || typeof obj !== "object") {
-            return obj;
-        } else if (Array.isArray(obj)) {
-            let clonedArr = [];
-            for (const data of obj) {
-                clonedArr.push(clone(data));
-            }
-            return clonedArr;
-        } else {
-            let clonedObj = {};
-            const keys = Object.keys(obj);
-            for (const key of keys) {
-                clonedObj[key] = clone(obj[key]);
-            }
-            return clonedObj;
-        }
+  components: {
+    BridgeInfo,
+    Bridge
+  },
+  data() {
+    return {
+      isTestnet: false
     }
-
-    /**
-     * Credit to: https://arjunphp.com/can-paginate-array-objects-javascript/
-     */
-    function Paginator(items, page = 1, per_page = 5) {
-        let offset = (page - 1) * per_page;
-        let data = items.slice(offset).slice(0, per_page);
-        let total_pages = Math.ceil(items.length / per_page);
-
-        return {
-            page,
-            per_page,
-            pre_page: page - 1 ? page - 1 : null,
-            next_page: (total_pages > page) ? page + 1 : null,
-            total: items.length,
-            total_pages,
-            data
-        };
-    }
-
-    /**
-    * Poll given network for latest block number
-    *
-    * @param {Function} cb: callback function to call upon new value
-    */
-    async function poll4LastBlockNumber(cb) {
-        let interval = 5_000;
-        let { number } = await web3.eth.getBlock('latest');
-        cb(number);
-
-        let intervalId = setInterval(async () => {
-            let { number } = await web3.eth.getBlock('latest');
-            cb(number);
-        }, interval);
-
-        return intervalId;
-    };
-
-
-
-    /**
-    * Retry system with async / await
-    *
-    * @param {Function} fn : function to execute
-    * @param {Array} args : arguments of fn function
-    * @param {Object} config : arguments of fn function
-    * @property {Number} config.retriesMax : number of retries, by default 3
-    * @property {Number} config.interval : interval (in ms) between retry, by default 0
-    * @property {Boolean} config.exponential : use exponential retry interval, by default true
-    * @property {Number} config.factor: interval incrementation factor
-    * @property {Number} config.isCb: is fn a callback style function ?
-    */
-    async function retry(fn, args = [], config = {}) {
-        const retriesMax = config.retriesMax || 3;
-        let interval = config.interval || 0;
-        const exponential = config.hasOwnProperty('exponential') ? config.exponential : true;
-        const factor = config.factor || 2;
-
-        for (let i = 0; i < retriesMax; i++) {
-            try {
-                if (!config.isCb) {
-                    const val = await fn.apply(null, args);
-                    return val;
-                } else {
-                    const val = await getPromise(fn, clone(args));
-                    return val;
-                }
-            } catch (error) {
-                if(retriesMax === i+1 || (error.hasOwnProperty('retryable') && !error.retryable)) throw error;
-
-                interval = exponential ? interval * factor : interval;
-                // if interval is set to zero, do not use setTimeout, gain 1 event loop tick
-                if (interval) await new Promise(r => setTimeout(r, interval));
-            }
-        }
-    };
-    async function retry3Times(func, params = null) {
-        return retry(func, params, {retriesMax: 3, interval: 1_000, exponential: false});
-    }
+  },
+  created() {
 
     //User
     let address = '';
@@ -528,6 +430,7 @@ export default {
     let activeAddressRsk2EthTxns = [];
     let rsk2EthTablePage = 1;
     let rsk2EthPaginationObj = {};
+
     //Network configuration
     let config = null;
     let isTestnet = true;
@@ -538,6 +441,7 @@ export default {
     let maxTokensAllowed = 100_000;
     let maxDailyLimit = 1_000_000;
     let currentBlockNumber = null;
+
     // Selected Token To Cross
     let tokenContract = null;
     let isSideToken = false;
@@ -738,17 +642,6 @@ export default {
 
     async function setInfoTab() {
     try {
-        // Dinamically get the values, this is comented as the public node some times throws errors
-        // let [maxWithdraw, maxAllowed, minAllowed, federators, isValidatingAllowedTokens] = await Promise.all([
-        //   retry3Times(allowTokensContract.methods.dailyLimit().call),
-        //   retry3Times(allowTokensContract.methods.getMaxTokensAllowed().call),
-        //   retry3Times(allowTokensContract.methods.getMinTokensAllowed().call),
-        //   retry3Times(federationContract.methods.getMembers().call),
-        //   retry3Times(allowTokensContract.methods.isValidatingAllowedTokens().call),
-        // ]);
-        // minTokensAllowed = parseInt(web3.utils.fromWei(minAllowed, 'ether'));
-        // maxTokensAllowed = parseInt(web3.utils.fromWei(maxAllowed, 'ether'));
-        // maxDailyLimit = parseInt(web3.utils.fromWei(maxWithdraw, 'ether'));
 
         //Harcoded values that don't change often to reduce load on the public server
         minTokensAllowed = 1;
