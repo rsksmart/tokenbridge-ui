@@ -195,6 +195,13 @@
 <script>
 // --------- TOKENS import TOKENS variable  --------------
 import TOKENS from './constants/tokens'
+import networks from './constants/networks'
+const {
+    KOVAN_CONFIG,
+    RSK_TESTNET_CONFIG,
+    ETH_CONFIG,
+    RSK_MAINNET_CONFIG
+} = networks
 // ------ ABIS -----
 import BRIDGE_ABI from './abis/bridge.json'
 import ALLOW_TOKENS_ABI from './abis/allowTokens.json'
@@ -219,7 +226,8 @@ import ClipboardJS from 'clipboard'
 import {
   Paginator,
   retry3Times,
-  poll4LastBlockNumber
+  poll4LastBlockNumber,
+  NULL_HASH
 } from '@/utils';
 
 import CrossForm from '@/components/crossForm/CrossForm.vue'
@@ -266,13 +274,10 @@ export default {
 
     // Selected Token To Cross
     let tokenContract = null;
-    let isSideToken = false;
-    let sideTokenAddress = null;
     let feePercentage = 0;
     let fee = 0;
     let feePercentageDivider = 10_000;
     let rLogin;
-    let pollingLastBlockIntervalId = 0;
 
     $(document).ready(function() {
         new ClipboardJS('.copy');
@@ -304,13 +309,13 @@ export default {
         $('#logIn').on('click', onLogInClick);
 
         let rpc = {
-            1: 'https://mainnet.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
+            1: `https://mainnet.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
             30: 'https://public-node.rsk.co',
         };
         let supportedChains = [1,30];
         if(isTestnet) {
             rpc = {
-                42: 'https://kovan.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
+                42: `https://kovan.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
                 31: 'https://public-node.testnet.rsk.co',
             };
             supportedChains = [42,31];
@@ -472,7 +477,6 @@ export default {
         feePercentage = await retry3Times(bridgeContract.methods.getFeePercentage().call);
         fee = feePercentage/feePercentageDivider;
         let feeFormated = (fee*100).toFixed(2) + '%';
-        let isValidatingAllowedTokens = true;
         let federators = await retry3Times(federationContract.methods.getMembers().call);
 
         $('#fee').html(feeFormated);
@@ -502,8 +506,8 @@ export default {
         const decimals = token[config.networkId].decimals;
         return retry3Times(tokenContract.methods.balanceOf(address).call)
         .then(async (balance) => {
-            balanceBNs = new BigNumber(balance).shiftedBy(-decimals);
-            let maxWithdrawInWei = await retry3Times(bridgeContract.methods.calcMaxWithdraw().call);
+            let balanceBNs = new BigNumber(balance).shiftedBy(-decimals);
+            let maxWithdrawInWei = await retry3Times(allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call);
             let maxWithdraw = new BigNumber(web3.utils.fromWei(maxWithdrawInWei, 'ether'));
             let maxValue = 0;
             if( balanceBNs.isGreaterThan(maxWithdraw)) {
@@ -538,17 +542,6 @@ export default {
             return;
         }
 
-        const decimals = token[config.networkId].decimals;
-        const splittedAmount = amount.split('.');
-        var amountWithDecimals = splittedAmount[0];
-        for(let i = 0; i < decimals; i++) {
-            if(splittedAmount[1] && i < splittedAmount[1].length) {
-                amountWithDecimals += splittedAmount[1][i];
-            } else {
-                amountWithDecimals += '0';
-            }
-        }
-
         const amountBN = new BN(web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'));
 
         var gasPriceParsed = 0;
@@ -561,14 +554,14 @@ export default {
             gasPriceParsed= parseInt(gasPriceAvg);
             gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.3;
         }
-        gasPrice = `0x${Math.ceil(gasPriceParsed).toString(16)}`;
+        let gasPrice = `0x${Math.ceil(gasPriceParsed).toString(16)}`;
 
         $('#wait').show();
 
         return new Promise((resolve, reject) => {
 
             tokenContract.methods.approve(bridgeContract.options.address, amountBN.toString())
-                .send({from: address, gasPrice:gasPrice, gas:70_000}, async (err, txHash) => {
+                .send({from: address, gasPrice: gasPrice, gas: 70_000}, async (err, txHash) => {
                 if (err) return reject(err);
                     try {
                     let receipt = await waitForReceipt(txHash);
@@ -640,7 +633,6 @@ export default {
 
         }
         const amountBN = new BN(amountWithDecimals).mul(new BN(feePercentageDivider)).div(new BN(feePercentageDivider - feePercentage));
-        const amountFeesBN = fee == 0 ? amountBN : amountBN.mul(new BN(feePercentage)).div(new BN(feePercentageDivider));
 
         disableInputs(true);
         $('.fees').hide();
@@ -655,7 +647,7 @@ export default {
                 const showBalance = new BigNumber(balance);
                 throw new Error(`Insuficient Balance in your account, your current balance is ${showBalance.shiftedBy(-decimals)} ${token[config.networkId].symbol}`);
             }
-            let maxWithdrawInWei = await retry3Times(bridgeContract.methods.calcMaxWithdraw().call);
+            let maxWithdrawInWei = await retry3Times(allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call);
             const maxWithdraw = new BN(maxWithdrawInWei);
             if(amountBN.gt(maxWithdraw)) {
                 throw new Error(`Amount bigger than the daily limit. Daily limit left ${web3.utils.fromWei(maxWithdrawInWei, 'ether')} tokens`);
@@ -675,7 +667,7 @@ export default {
         }).then(async () => {
             return new Promise((resolve, reject) => {
                 bridgeContract.methods
-                    .receiveTokens(tokenContract.options.address, amountBN.toString())
+                    .receiveTokensTo(tokenContract.options.address, address, amountBN.toString())
                     .send({from: address, gasPrice:gasPrice, gas:250_000}, async (err, txHash) => {
                     if (err) return reject(err);
                     try {
@@ -863,7 +855,7 @@ export default {
         const provider = await rLogin.connect()
             .then((rLoginResponse) => {
                 const provider = rLoginResponse.provider;
-                const dataVault = rLoginResponse.dataVault;
+                // const dataVault = rLoginResponse.dataVault;
                 const disconnect = rLoginResponse.disconnect;
 
                 // save the response to be used later, here we are using React context
@@ -957,11 +949,11 @@ export default {
 
     function updateActiveAddressTXNs(addr) {
         if(config.name.toLowerCase().includes('eth')) {
-            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(address, config.name);
-            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(address, config.crossToNetwork.name);
+            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(addr, config.name);
+            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(addr, config.crossToNetwork.name);
         } else {
-            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(address, config.name);
-            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(address, config.crossToNetwork.name);
+            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(addr, config.name);
+            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(addr, config.crossToNetwork.name);
         }
     }
 
@@ -997,7 +989,7 @@ export default {
         }
     }
 
-    function showActiveAddressTXNs() {
+    async function showActiveAddressTXNs() {
         if(!address  || (!activeAddressEth2RskTxns.length && !activeAddressRsk2EthTxns.length)) {
             $('#previousTxnsEmptyTab')
                 .css('margin-bottom', '6em')
@@ -1034,7 +1026,7 @@ export default {
 
         let currentNetwork = $('.indicator span').text();
 
-        const processTxn = (txn, config = {}) => {
+        const processTxn = async (txn, config = {}) => {
             const {
                 confirmations,
                 secondsPerBlock,
@@ -1045,22 +1037,40 @@ export default {
 
             let elapsedBlocks = currentBlockNumber - txn.blockNumber;
             let remainingBlocks2Confirmation = confirmations - elapsedBlocks;
-            let status = isConfig4CurrentNetwork ?
-                ((elapsedBlocks >= confirmations) ?
+            let status = 'Info Not Available';
+            if (isConfig4CurrentNetwork) {
+                if (txn.blockNumber > config.v2UpdateBlock) {
+                    // V2 Protocol
+                    const sideWeb3 = new Web3(config.crossToNetwork.rpc);
+                    const sideBridgeContract = new sideWeb3.eth.Contract(BRIDGE_ABI, config.crossToNetwork.bridge);
+                    const txDataHash = await sideBridgeContract.methods.transactionsDataHashes(txn.transactionHash).call();
+                    if (txDataHash === NULL_HASH)
+                        status = '<span class="pending"> Pending</span>'
+                    else {
+                        const claimed = await sideBridgeContract.methods.claimed(txDataHash).call();
+                        if (claimed) {
+                            status = '<span class="confirmed"> Claimed</span>'
+                        } else {
+                            status = '<span><button class="btn btn-primary claim">Claim</button></span>'
+                        }
+                    }
+                } else {
+                    // V1 Protocol
+                    status = (elapsedBlocks >= confirmations) ?
                     `<span class="confirmed"> Confirmed</span>` :
-                    `<span class="pending"> Pending</span>`) :
-                `Info Not Available`;
+                    `<span class="pending"> Pending</span>`;
+                }
+            }
 
-            let confirmationTime = confirmations * secondsPerBlock;
             let seconds2Confirmation = remainingBlocks2Confirmation > 0 ?
                 remainingBlocks2Confirmation * secondsPerBlock : 0;
 
             let hoursToConfirmation = Math.floor(seconds2Confirmation / 60 / 60);
-            let hoursToConfirmationStr = (  hoursToConfirmation > 0) ? `${hoursToConfirmation}hs ` : ``;
+            let hoursToConfirmationStr = (hoursToConfirmation > 0) ? `${hoursToConfirmation}hs ` : '';
             let minutesToConfirmation = Math.floor(seconds2Confirmation / 60) - (hoursToConfirmation * 60);
-            let humanTimeToConfirmation = isConfig4CurrentNetwork ?
-                ((elapsedBlocks >= confirmations) ?
-                `` : `| ~ ${hoursToConfirmationStr} ${minutesToConfirmation}mins`) : ``;
+            let humanTimeToConfirmation = (isConfig4CurrentNetwork && elapsedBlocks >= confirmations)
+                ? `| ~ ${hoursToConfirmationStr} ${minutesToConfirmation}mins`
+                : '';
 
             let txnExplorerLink = `${explorer}/tx/${txn.transactionHash}`;
             let shortTxnHash = `${txn.transactionHash.substring(0, 8)}...${txn.transactionHash.slice(-8)}`;
@@ -1075,25 +1085,22 @@ export default {
             return htmlRow;
         }
 
-        let activeAddressTXNsEth2RskRows;
-        let activeAddressTXNsRsk2EthRows;
+        let rskConfig = config;
+        let ethConfig = config.crossToNetwork;
 
         if(config.name.toLowerCase().includes('eth')) {
-            activeAddressTXNsEth2RskRows = eth2RskTxns.map( txn => {
-                return processTxn(txn, config);
-            });
-            activeAddressTXNsRsk2EthRows = rsk2EthTxns.map( txn => {
-                return processTxn(txn, config.crossToNetwork);
-            });
-        } else {
-            activeAddressTXNsEth2RskRows = eth2RskTxns.map( txn => {
-                return processTxn(txn, config.crossToNetwork);
-            });
-            activeAddressTXNsRsk2EthRows = rsk2EthTxns.map( txn => {
-                return processTxn(txn, config);
-            });
+            rskConfig = config.crossToNetwork;
+            ethConfig = config;
         }
+        const activeAddressTXNsEth2RskRowsPromises = Promise.all(eth2RskTxns.map(txn => {
+            return processTxn(txn, ethConfig);
+        }));
+        const activeAddressTXNsRsk2EthRowsPromises = Promise.all(rsk2EthTxns.map(txn => {
+            return processTxn(txn, rskConfig);
+        }));
 
+        const activeAddressTXNsEth2RskRows = await activeAddressTXNsEth2RskRowsPromises;
+        const activeAddressTXNsRsk2EthRows = await activeAddressTXNsRsk2EthRowsPromises;
         eth2RskTable.html(activeAddressTXNsEth2RskRows.join());
         rsk2EthTable.html(activeAddressTXNsRsk2EthRows.join());
 
@@ -1118,6 +1125,10 @@ export default {
         $('#confirmations').html(config.confirmations);
         $('#timeToCross').html(config.crossToNetwork.confirmationTime);
         updateTokenAddressDropdown(config.networkId);
+    }
+
+    function getNetworkByName(networkName) {
+        return networks.find(network => network.name == networkName);
     }
 
     async function updateNetwork(newNetwork) {
@@ -1166,7 +1177,7 @@ export default {
             setInfoTab();
             onMetaMaskConnectionSuccess();
 
-            let pollingLastBlockIntervalId = await poll4LastBlockNumber(
+            await poll4LastBlockNumber(
                 function(blockNumber) {
                     currentBlockNumber = blockNumber;
                     showActiveAddressTXNs();
@@ -1256,63 +1267,6 @@ export default {
             throw new Error('Nifty Wallet or MetaMask is Locked, please unlock it and Reload the page to continue');
         return accounts;
     }
-
-    // --------- CONFIGS ----------
-    let KOVAN_CONFIG = {
-        networkId: 42,
-        name: 'Ethereum Kovan',
-        bridge: '0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d',
-        allowTokens: '0xe4aa0f414725c9322a1a9d80d469c5e234786653',
-        federation: '0xDa2295255633c26EaadBacE5269b6e8bD2648ca0',
-        explorer: 'https://kovan.etherscan.io',
-        explorerTokenTab: '#tokentxns',
-        confirmations: 10,
-        confirmationTime: '5 minutes',
-        secondsPerBlock: 5,
-    };
-    let RSK_TESTNET_CONFIG = {
-        networkId: 31,
-        name: 'RSK Testnet',
-        bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
-        allowTokens: '0x952b706a9Ab5fD2d3B36205648ED7852676AfBE7',
-        federation: '0x925606edc5863c079b712daed560c31eff8335b9',
-        explorer: 'https://explorer.testnet.rsk.co',
-        explorerTokenTab: '?__tab=tokens%20transfers',
-        confirmations: 10,
-        confirmationTime: '3 minutes',
-        secondsPerBlock: 30,
-        crossToNetwork: KOVAN_CONFIG
-    };
-    KOVAN_CONFIG.crossToNetwork = RSK_TESTNET_CONFIG;
-
-    // Replace with proper values contracts exist in mainnet
-    let ETH_CONFIG = {
-        networkId: 1,
-        name: 'ETH Mainnet',
-        bridge: "0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d",
-        allowTokens: "0xe4aa0f414725c9322a1a9d80d469c5e234786653",
-        federation: "0x479f86ecbe766073d2712ef418aceb56d5362a2b",
-        explorer: 'https://etherscan.io',
-        explorerTokenTab: '#tokentxns',
-        confirmations: 5760,
-        confirmationTime: '24 hours',
-        secondsPerBlock: 15,
-    };
-    let RSK_MAINNET_CONFIG = {
-        networkId: 30,
-        name: 'RSK Mainnet',
-        bridge: "0x9d11937e2179dc5270aa86a3f8143232d6da0e69",
-        allowTokens: "0xe4aa0f414725c9322a1a9d80d469c5e234786653",
-        federation: "0xe37b6516f4fe2a27569a2751c1ad50f6340df369",
-        explorer: 'https://explorer.rsk.co',
-        explorerTokenTab: '?__tab=tokens%20transfers',
-        confirmations: 2880,
-        confirmationTime: '24 hours',
-        secondsPerBlock: 30,
-        crossToNetwork: ETH_CONFIG
-    };
-    ETH_CONFIG.crossToNetwork = RSK_MAINNET_CONFIG;
-    // --------- CONFIGS  END --------------
 
   }
 }
