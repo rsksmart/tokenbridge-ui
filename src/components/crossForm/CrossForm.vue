@@ -56,7 +56,7 @@
           </div>
           <div class="text-center middleUpRow">
             <div class="text-center">
-              <div class="form-group willReceive">
+              <div class="willReceive">
                 <label class="willReceive-label" for="willReceive">You will receive</label>
                 <div class="input-group">
                   <div class="form-control-plaintext" id="willReceive" name="willReceive">

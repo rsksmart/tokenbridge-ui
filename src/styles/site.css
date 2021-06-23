@@ -246,34 +246,6 @@
   .nav-tabs .nav-link:hover {
       color: black;
   }
-  .config-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  .config-section .config-value {
-    font-size: 36px;
-    font-weight: bold;
-    color: #00B520;
-  }
-  .config-section .config-title {
-    font-weight: bold;
-  }
-  .config-section .config-address {
-    font-size: 13px;
-    color: #00B520;
-    font-weight: bold;
-  }
-  .fed-addresses {
-      text-align: left;
-      display: block;
-  }
-  .config-section p {
-    font-size: 11px;
-    line-height: 14px;
-    margin: 0 20px;
-  }
   #tokenListTab {
       font-size: 13px;
       max-width: 500px;

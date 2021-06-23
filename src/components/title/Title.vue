@@ -8,16 +8,11 @@
       <h1 id="title">RSK bridges with Ethereum</h1>
       <h5 class="bridge-info-subtitle">You can convert your tokens from RSK to Ethereum and viceversa.</h5>
     </div>
-    <div class="row justify-content-center">
-      <div class="text-center col-lg-4 col-md-6 col-12">
-          <img src="@/assets/img/logo.jpg" alt="token bridge logo">
-      </div>
-    </div>
   </div>
 </template>
 <script>
 export default {
-  name: 'BridgeInfo',
+  name: 'Title',
   props: {
     isTestnet: {
       type: Boolean,
