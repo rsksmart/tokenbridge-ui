@@ -31,8 +31,12 @@
       <section id="home">
         <div class="container">
           <Title :isTestnet="isTestnet" />
-          <CrossFormHorizontal />
-          <!--<CrossForm />-->
+
+          <CrossFormHorizontal 
+             :originNetwork="originNetwork"
+             :destinationNetwork="destinationNetwork"
+             :senderAddress="userAddress"
+          />
 
           <div id="previousTxnsEmptyTab">
               <h5 class="subtitle">Active account transactions</h5>
@@ -224,8 +228,9 @@ import {
   Paginator,
   retry3Times,
   poll4LastBlockNumber,
-  NULL_HASH,
   TXN_Storage,
+  isAddress,
+  NULL_HASH
 } from '@/utils';
 
 import CrossFormHorizontal from '@/components/crossFormHorizontal/CrossFormHorizontal.vue'
@@ -243,13 +248,19 @@ export default {
   },
   data() {
     return {
-      isTestnet: false
+      isTestnet: false,
+      userAddress: '',
+      originNetwork: '',
+      destinationNetwork: '',
     }
   },
   created() {
 
+    const vNode = this;
+
     //User
     let address = '';
+    let receiverAddress = '';
     let activeAddressEth2RskTxns = [];
     let eth2RskTablePage = 1;
     let eth2RskPaginationObj = {};
@@ -342,6 +353,7 @@ export default {
                 $('#willReceive-copy').attr('data-clipboard-text', token[config.crossToNetwork.networkId].address);
                 if($('#amount').val()) {
                     isAmountOk();
+                    isReceiverAddressOk();
                     checkAllowance();
                 }
             } else {
@@ -350,6 +362,23 @@ export default {
                 $('#willReceive-copy').hide();
             }
         });
+
+        $('#receive-address').change(function(event) {
+          if(isReceiverAddressOk()) {
+            receiverAddress = $('#receive-address').val();
+          };
+        })
+
+        $('#receive-address').focusout(function(event) {
+          if(isReceiverAddressOk()) {
+            receiverAddress = $('#receive-address').val();
+          };
+        })
+
+        $('#receive-address').keydown(function(event) {
+            if (event.key === 'Tab') {
+            }
+        })
 
         $('#amount').keyup(function(event) {
             isAmountOk();
@@ -835,11 +864,18 @@ export default {
         if(totalCost.lte(allowanceBN)) {
             $('.approve-deposit').hide();
             // straight to convert
+
+            const crossDisabled = isReceiverAddressOk();
             disableApproveCross({
                 approvalDisable: true,
                 doNotAskDisabled: true,
-                crossDisabled: false
+                crossDisabled: !crossDisabled
             });
+
+            $('.receive-address .invalid-receiver-feedback').hide();
+            $('#receive-address').removeClass('is-invalid');
+            $('#receive-address').addClass('ok');
+            $('.fees').show();
         } else {
             // user must first approve amount
             disableApproveCross({
@@ -850,6 +886,32 @@ export default {
             $('.approve-deposit').show();
         }
 
+    }
+
+    async function isReceiverAddressOk() {
+        const receiverAddress = $('#receive-address').val();
+        if(
+          receiverAddress == '' || 
+          !isAddress(receiverAddress)
+        ) {
+            markInvalidReceiverAddress('Invalid Receiver Address');
+
+            $('.receive-address .invalid-receiver-feedback').show();
+            disableApproveCross({
+                approvalDisable: null,
+                doNotAskDisabled: true,
+                crossDisabled: true
+            });
+
+            return false;
+        }
+
+        await checkAllowance();
+        $('.receive-address .invalid-feedback').hide();
+        $('.receive-address').removeClass('is-invalid');
+        $('.receive-address').addClass('ok');
+        $('.fees').show();
+        return true;
     }
 
     async function isAmountOk() {
@@ -896,6 +958,7 @@ export default {
             $('#amount').removeClass('is-invalid');
             $('#amount').addClass('ok');
             $('.fees').show();
+            $('#receive-amount').val(parseInt(amount,10) * 0.998)
         } catch(err) {
 
             disableApproveCross({
@@ -906,6 +969,16 @@ export default {
 
             markInvalidAmount(err.message);
         }
+    }
+
+    function markInvalidReceiverAddress(errorDescription) {
+        let invalidReceiverAddress = $('.receiverAddress .invalid-feedback');
+        invalidReceiverAddress.html(errorDescription);
+        invalidReceiverAddress.show();
+        $('#receive-address').addClass('is-invalid');
+        $('#receive-address').prop("disabled", false);
+        $('#receive-address').removeClass('ok');
+        $('.fees').hide();
     }
 
     function markInvalidAmount(errorDescription) {
@@ -971,6 +1044,7 @@ export default {
         bridgeContract = null;
         config = null;
         address = '';
+        vNode.userAddress = address;
     }
 
 
@@ -979,7 +1053,9 @@ export default {
         doNotAskDisabled = true,
         crossDisabled = true
     }) {
-        $('#approve').prop('disabled', approvalDisable);
+        if(approvalDisable !== null) {
+          $('#approve').prop('disabled', approvalDisable);
+        }
         $('#doNotAskAgain').prop('disabled', doNotAskDisabled);
         $('#deposit').prop('disabled', crossDisabled);
     }
@@ -1009,6 +1085,7 @@ export default {
     function updateAddress(newAddresses) {
 
         address = newAddresses[0];
+        vNode.userAddress = address;
         $('#address').text(address);
         $('#logIn').hide();
         $('#transferTab').removeClass('disabled');
@@ -1196,6 +1273,9 @@ export default {
         $('#confirmations').html(config.confirmations);
         $('#timeToCross').html(config.crossToNetwork.confirmationTime);
         updateTokenAddressDropdown(config.networkId);
+
+        vNode.originNetwork = config.name;
+        vNode.destinationNetwork = config.crossToNetwork.name;
     }
 
     async function updateNetwork(newNetwork) {
