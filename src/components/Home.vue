@@ -106,7 +106,6 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
               <div class="modal-header">
-                  <h5 class="modal-title">Connect wallet</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                   </button>
@@ -456,7 +455,7 @@ export default {
                     clearInterval(checkInterval);
                     resolve(receipt);
                 }
-                if(timeElapsed > 90_000) {
+                if(timeElapsed > 190_000) {
                     reject(new Error(`Operation took too long <a target="_blank" href="${config.explorer}/tx/${txHash}">check Tx on the explorer</a>`));
                 }
             }, interval);
@@ -703,6 +702,12 @@ export default {
             }
             gasPrice = `0x${Math.ceil(gasPriceParsed).toString(16)}`;
         }).then(async () => {
+            $('#myModal .modal-body').html('<p>When the transaction is mined you will see it like</p>'
+                + '<img src="pending-tx.png">'
+                + '<p>Once it has enough confirmation you will need to <b>claim it on the other network</b></p>'
+                + '<img src="claim-tx.png">'
+            );
+            $('#myModal').modal('show');
             return new Promise((resolve, reject) => {
                 bridgeContract.methods
                     .receiveTokensTo(tokenContract.options.address, receiverAddress, amountBN.toString())
@@ -727,6 +732,7 @@ export default {
                 });
             });
         }).then(async (receipt) => {
+            $('#myModal').modal('hide');
             $('#wait').hide();
             $('#confirmationTime').text(config.confirmationTime);
             $('#receive').text(`${amount} ${token[config.crossToNetwork.networkId].symbol}`);
@@ -770,20 +776,17 @@ export default {
     }
 
     async function claim(txn, currentTarget) {
-        console.log(currentTarget)
         const sideWeb3 = new Web3(config.crossToNetwork.rpc);
         const receipt = await sideWeb3.eth.getTransactionReceipt(txn.transactionHash);
         const eventJsonInterface = BRIDGE_ABI.find(x => x.name ==='Cross' && x.type ==='event');
         const eventSignature = web3.eth.abi.encodeEventSignature(eventJsonInterface);
         const event = receipt.logs.find(x => x.topics[0] === eventSignature);
-        console.log('eventJsonInterface', eventJsonInterface)
-        console.log('event', event)
         event.topics.shift();
         const decodedEvent = web3.eth.abi.decodeLog(eventJsonInterface.inputs, event.data, event.topics);
-        console.log('decodedEvent', decodedEvent)
 
         let gasPrice = await getGasPriceHex();
-        currentTarget.disable = true;
+        currentTarget.disabled = true;
+        currentTarget.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span><span class="sr-only">Loading...</span>'
 
         return new Promise((resolve, reject) => {
             bridgeContract.methods.claim({
@@ -805,11 +808,12 @@ export default {
                 reject(new Error(`Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`));
             });
         }).then(() => {
-            currentTarget.disable = false;
+            currentTarget.disabled = false;
             currentTarget.parentElement.outerHTML = '<span class="confirmed"> Claimed</span>';
         })
         .catch((err) => {
-            currentTarget.disable = false;
+            currentTarget.disabled = false;
+            currentTarget.innerHTML = 'Claim';
             console.error(err);
             crossTokenError(`Couldn't Claim. ${err.message}`);
         })
