@@ -18,10 +18,10 @@ const SAI_TOKEN = { token: 'SAI', name: 'Sai Stablecoin', icon: 'https://raw.git
     42:{symbol:'SAI', address:'0xc7cc3413f169a027dccfeffe5208ca4f38ef0c40', decimals:18}
 };
 
-const INV_TOKEN = { token: 'INV', name: 'Invest', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/inv.png',
-    30:{symbol:'INV', address:'0xe0cff8a40f540657c62eb4cac34b915e5ed8d8ff', decimals:18},
-    42:{symbol:'DAI', address:'0xc7cc3413f169a027dccfeffe5208ca4f38ef0c40', decimals:18}
-};
+// const INV_TOKEN = { token: 'INV', name: 'Invest', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/inv.png',
+//     30:{symbol:'INV', address:'0xe0cff8a40f540657c62eb4cac34b915e5ed8d8ff', decimals:18},
+//     42:{symbol:'DAI', address:'0xc7cc3413f169a027dccfeffe5208ca4f38ef0c40', decimals:18}
+// };
 
 const BITPRO_TOKEN = { token: 'BITPRO', name: 'BitPro', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/bpro.png',
     31:{symbol:'BITPRO', address:'0x4da7997a819bb46b6758b9102234c289dd2ad3bf', decimals:18},
@@ -109,6 +109,6 @@ const UBI_TOKEN = { token: 'UBI', name: 'Universal Basic Income', icon: 'https:/
 };
 
 // Remove INV token because its paused on mainnet
-export default [ BUND_TOKEN, USDT_TOKEN, DAI_TOKEN, SAI_TOKEN, WETH_TOKEN, LINK_TOKEN,
+export const TOKENS = [ BUND_TOKEN, USDT_TOKEN, DAI_TOKEN, SAI_TOKEN, WETH_TOKEN, LINK_TOKEN,
     DOC_TOKEN, BITPRO_TOKEN, RIF_TOKEN, TUSD_TOKEN, USDC_TOKEN, ZRX_TOKEN, FLIXX_TOKEN,
     RFOX_TOKEN, OLD_TOKEN, AMLT_TOKEN, UBI_TOKEN, ];

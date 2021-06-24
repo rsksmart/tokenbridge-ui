@@ -28,149 +28,11 @@
               </div>
           </div>
       </nav>
-      <div class="navbar_bottom_shape"></div>
       <section id="home">
         <div class="container">
-          <div class="title">
-              <h1 id="title">RSK bridges with Ethereum</h1>
-              <h5 class="subtitle">You can convert your tokens from RSK to Ethereum and viceversa.</h5>
-          </div>
-          <div class="row justify-content-center">
-              <div class="text-center col-lg-4 col-md-6 col-12">
-                  <img src="@/assets/img/logo.jpg" alt="token bridge logo">
-              </div>
-          </div>
-          <form id="crossForm" name="crossForm">
-            <div id="newTransferTab" class="align-center">
-                <div class="leftColumn transferGridRow">
-                  <div class="text-center upperRow network"> 
-                    <div class="text-center">
-                      <span class="fromNetwork">From Network</span>
-                    </div>
-                   </div>
-                  <div class="text-center middleUpRow"> 
-                    <div class="text-center">
-                      <label class="tokenAddress-label" for="tokenAddress">You own</label>
-                      <div class="input-group">
-                          <select class="selectpicker" id="tokenAddress" name="tokenAddress" data-width="100%" title="Select token" disabled required>
-                              <!-- Dinamic content made with JS -->
-                          </select>
-                      </div>
-                      <div class="invalid-feedback"></div>
-                    </div>
-                  </div>
-                  <div class="text-center middleBottomRow">
-                    <div class="amount-bottom">
-                      <label class="amount-label" for="amount"><a id="max" class="max">Max</a></label>
-                      <div class="form-group amount">
-                        <input name="amount" id="amount" class="outline form-control text-center align-center" placeholder="Amount" required>
-                        <div class="invalid-feedback"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-  
-                <div class="middleColumn transferGridRow">
-                  <div class="text-center upperRow"> 
-                    <div>
-                      <span id="changeNetwork" class="outline-rounded" style="padding-left: 1.5rem; padding-right: 1.5rem;">
-                        <i class="fas fa-exchange-alt"></i>
-                      </span>
-                    </div>
-                     <div class="mt-2">Estimated time to cross tokens <b id="timeToCross"></b></div>
-                  </div>
-                  <div class="text-center middleUpRow"> 
-                    <div class="approve-deposit">
-                      <button disabled id="approve" class="btn btn-primary ml-3 mr-3">Approve</button>
-                    </div>
-                  </div>
-                  <div class="text-center middleBottomRow"> 
-                    <button disbaled id="deposit" type="submit" class="btn btn-primary ml-3 mr-3">Convert tokens</button>
-                  </div>
-                </div>
-  
-                <div class="rightColumn transferGridRow">
-                  <div class="text-center upperRow network"> 
-                    <div class="text-center">
-                      <span class="toNetwork">To Network</span>
-                    </div>
-                  </div>
-                  <div class="text-center middleUpRow">
-                    <div class="text-center">
-                      <div class="form-group willReceive">
-                        <label class="willReceive-label" for="willReceive">You will receive</label>
-                        <div class="input-group">
-                          <div class="form-control-plaintext" id="willReceive" name="willReceive">
-                            <span id="willReceiveToken" class="willReceiveToken" name="willReceiveToken"></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="text-center middleBottomRow">
-                    <div class="amount-bottom">
-                      <label class="amount-label" for="amount"><a id="max" class="max">Converted amount</a></label>
-                      <div class="form-group amount">
-                        <input name="receive-amount" id="receive-amount" class="outline form-control text-center align-center" readonly value="">
-                        <div class="invalid-feedback"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="text-center bottomRow">
-                    <div class="amount-bottom">
-                      <label class="amount-label" for="amount"><a id="max" class="max">Receiver address</a></label>
-                      <div class="form-group amount">
-                        <input type="text" name="receive-address" id="receive-address" class="outline form-control text-center align-center" placeholder="0x00...af">
-                        <div class="invalid-feedback"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-            </div> <!--End of newTransferTab-->
-
-            <div id="wait" class="mt-3 align-center text-center" style="max-width:350px; line-height: 16px; display:none;">
-                <!-- Spinner <div class="spinner-border mb-4" style="height:70px; width:70px"></div> -->
-                <!-- https://tobiasahlin.com/spinkit/ -->
-                <div class="sk-fading-circle">
-                    <div class="sk-circle1 sk-circle"></div>
-                    <div class="sk-circle2 sk-circle"></div>
-                    <div class="sk-circle3 sk-circle"></div>
-                    <div class="sk-circle4 sk-circle"></div>
-                    <div class="sk-circle5 sk-circle"></div>
-                    <div class="sk-circle6 sk-circle"></div>
-                    <div class="sk-circle7 sk-circle"></div>
-                    <div class="sk-circle8 sk-circle"></div>
-                    <div class="sk-circle9 sk-circle"></div>
-                    <div class="sk-circle10 sk-circle"></div>
-                    <div class="sk-circle11 sk-circle"></div>
-                    <div class="sk-circle12 sk-circle"></div>
-                </div>
-                <div class="mt-2">
-                    Wait for aproximately <b><span id="secondsPerBlock">X</span> seconds:</b> 
-                    the waiting period is required to confirm the transaction on the blockchain. 
-                    Please <b>do not close this tab</b> until the process has finished.
-                </div>
-            </div>
-            <div id="success" class="mt-3 align-center text-center alert alert-dismissible fade show" style="display:none;">
-                <div class="outline-rounded">
-                    <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
-                    <div>You will receive <span id="receive" class="black">126 rKovDAI</span> in your wallet in aproximately <span id="confirmationTime">X minutes</span></div>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            </div>
-            <div class="mt-3">
-                <div id="alert-danger" class="alert alert-danger alert-dismissible fade show" role="alert" style="display:none">
-                    <h4 class="alert-heading">Ups! there was an error</h4>
-                    <p id="alert-danger-text"></p>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                </div>
-            </div>
-          </form>
-
+          <Title :isTestnet="isTestnet" />
+          <CrossFormHorizontal />
+          <!--<CrossForm />-->
 
           <div id="previousTxnsEmptyTab">
               <h5 class="subtitle">Active account transactions</h5>
@@ -228,63 +90,10 @@
                   </div>
           </div>
 
-          <div id="tokensTab">
-              <h5 class="subtitle">Token bridge list</h5>
-              <p class="text-center">Ethereum native tokens will transform into r(tokenName). RSK native tokens will transform into e(tokenName)</p>
-              <div id="tokenListTab" class="align-center">
-                  <!-- Dinamic content made with JS -->
-              </div>
-          </div>
+          <ImportantDetails />
 
-          <div id="infoTab">
-              <h5 class="subtitle">Important details</h5>
-              <div class="row mb-5">
-                  <div class="col-md-4 col-sm-4 mb-5 config-section">
-                      <span class="config-value mb-2" id="config-max">-</span>
-                      <span class="config-title">Max transfer allowed</span>
-                      <p>
-                          The max value of tokens that can be tranferred per operation
-                      </p>
-                  </div>
-                  <div class="col-md-4 col-sm-4 mb-5 config-section">
-                      <span class="config-value mb-2" id="config-min">-</span>
-                      <span class="config-title">Min transfer allowed</span>
-                      <p>
-                          The min value of tokens that can be transferred per operation
-                      </p>
-                  </div>
-                  <div class="col-md-4 col-sm-4 mb-5 config-section">
-                      <span class="config-value mb-2" id="config-to-spend">-</span>
-                      <span class="config-title">Daily transfer limit</span>
-                      <p>
-                          How many tokens can be tranferred today
-                      </p>
-                  </div>
-                  <div class="col-md-4 col-sm-4 mb-5 config-section">
-                      <span class="config-value mb-2" id="config-fee">-</span>
-                      <span class="config-title">Fee</span>
-                      <p>
-                          This is the fee required for transfer tokens between networks
-                      </p>
-                  </div>
-                  <div class="col-md-4 col-sm-4 mb-5 config-section">
-                      <div>
-                          <span class="config-value mb-2 ml-2" id="config-federators-count">-</span>
-                      </div>
-                      <span class="config-title">Federators</span>
-                      <p>
-                          The Authorities will vote the transactions to cross during the trial period. Once we implement the decentralized bridge there will be no authorities as its a fully trustless solution
-                      </p>
-                  </div>
-                  <div class="col-md-4 col-sm-4 mb-5 config-section">
-                      <span class="config-value mb-2" id="config-whitelisted-enabled">-</span>
-                      <span class="config-title">Crossing period</span>
-                      <p>
-                          Time needed to have enough confirmations to securely cross assets to the other network
-                      </p>
-                  </div>
-              </div>
-          </div>
+          <TokensBridgeList />
+
       </div> <!--- End Tab Content -->
     </section>
   </div>
@@ -385,15 +194,19 @@
 
 <script>
 // --------- TOKENS import TOKENS variable  --------------
-import TOKENS from './constants/tokens'
+import {
+    TOKENS,
+    KOVAN_CONFIG,
+    RSK_TESTNET_CONFIG,
+    ETH_CONFIG,
+    RSK_MAINNET_CONFIG,
+} from '@/constants'
+
 // ------ ABIS -----
 import BRIDGE_ABI from './abis/bridge.json'
 import ALLOW_TOKENS_ABI from './abis/allowTokens.json'
 import ERC20_ABI from './abis/erc20.json'
 import FEDERATION_ABI from './abis/federation.json'
-
-// local Storage Static utilities
-import TXN_Storage from './js/txns-storage.js'
 
 // external js packages
 import BigNumber from 'bignumber.js'
@@ -407,118 +220,33 @@ import 'bootstrap'
 import 'bootstrap-select'
 import ClipboardJS from 'clipboard'
 
+import {
+  Paginator,
+  retry3Times,
+  poll4LastBlockNumber,
+  NULL_HASH,
+  TXN_Storage,
+} from '@/utils';
+
+import CrossFormHorizontal from '@/components/crossFormHorizontal/CrossFormHorizontal.vue'
+import Title from '@/components/title/Title.vue'
+import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
+import TokensBridgeList from '@/components/tokensBridgeList/TokensBridgeList.vue'
+
 export default {
   name: 'Home',
-  created: function () {
-    // async-await-retry  https://github.com/VoodooTeam/async-await-retry
-    const getPromise = (fn, args) => {
-        return new Promise((resolve, reject) => {
-            if (!args) args = [];
-            args.push((err, data) => {
-                if (err) return reject(err);
-                return resolve(data);
-            });
-            fn.apply(null, args);
-        });
-    };
-
-    const clone = (obj) => {
-        if (obj === null || typeof obj !== "object") {
-            return obj;
-        } else if (Array.isArray(obj)) {
-            let clonedArr = [];
-            for (const data of obj) {
-                clonedArr.push(clone(data));
-            }
-            return clonedArr;
-        } else {
-            let clonedObj = {};
-            const keys = Object.keys(obj);
-            for (const key of keys) {
-                clonedObj[key] = clone(obj[key]);
-            }
-            return clonedObj;
-        }
+  components: {
+    Title,
+    CrossFormHorizontal,
+    ImportantDetails,
+    TokensBridgeList
+  },
+  data() {
+    return {
+      isTestnet: false
     }
-
-    /**
-     * Credit to: https://arjunphp.com/can-paginate-array-objects-javascript/
-     */
-    function Paginator(items, page = 1, per_page = 5) {
-        let offset = (page - 1) * per_page;
-        let data = items.slice(offset).slice(0, per_page);
-        let total_pages = Math.ceil(items.length / per_page);
-
-        return {
-            page,
-            per_page,
-            pre_page: page - 1 ? page - 1 : null,
-            next_page: (total_pages > page) ? page + 1 : null,
-            total: items.length,
-            total_pages,
-            data
-        };
-    }
-
-    /**
-    * Poll given network for latest block number
-    *
-    * @param {Function} cb: callback function to call upon new value
-    */
-    async function poll4LastBlockNumber(cb) {
-        let interval = 5_000;
-        let { number } = await web3.eth.getBlock('latest');
-        cb(number);
-
-        let intervalId = setInterval(async () => {
-            let { number } = await web3.eth.getBlock('latest');
-            cb(number);
-        }, interval);
-
-        return intervalId;
-    };
-
-
-
-    /**
-    * Retry system with async / await
-    *
-    * @param {Function} fn : function to execute
-    * @param {Array} args : arguments of fn function
-    * @param {Object} config : arguments of fn function
-    * @property {Number} config.retriesMax : number of retries, by default 3
-    * @property {Number} config.interval : interval (in ms) between retry, by default 0
-    * @property {Boolean} config.exponential : use exponential retry interval, by default true
-    * @property {Number} config.factor: interval incrementation factor
-    * @property {Number} config.isCb: is fn a callback style function ?
-    */
-    async function retry(fn, args = [], config = {}) {
-        const retriesMax = config.retriesMax || 3;
-        let interval = config.interval || 0;
-        const exponential = config.hasOwnProperty('exponential') ? config.exponential : true;
-        const factor = config.factor || 2;
-
-        for (let i = 0; i < retriesMax; i++) {
-            try {
-                if (!config.isCb) {
-                    const val = await fn.apply(null, args);
-                    return val;
-                } else {
-                    const val = await getPromise(fn, clone(args));
-                    return val;
-                }
-            } catch (error) {
-                if(retriesMax === i+1 || (error.hasOwnProperty('retryable') && !error.retryable)) throw error;
-
-                interval = exponential ? interval * factor : interval;
-                // if interval is set to zero, do not use setTimeout, gain 1 event loop tick
-                if (interval) await new Promise(r => setTimeout(r, interval));
-            }
-        }
-    };
-    async function retry3Times(func, params = null) {
-        return retry(func, params, {retriesMax: 3, interval: 1_000, exponential: false});
-    }
+  },
+  created() {
 
     //User
     let address = '';
@@ -528,6 +256,7 @@ export default {
     let activeAddressRsk2EthTxns = [];
     let rsk2EthTablePage = 1;
     let rsk2EthPaginationObj = {};
+
     //Network configuration
     let config = null;
     let isTestnet = true;
@@ -538,15 +267,13 @@ export default {
     let maxTokensAllowed = 100_000;
     let maxDailyLimit = 1_000_000;
     let currentBlockNumber = null;
+
     // Selected Token To Cross
     let tokenContract = null;
-    let isSideToken = false;
-    let sideTokenAddress = null;
     let feePercentage = 0;
     let fee = 0;
     let feePercentageDivider = 10_000;
     let rLogin;
-    let pollingLastBlockIntervalId = 0;
 
     $(document).ready(function() {
         new ClipboardJS('.copy');
@@ -578,13 +305,13 @@ export default {
         $('#logIn').on('click', onLogInClick);
 
         let rpc = {
-            1: 'https://mainnet.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
+            1: `https://mainnet.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
             30: 'https://public-node.rsk.co',
         };
         let supportedChains = [1,30];
         if(isTestnet) {
             rpc = {
-                42: 'https://kovan.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
+                42: `https://kovan.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
                 31: 'https://public-node.testnet.rsk.co',
             };
             supportedChains = [42,31];
@@ -644,6 +371,24 @@ export default {
         $('#approve').on('click', function(e) {
             e.preventDefault();
             approveSpend();
+        });
+
+        $('.table').on('click', '.claim', function(e) {
+            e.preventDefault();
+            const url = e.currentTarget.closest('tr').querySelector('.confirmed').href;
+            const txHash = url.slice(url.indexOf('tx/') + 3);
+
+            let txn;
+            if(config.name.toLowerCase().includes('eth')) {
+                txn = activeAddressRsk2EthTxns.find(x => x.transactionHash === txHash);
+            } else {
+                txn = activeAddressEth2RskTxns.find(x => x.transactionHash === txHash);
+            }
+            if(!txn) {
+                alert('You need to switch the network to claim this');
+                return;
+            }
+            claim(txn, e.currentTarget);
         });
 
         $('#changeNetwork').on('click', function() {
@@ -738,17 +483,6 @@ export default {
 
     async function setInfoTab() {
     try {
-        // Dinamically get the values, this is comented as the public node some times throws errors
-        // let [maxWithdraw, maxAllowed, minAllowed, federators, isValidatingAllowedTokens] = await Promise.all([
-        //   retry3Times(allowTokensContract.methods.dailyLimit().call),
-        //   retry3Times(allowTokensContract.methods.getMaxTokensAllowed().call),
-        //   retry3Times(allowTokensContract.methods.getMinTokensAllowed().call),
-        //   retry3Times(federationContract.methods.getMembers().call),
-        //   retry3Times(allowTokensContract.methods.isValidatingAllowedTokens().call),
-        // ]);
-        // minTokensAllowed = parseInt(web3.utils.fromWei(minAllowed, 'ether'));
-        // maxTokensAllowed = parseInt(web3.utils.fromWei(maxAllowed, 'ether'));
-        // maxDailyLimit = parseInt(web3.utils.fromWei(maxWithdraw, 'ether'));
 
         //Harcoded values that don't change often to reduce load on the public server
         minTokensAllowed = 1;
@@ -757,7 +491,6 @@ export default {
         feePercentage = await retry3Times(bridgeContract.methods.getFeePercentage().call);
         fee = feePercentage/feePercentageDivider;
         let feeFormated = (fee*100).toFixed(2) + '%';
-        let isValidatingAllowedTokens = true;
         let federators = await retry3Times(federationContract.methods.getMembers().call);
 
         $('#fee').html(feeFormated);
@@ -787,8 +520,8 @@ export default {
         const decimals = token[config.networkId].decimals;
         return retry3Times(tokenContract.methods.balanceOf(address).call)
         .then(async (balance) => {
-            balanceBNs = new BigNumber(balance).shiftedBy(-decimals);
-            let maxWithdrawInWei = await retry3Times(bridgeContract.methods.calcMaxWithdraw().call);
+            let balanceBNs = new BigNumber(balance).shiftedBy(-decimals);
+            let maxWithdrawInWei = await retry3Times(allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call);
             let maxWithdraw = new BigNumber(web3.utils.fromWei(maxWithdrawInWei, 'ether'));
             let maxValue = 0;
             if( balanceBNs.isGreaterThan(maxWithdraw)) {
@@ -823,37 +556,16 @@ export default {
             return;
         }
 
-        const decimals = token[config.networkId].decimals;
-        const splittedAmount = amount.split('.');
-        var amountWithDecimals = splittedAmount[0];
-        for(let i = 0; i < decimals; i++) {
-            if(splittedAmount[1] && i < splittedAmount[1].length) {
-                amountWithDecimals += splittedAmount[1][i];
-            } else {
-                amountWithDecimals += '0';
-            }
-        }
-
         const amountBN = new BN(web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'));
 
-        var gasPriceParsed = 0;
-        if(config.networkId >= 30 && config.networkId <= 33) {
-            let block = await web3.eth.getBlock('latest');
-            gasPriceParsed = parseInt(block.minimumGasPrice);
-            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.03;
-        } else {
-            let gasPriceAvg = await web3.eth.getGasPrice();
-            gasPriceParsed= parseInt(gasPriceAvg);
-            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.3;
-        }
-        gasPrice = `0x${Math.ceil(gasPriceParsed).toString(16)}`;
+        let gasPrice = await getGasPriceHex();
 
         $('#wait').show();
 
         return new Promise((resolve, reject) => {
 
             tokenContract.methods.approve(bridgeContract.options.address, amountBN.toString())
-                .send({from: address, gasPrice:gasPrice, gas:70_000}, async (err, txHash) => {
+                .send({from: address, gasPrice: gasPrice, gas: 70_000}, async (err, txHash) => {
                 if (err) return reject(err);
                     try {
                     let receipt = await waitForReceipt(txHash);
@@ -894,6 +606,11 @@ export default {
     async function crossToken() {
         cleanAlertError();
         cleanAlertSuccess();
+        const receiverAddress = $('#receive-address').val();
+        if(!receiverAddress) {
+            crossTokenError('Choose a Receiver address');
+            return;
+        }
         var tokenToCross = $('#tokenAddress').val();
         var token = TOKENS.find(element => element.token == tokenToCross);
         if(!token) {
@@ -925,7 +642,6 @@ export default {
 
         }
         const amountBN = new BN(amountWithDecimals).mul(new BN(feePercentageDivider)).div(new BN(feePercentageDivider - feePercentage));
-        const amountFeesBN = fee == 0 ? amountBN : amountBN.mul(new BN(feePercentage)).div(new BN(feePercentageDivider));
 
         disableInputs(true);
         $('.fees').hide();
@@ -940,7 +656,7 @@ export default {
                 const showBalance = new BigNumber(balance);
                 throw new Error(`Insuficient Balance in your account, your current balance is ${showBalance.shiftedBy(-decimals)} ${token[config.networkId].symbol}`);
             }
-            let maxWithdrawInWei = await retry3Times(bridgeContract.methods.calcMaxWithdraw().call);
+            let maxWithdrawInWei = await retry3Times(allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call);
             const maxWithdraw = new BN(maxWithdrawInWei);
             if(amountBN.gt(maxWithdraw)) {
                 throw new Error(`Amount bigger than the daily limit. Daily limit left ${web3.utils.fromWei(maxWithdrawInWei, 'ether')} tokens`);
@@ -960,7 +676,7 @@ export default {
         }).then(async () => {
             return new Promise((resolve, reject) => {
                 bridgeContract.methods
-                    .receiveTokens(tokenContract.options.address, amountBN.toString())
+                    .receiveTokensTo(tokenContract.options.address, receiverAddress, amountBN.toString())
                     .send({from: address, gasPrice:gasPrice, gas:250_000}, async (err, txHash) => {
                     if (err) return reject(err);
                     try {
@@ -994,6 +710,7 @@ export default {
                 tokenFrom: token[config.networkId].symbol,
                 tokenTo: token[config.crossToNetwork.networkId].symbol,
                 amount,
+                receiverAddress,
                 ...receipt
             });
 
@@ -1006,6 +723,67 @@ export default {
             console.error(err);
             crossTokenError(`Couln't cross the tokens. ${err.message}`);
         });
+    }
+
+    async  function getGasPriceHex() {
+        var gasPriceParsed = 0;
+        if(config.networkId >= 30 && config.networkId <= 33) {
+            let block = await web3.eth.getBlock('latest');
+            gasPriceParsed = parseInt(block.minimumGasPrice);
+            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.03;
+        } else {
+            let gasPriceAvg = await web3.eth.getGasPrice();
+            gasPriceParsed= parseInt(gasPriceAvg);
+            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.3;
+        }
+        return `0x${Math.ceil(gasPriceParsed).toString(16)}`;
+
+    }
+
+    async function claim(txn, currentTarget) {
+        console.log(currentTarget)
+        const sideWeb3 = new Web3(config.crossToNetwork.rpc);
+        const receipt = await sideWeb3.eth.getTransactionReceipt(txn.transactionHash);
+        const eventJsonInterface = BRIDGE_ABI.find(x => x.name ==='Cross' && x.type ==='event');
+        const eventSignature = web3.eth.abi.encodeEventSignature(eventJsonInterface);
+        const event = receipt.logs.find(x => x.topics[0] === eventSignature);
+        console.log('eventJsonInterface', eventJsonInterface)
+        console.log('event', event)
+        event.topics.shift();
+        const decodedEvent = web3.eth.abi.decodeLog(eventJsonInterface.inputs, event.data, event.topics);
+        console.log('decodedEvent', decodedEvent)
+
+        let gasPrice = await getGasPriceHex();
+        currentTarget.disable = true;
+
+        return new Promise((resolve, reject) => {
+            bridgeContract.methods.claim({
+                to: decodedEvent._to,
+                amount: decodedEvent._amount,
+                blockHash: event.blockHash,
+                transactionHash: event.transactionHash,
+                logIndex: event.logIndex
+            }).send({from: address, gasPrice: gasPrice, gas: 250_000}, async (err, txHash) => {
+                if (err) return reject(err);
+                    try {
+                    let receipt = await waitForReceipt(txHash);
+                    if(receipt.status) {
+                        resolve(receipt);
+                    }
+                } catch(err) {
+                    reject(err);
+                }
+                reject(new Error(`Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`));
+            });
+        }).then(() => {
+            currentTarget.disable = false;
+            currentTarget.parentElement.outerHTML = '<span class="confirmed"> Claimed</span>';
+        })
+        .catch((err) => {
+            currentTarget.disable = false;
+            console.error(err);
+            crossTokenError(`Couldn't Claim. ${err.message}`);
+        })
     }
 
     function cleanAlertSuccess() {
@@ -1148,7 +926,7 @@ export default {
         const provider = await rLogin.connect()
             .then((rLoginResponse) => {
                 const provider = rLoginResponse.provider;
-                const dataVault = rLoginResponse.dataVault;
+                // const dataVault = rLoginResponse.dataVault;
                 const disconnect = rLoginResponse.disconnect;
 
                 // save the response to be used later, here we are using React context
@@ -1242,11 +1020,11 @@ export default {
 
     function updateActiveAddressTXNs(addr) {
         if(config.name.toLowerCase().includes('eth')) {
-            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(address, config.name);
-            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(address, config.crossToNetwork.name);
+            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(addr, config.name);
+            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(addr, config.crossToNetwork.name);
         } else {
-            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(address, config.name);
-            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(address, config.crossToNetwork.name);
+            activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(addr, config.name);
+            activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(addr, config.crossToNetwork.name);
         }
     }
 
@@ -1282,7 +1060,7 @@ export default {
         }
     }
 
-    function showActiveAddressTXNs() {
+    async function showActiveAddressTXNs() {
         if(!address  || (!activeAddressEth2RskTxns.length && !activeAddressRsk2EthTxns.length)) {
             $('#previousTxnsEmptyTab')
                 .css('margin-bottom', '6em')
@@ -1317,35 +1095,46 @@ export default {
             data: rsk2EthTxns
         } = rsk2EthPaginationObj;
 
-        let currentNetwork = $('.indicator span').text();
-
-        const processTxn = (txn, config = {}) => {
+        const processTxn = async (txn, networkConfig, blockNumber, sideWeb3) => {
             const {
                 confirmations,
                 secondsPerBlock,
                 explorer
-            } = config;
+            } = networkConfig;
 
-            let isConfig4CurrentNetwork = config.name === currentNetwork;
-
-            let elapsedBlocks = currentBlockNumber - txn.blockNumber;
+            let elapsedBlocks = blockNumber - txn.blockNumber;
             let remainingBlocks2Confirmation = confirmations - elapsedBlocks;
-            let status = isConfig4CurrentNetwork ?
-                ((elapsedBlocks >= confirmations) ?
-                    `<span class="confirmed"> Confirmed</span>` :
-                    `<span class="pending"> Pending</span>`) :
-                `Info Not Available`;
+            let status = 'Info Not Available';
+            if (txn.blockNumber > networkConfig.v2UpdateBlock) {
+                // V2 Protocol
+                const sideBridgeContract = new sideWeb3.eth.Contract(BRIDGE_ABI, networkConfig.crossToNetwork.bridge);
+                const txDataHash = await sideBridgeContract.methods.transactionsDataHashes(txn.transactionHash).call();
+                if (txDataHash === NULL_HASH)
+                    status = '<span class="pending"> Pending</span>'
+                else {
+                    const claimed = await sideBridgeContract.methods.claimed(txDataHash).call();
+                    if (claimed) {
+                        status = '<span class="confirmed"> Claimed</span>'
+                    } else {
+                        status = '<span><button class="btn btn-primary claim">Claim</button></span>'
+                    }
+                }
+            } else {
+                // V1 Protocol
+                status = (elapsedBlocks >= confirmations) ?
+                `<span class="confirmed"> Confirmed</span>` :
+                `<span class="pending"> Pending</span>`;
+            }
 
-            let confirmationTime = confirmations * secondsPerBlock;
             let seconds2Confirmation = remainingBlocks2Confirmation > 0 ?
                 remainingBlocks2Confirmation * secondsPerBlock : 0;
 
             let hoursToConfirmation = Math.floor(seconds2Confirmation / 60 / 60);
-            let hoursToConfirmationStr = (  hoursToConfirmation > 0) ? `${hoursToConfirmation}hs ` : ``;
+            let hoursToConfirmationStr = (hoursToConfirmation > 0) ? `${hoursToConfirmation}hs ` : '';
             let minutesToConfirmation = Math.floor(seconds2Confirmation / 60) - (hoursToConfirmation * 60);
-            let humanTimeToConfirmation = isConfig4CurrentNetwork ?
-                ((elapsedBlocks >= confirmations) ?
-                `` : `| ~ ${hoursToConfirmationStr} ${minutesToConfirmation}mins`) : ``;
+            let humanTimeToConfirmation = (elapsedBlocks < confirmations)
+                ? `| ~ ${hoursToConfirmationStr} ${minutesToConfirmation}mins`
+                : '';
 
             let txnExplorerLink = `${explorer}/tx/${txn.transactionHash}`;
             let shortTxnHash = `${txn.transactionHash.substring(0, 8)}...${txn.transactionHash.slice(-8)}`;
@@ -1360,25 +1149,29 @@ export default {
             return htmlRow;
         }
 
-        let activeAddressTXNsEth2RskRows;
-        let activeAddressTXNsRsk2EthRows;
-
+        let rskConfig = config;
+        let ethConfig = config.crossToNetwork;
+        let rskWeb3 = web3;
+        let ethWeb3 = new Web3(config.crossToNetwork.rpc);
+        let rskBlockNumber = currentBlockNumber;
+        let ethBlockNumber = await ethWeb3.eth.getBlockNumber();
         if(config.name.toLowerCase().includes('eth')) {
-            activeAddressTXNsEth2RskRows = eth2RskTxns.map( txn => {
-                return processTxn(txn, config);
-            });
-            activeAddressTXNsRsk2EthRows = rsk2EthTxns.map( txn => {
-                return processTxn(txn, config.crossToNetwork);
-            });
-        } else {
-            activeAddressTXNsEth2RskRows = eth2RskTxns.map( txn => {
-                return processTxn(txn, config.crossToNetwork);
-            });
-            activeAddressTXNsRsk2EthRows = rsk2EthTxns.map( txn => {
-                return processTxn(txn, config);
-            });
+            rskConfig = config.crossToNetwork;
+            ethConfig = config;
+            rskWeb3 = new Web3(config.crossToNetwork.rpc);
+            ethWeb3 = web3;
+            rskBlockNumber = await ethWeb3.eth.getBlockNumber();
+            ethBlockNumber = currentBlockNumber;
         }
+        const activeAddressTXNsEth2RskRowsPromises = Promise.all(eth2RskTxns.map(txn => {
+            return processTxn(txn, ethConfig, ethBlockNumber, rskWeb3);
+        }));
+        const activeAddressTXNsRsk2EthRowsPromises = Promise.all(rsk2EthTxns.map(txn => {
+            return processTxn(txn, rskConfig, rskBlockNumber, ethWeb3);
+        }));
 
+        const activeAddressTXNsEth2RskRows = await activeAddressTXNsEth2RskRowsPromises;
+        const activeAddressTXNsRsk2EthRows = await activeAddressTXNsRsk2EthRowsPromises;
         eth2RskTable.html(activeAddressTXNsEth2RskRows.join());
         rsk2EthTable.html(activeAddressTXNsRsk2EthRows.join());
 
@@ -1451,7 +1244,7 @@ export default {
             setInfoTab();
             onMetaMaskConnectionSuccess();
 
-            let pollingLastBlockIntervalId = await poll4LastBlockNumber(
+            await poll4LastBlockNumber(
                 function(blockNumber) {
                     currentBlockNumber = blockNumber;
                     showActiveAddressTXNs();
@@ -1541,63 +1334,6 @@ export default {
             throw new Error('Nifty Wallet or MetaMask is Locked, please unlock it and Reload the page to continue');
         return accounts;
     }
-
-    // --------- CONFIGS ----------
-    let KOVAN_CONFIG = {
-        networkId: 42,
-        name: 'Ethereum Kovan',
-        bridge: '0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d',
-        allowTokens: '0xe4aa0f414725c9322a1a9d80d469c5e234786653',
-        federation: '0xDa2295255633c26EaadBacE5269b6e8bD2648ca0',
-        explorer: 'https://kovan.etherscan.io',
-        explorerTokenTab: '#tokentxns',
-        confirmations: 10,
-        confirmationTime: '5 minutes',
-        secondsPerBlock: 5,
-    };
-    let RSK_TESTNET_CONFIG = {
-        networkId: 31,
-        name: 'RSK Testnet',
-        bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
-        allowTokens: '0x952b706a9Ab5fD2d3B36205648ED7852676AfBE7',
-        federation: '0x925606edc5863c079b712daed560c31eff8335b9',
-        explorer: 'https://explorer.testnet.rsk.co',
-        explorerTokenTab: '?__tab=tokens%20transfers',
-        confirmations: 10,
-        confirmationTime: '3 minutes',
-        secondsPerBlock: 30,
-        crossToNetwork: KOVAN_CONFIG
-    };
-    KOVAN_CONFIG.crossToNetwork = RSK_TESTNET_CONFIG;
-
-    // Replace with proper values contracts exist in mainnet
-    let ETH_CONFIG = {
-        networkId: 1,
-        name: 'ETH Mainnet',
-        bridge: "0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d",
-        allowTokens: "0xe4aa0f414725c9322a1a9d80d469c5e234786653",
-        federation: "0x479f86ecbe766073d2712ef418aceb56d5362a2b",
-        explorer: 'https://etherscan.io',
-        explorerTokenTab: '#tokentxns',
-        confirmations: 5760,
-        confirmationTime: '24 hours',
-        secondsPerBlock: 15,
-    };
-    let RSK_MAINNET_CONFIG = {
-        networkId: 30,
-        name: 'RSK Mainnet',
-        bridge: "0x9d11937e2179dc5270aa86a3f8143232d6da0e69",
-        allowTokens: "0xe4aa0f414725c9322a1a9d80d469c5e234786653",
-        federation: "0xe37b6516f4fe2a27569a2751c1ad50f6340df369",
-        explorer: 'https://explorer.rsk.co',
-        explorerTokenTab: '?__tab=tokens%20transfers',
-        confirmations: 2880,
-        confirmationTime: '24 hours',
-        secondsPerBlock: 30,
-        crossToNetwork: ETH_CONFIG
-    };
-    ETH_CONFIG.crossToNetwork = RSK_MAINNET_CONFIG;
-    // --------- CONFIGS  END --------------
 
   }
 }
