@@ -1,6 +1,7 @@
 export * from './paginator'
 export * from './poll'
 export * from './retry'
+export * from './addressValidator'
 
 // local Storage Static utilities
 export * from './txns-storage'
