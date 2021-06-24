@@ -1,4 +1,4 @@
-export default class TXN_Storage {
+export class TXN_Storage {
 
     static Storage;
 

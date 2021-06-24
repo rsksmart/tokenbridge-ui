@@ -195,21 +195,19 @@
 <script>
 // --------- TOKENS import TOKENS variable  --------------
 import TOKENS from './constants/tokens'
-import networks from './constants/networks'
-const {
+import {
+    NETWORKS,
     KOVAN_CONFIG,
     RSK_TESTNET_CONFIG,
     ETH_CONFIG,
     RSK_MAINNET_CONFIG
-} = networks
+} from './constants/networks'
+
 // ------ ABIS -----
 import BRIDGE_ABI from './abis/bridge.json'
 import ALLOW_TOKENS_ABI from './abis/allowTokens.json'
 import ERC20_ABI from './abis/erc20.json'
 import FEDERATION_ABI from './abis/federation.json'
-
-// local Storage Static utilities
-import TXN_Storage from './js/txns-storage.js'
 
 // external js packages
 import BigNumber from 'bignumber.js'
@@ -227,7 +225,8 @@ import {
   Paginator,
   retry3Times,
   poll4LastBlockNumber,
-  NULL_HASH
+  NULL_HASH,
+  TXN_Storage,
 } from '@/utils';
 
 import CrossForm from '@/components/crossForm/CrossForm.vue'
@@ -375,6 +374,24 @@ export default {
         $('#approve').on('click', function(e) {
             e.preventDefault();
             approveSpend();
+        });
+
+        $('.table').on('click', '.claim', function(e) {
+            e.preventDefault();
+            const url = e.currentTarget.closest('tr').querySelector('.confirmed').href;
+            const txHash = url.slice(url.indexOf('tx/') + 3);
+
+            let txn;
+            if(config.name.toLowerCase().includes('eth')) {
+                txn = activeAddressRsk2EthTxns.find(x => x.transactionHash === txHash);
+            } else {
+                txn = activeAddressEth2RskTxns.find(x => x.transactionHash === txHash);
+            }
+            if(!txn) {
+                alert('You need to switch the network to claim this');
+                return;
+            }
+            claim(txn, e.currentTarget);
         });
 
         $('#changeNetwork').on('click', function() {
@@ -544,17 +561,7 @@ export default {
 
         const amountBN = new BN(web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'));
 
-        var gasPriceParsed = 0;
-        if(config.networkId >= 30 && config.networkId <= 33) {
-            let block = await web3.eth.getBlock('latest');
-            gasPriceParsed = parseInt(block.minimumGasPrice);
-            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.03;
-        } else {
-            let gasPriceAvg = await web3.eth.getGasPrice();
-            gasPriceParsed= parseInt(gasPriceAvg);
-            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.3;
-        }
-        let gasPrice = `0x${Math.ceil(gasPriceParsed).toString(16)}`;
+        let gasPrice = await getGasPriceHex();
 
         $('#wait').show();
 
@@ -602,6 +609,11 @@ export default {
     async function crossToken() {
         cleanAlertError();
         cleanAlertSuccess();
+        const receiverAddress = $('#receive-address').val();
+        if(!receiverAddress) {
+            crossTokenError('Choose a Receiver address');
+            return;
+        }
         var tokenToCross = $('#tokenAddress').val();
         var token = TOKENS.find(element => element.token == tokenToCross);
         if(!token) {
@@ -667,7 +679,7 @@ export default {
         }).then(async () => {
             return new Promise((resolve, reject) => {
                 bridgeContract.methods
-                    .receiveTokensTo(tokenContract.options.address, address, amountBN.toString())
+                    .receiveTokensTo(tokenContract.options.address, receiverAddress, amountBN.toString())
                     .send({from: address, gasPrice:gasPrice, gas:250_000}, async (err, txHash) => {
                     if (err) return reject(err);
                     try {
@@ -701,6 +713,7 @@ export default {
                 tokenFrom: token[config.networkId].symbol,
                 tokenTo: token[config.crossToNetwork.networkId].symbol,
                 amount,
+                receiverAddress,
                 ...receipt
             });
 
@@ -713,6 +726,67 @@ export default {
             console.error(err);
             crossTokenError(`Couln't cross the tokens. ${err.message}`);
         });
+    }
+
+    async  function getGasPriceHex() {
+        var gasPriceParsed = 0;
+        if(config.networkId >= 30 && config.networkId <= 33) {
+            let block = await web3.eth.getBlock('latest');
+            gasPriceParsed = parseInt(block.minimumGasPrice);
+            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.03;
+        } else {
+            let gasPriceAvg = await web3.eth.getGasPrice();
+            gasPriceParsed= parseInt(gasPriceAvg);
+            gasPriceParsed = gasPriceParsed <= 1 ? 1: gasPriceParsed * 1.3;
+        }
+        return `0x${Math.ceil(gasPriceParsed).toString(16)}`;
+
+    }
+
+    async function claim(txn, currentTarget) {
+        console.log(currentTarget)
+        const sideWeb3 = new Web3(config.crossToNetwork.rpc);
+        const receipt = await sideWeb3.eth.getTransactionReceipt(txn.transactionHash);
+        const eventJsonInterface = BRIDGE_ABI.find(x => x.name ==='Cross' && x.type ==='event');
+        const eventSignature = web3.eth.abi.encodeEventSignature(eventJsonInterface);
+        const event = receipt.logs.find(x => x.topics[0] === eventSignature);
+        console.log('eventJsonInterface', eventJsonInterface)
+        console.log('event', event)
+        event.topics.shift();
+        const decodedEvent = web3.eth.abi.decodeLog(eventJsonInterface.inputs, event.data, event.topics);
+        console.log('decodedEvent', decodedEvent)
+
+        let gasPrice = await getGasPriceHex();
+        currentTarget.disable = true;
+
+        return new Promise((resolve, reject) => {
+            bridgeContract.methods.claim({
+                to: decodedEvent._to,
+                amount: decodedEvent._amount,
+                blockHash: event.blockHash,
+                transactionHash: event.transactionHash,
+                logIndex: event.logIndex
+            }).send({from: address, gasPrice: gasPrice, gas: 250_000}, async (err, txHash) => {
+                if (err) return reject(err);
+                    try {
+                    let receipt = await waitForReceipt(txHash);
+                    if(receipt.status) {
+                        resolve(receipt);
+                    }
+                } catch(err) {
+                    reject(err);
+                }
+                reject(new Error(`Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`));
+            });
+        }).then(() => {
+            currentTarget.disable = false;
+            currentTarget.parentElement.outerHTML = '<span class="confirmed"> Claimed</span>';
+        })
+        .catch((err) => {
+            currentTarget.disable = false;
+            console.error(err);
+            crossTokenError(`Couldn't Claim. ${err.message}`);
+        })
     }
 
     function cleanAlertSuccess() {
@@ -1024,42 +1098,35 @@ export default {
             data: rsk2EthTxns
         } = rsk2EthPaginationObj;
 
-        let currentNetwork = $('.indicator span').text();
-
-        const processTxn = async (txn, config = {}) => {
+        const processTxn = async (txn, networkConfig, blockNumber, sideWeb3) => {
             const {
                 confirmations,
                 secondsPerBlock,
                 explorer
-            } = config;
+            } = networkConfig;
 
-            let isConfig4CurrentNetwork = config.name === currentNetwork;
-
-            let elapsedBlocks = currentBlockNumber - txn.blockNumber;
+            let elapsedBlocks = blockNumber - txn.blockNumber;
             let remainingBlocks2Confirmation = confirmations - elapsedBlocks;
             let status = 'Info Not Available';
-            if (isConfig4CurrentNetwork) {
-                if (txn.blockNumber > config.v2UpdateBlock) {
-                    // V2 Protocol
-                    const sideWeb3 = new Web3(config.crossToNetwork.rpc);
-                    const sideBridgeContract = new sideWeb3.eth.Contract(BRIDGE_ABI, config.crossToNetwork.bridge);
-                    const txDataHash = await sideBridgeContract.methods.transactionsDataHashes(txn.transactionHash).call();
-                    if (txDataHash === NULL_HASH)
-                        status = '<span class="pending"> Pending</span>'
-                    else {
-                        const claimed = await sideBridgeContract.methods.claimed(txDataHash).call();
-                        if (claimed) {
-                            status = '<span class="confirmed"> Claimed</span>'
-                        } else {
-                            status = '<span><button class="btn btn-primary claim">Claim</button></span>'
-                        }
+            if (txn.blockNumber > networkConfig.v2UpdateBlock) {
+                // V2 Protocol
+                const sideBridgeContract = new sideWeb3.eth.Contract(BRIDGE_ABI, networkConfig.crossToNetwork.bridge);
+                const txDataHash = await sideBridgeContract.methods.transactionsDataHashes(txn.transactionHash).call();
+                if (txDataHash === NULL_HASH)
+                    status = '<span class="pending"> Pending</span>'
+                else {
+                    const claimed = await sideBridgeContract.methods.claimed(txDataHash).call();
+                    if (claimed) {
+                        status = '<span class="confirmed"> Claimed</span>'
+                    } else {
+                        status = '<span><button class="btn btn-primary claim">Claim</button></span>'
                     }
-                } else {
-                    // V1 Protocol
-                    status = (elapsedBlocks >= confirmations) ?
-                    `<span class="confirmed"> Confirmed</span>` :
-                    `<span class="pending"> Pending</span>`;
                 }
+            } else {
+                // V1 Protocol
+                status = (elapsedBlocks >= confirmations) ?
+                `<span class="confirmed"> Confirmed</span>` :
+                `<span class="pending"> Pending</span>`;
             }
 
             let seconds2Confirmation = remainingBlocks2Confirmation > 0 ?
@@ -1068,7 +1135,7 @@ export default {
             let hoursToConfirmation = Math.floor(seconds2Confirmation / 60 / 60);
             let hoursToConfirmationStr = (hoursToConfirmation > 0) ? `${hoursToConfirmation}hs ` : '';
             let minutesToConfirmation = Math.floor(seconds2Confirmation / 60) - (hoursToConfirmation * 60);
-            let humanTimeToConfirmation = (isConfig4CurrentNetwork && elapsedBlocks >= confirmations)
+            let humanTimeToConfirmation = (elapsedBlocks < confirmations)
                 ? `| ~ ${hoursToConfirmationStr} ${minutesToConfirmation}mins`
                 : '';
 
@@ -1087,16 +1154,23 @@ export default {
 
         let rskConfig = config;
         let ethConfig = config.crossToNetwork;
-
+        let rskWeb3 = web3;
+        let ethWeb3 = new Web3(config.crossToNetwork.rpc);
+        let rskBlockNumber = currentBlockNumber;
+        let ethBlockNumber = await ethWeb3.eth.getBlockNumber();
         if(config.name.toLowerCase().includes('eth')) {
             rskConfig = config.crossToNetwork;
             ethConfig = config;
+            rskWeb3 = new Web3(config.crossToNetwork.rpc);
+            ethWeb3 = web3;
+            rskBlockNumber = await ethWeb3.eth.getBlockNumber();
+            ethBlockNumber = currentBlockNumber;
         }
         const activeAddressTXNsEth2RskRowsPromises = Promise.all(eth2RskTxns.map(txn => {
-            return processTxn(txn, ethConfig);
+            return processTxn(txn, ethConfig, ethBlockNumber, rskWeb3);
         }));
         const activeAddressTXNsRsk2EthRowsPromises = Promise.all(rsk2EthTxns.map(txn => {
-            return processTxn(txn, rskConfig);
+            return processTxn(txn, rskConfig, rskBlockNumber, ethWeb3);
         }));
 
         const activeAddressTXNsEth2RskRows = await activeAddressTXNsEth2RskRowsPromises;
@@ -1125,10 +1199,6 @@ export default {
         $('#confirmations').html(config.confirmations);
         $('#timeToCross').html(config.crossToNetwork.confirmationTime);
         updateTokenAddressDropdown(config.networkId);
-    }
-
-    function getNetworkByName(networkName) {
-        return networks.find(network => network.name == networkName);
     }
 
     async function updateNetwork(newNetwork) {

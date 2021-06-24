@@ -1,5 +1,5 @@
 // --------- CONFIGS ----------
-const KOVAN_CONFIG = {
+export const KOVAN_CONFIG = {
     networkId: 42,
     name: 'Ethereum Kovan',
     bridge: '0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d',
@@ -13,7 +13,7 @@ const KOVAN_CONFIG = {
     rpc: `https://kovan.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
     v2UpdateBlock: 25547922,
 };
-const RSK_TESTNET_CONFIG = {
+export const RSK_TESTNET_CONFIG = {
     networkId: 31,
     name: 'RSK Testnet',
     bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
@@ -31,7 +31,7 @@ const RSK_TESTNET_CONFIG = {
 KOVAN_CONFIG.crossToNetwork = RSK_TESTNET_CONFIG;
 
 // Replace with proper values contracts exist in mainnet
-const ETH_CONFIG = {
+export const ETH_CONFIG = {
     networkId: 1,
     name: 'ETH Mainnet',
     bridge: "0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d",
@@ -44,7 +44,7 @@ const ETH_CONFIG = {
     secondsPerBlock: 15,
     rpc: `https://mainnet.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
 };
-const RSK_MAINNET_CONFIG = {
+export const RSK_MAINNET_CONFIG = {
     networkId: 30,
     name: 'RSK Mainnet',
     bridge: "0x9d11937e2179dc5270aa86a3f8143232d6da0e69",
@@ -60,9 +60,9 @@ const RSK_MAINNET_CONFIG = {
 };
 ETH_CONFIG.crossToNetwork = RSK_MAINNET_CONFIG;
 
-export default {
-    KOVAN_CONFIG,
-    RSK_TESTNET_CONFIG,
-    ETH_CONFIG,
-    RSK_MAINNET_CONFIG
+export const NETWORKS = {
+    31: RSK_TESTNET_CONFIG,
+    30: RSK_MAINNET_CONFIG,
+    42: KOVAN_CONFIG,
+    1: ETH_CONFIG,
 }
