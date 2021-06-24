@@ -8,7 +8,7 @@
   </div>
 </template>
 <script>
-import { TOKENS } from '@/utils'
+import { TOKENS } from '@/constants'
 import TokenRow from './components/tokenRow/TokenRow.vue'
 
 export default {

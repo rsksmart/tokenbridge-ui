@@ -194,14 +194,13 @@
 
 <script>
 // --------- TOKENS import TOKENS variable  --------------
-import TOKENS from './constants/tokens'
 import {
-    NETWORKS,
+    TOKENS,
     KOVAN_CONFIG,
     RSK_TESTNET_CONFIG,
     ETH_CONFIG,
-    RSK_MAINNET_CONFIG
-} from './constants/networks'
+    RSK_MAINNET_CONFIG,
+} from '@/constants'
 
 // ------ ABIS -----
 import BRIDGE_ABI from './abis/bridge.json'
@@ -229,7 +228,6 @@ import {
   TXN_Storage,
 } from '@/utils';
 
-import CrossForm from '@/components/crossForm/CrossForm.vue'
 import CrossFormHorizontal from '@/components/crossFormHorizontal/CrossFormHorizontal.vue'
 import Title from '@/components/title/Title.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
@@ -239,7 +237,6 @@ export default {
   name: 'Home',
   components: {
     Title,
-    CrossForm,
     CrossFormHorizontal,
     ImportantDetails,
     TokensBridgeList
