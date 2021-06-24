@@ -206,10 +206,10 @@ import {
 } from '@/constants'
 
 // ------ ABIS -----
-import BRIDGE_ABI from './abis/bridge.json'
-import ALLOW_TOKENS_ABI from './abis/allowTokens.json'
-import ERC20_ABI from './abis/erc20.json'
-import FEDERATION_ABI from './abis/federation.json'
+import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
+import ERC20_ABI from '@/constants/abis/erc20.json'
+import FEDERATION_ABI from '@/constants/abis/federation.json'
 
 // external js packages
 import BigNumber from 'bignumber.js'
