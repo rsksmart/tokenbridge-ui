@@ -93,13 +93,13 @@
   }
   .bootstrap-select .dropdown-toggle .filter-option {
       font-family: 'Quicksand';
-      font-size: 20px;
+      font-size: 1rem;
       line-height: 25px;
       text-align: center;
   }
   .dropdown-item, .form-control-plaintext {
       font-family: 'Quicksand';
-      font-size: 20px;
+      font-size: 1rem;
       line-height: 25px;
   }
   .fees {
@@ -116,7 +116,7 @@
       font-weight: bold;
   }
   #amount {
-      font-size: 18px;
+      font-size: 1rem;
       line-height: 22px;
   }
   #amount.ok {

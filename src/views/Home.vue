@@ -306,11 +306,6 @@ export default {
         }
       })
 
-      $('#receive-address').keydown(function(event) {
-        if (event.key === 'Tab') {
-        }
-      })
-
       $('#amount').keyup(function(event) {
         isAmountOk()
         if (event.key === 'Enter') {
@@ -1280,7 +1275,7 @@ export default {
           $('.indicator').removeClass('btn-outline-success')
           $('.indicator').addClass('btn-outline-danger')
           $('.toNetwork').text('To Network')
-          $('#willReceiveToken').html('')
+          $('#willReceiveToken').html('-')
           throw new Error(
             `Wrong Network.<br /> Please connect your wallet to <b>${
               isTestnet ? 'RSK Testnet or Ethereum Kovan' : 'RSK Mainnet or Ethereum Mainnet'
@@ -1326,7 +1321,7 @@ export default {
       $('#tokenAddress').html(selectHtml)
       $('#tokenAddress').prop('disabled', false)
       $('#tokenAddress').selectpicker('refresh')
-      $('#willReceiveToken').html('')
+      $('#willReceiveToken').html('-')
     }
 
     function updateTokenListTab() {
