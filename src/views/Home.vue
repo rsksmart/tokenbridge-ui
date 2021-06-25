@@ -1,157 +1,108 @@
 <template>
   <div>
-    <div id="main">
-      <!-- Navigation -->
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-          <a class="navbar-brand" href="https://rsk.co">
-            <img
-              id="logo"
-              src="https://developers.rsk.co/assets/img/rsk_logo.svg"
-              class="logo"
-              alt="RSK Token Bridge"
-            />
-          </a>
-          <div
-            class="wallet-status navbar-item indicator badge-outline badge-pill"
-            style="display: none;"
-          >
-            <span aria-describedby="tooltip-status" class="fromNetwork">Network</span>
-          </div>
-          <button
-            class="navbar-toggler collapsed"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarResponsive"
-            aria-controls="navbarResponsive"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div id="navbarResponsive" class="navbar-collapse collapse">
+    <section id="home">
+      <div class="container">
+        <Title :is-testnet="isTestnet" />
+
+        <CrossForm
+          :origin-network="originNetwork"
+          :destination-network="destinationNetwork"
+          :sender-address="userAddress"
+        />
+
+        <div id="previousTxnsEmptyTab">
+          <h5 class="subtitle">Active account transactions</h5>
+          <p class="text-center">
+            Please note that all transactions listed here will not appear if you use another device
+          </p>
+          <h5 class="subtitle">No transactions for active account found</h5>
+        </div>
+
+        <div id="previousTxnsTab">
+          <h5 class="subtitle">Active account transactions</h5>
+          <nav>
+            <div id="nav-tab" class="nav nav-tabs" role="tablist">
+              <a
+                id="nav-rsk-eth-tab"
+                class="nav-item nav-link active"
+                data-toggle="tab"
+                href="#nav-rsk-eth"
+                role="tab"
+                aria-controls="nav-rsk-eth"
+                aria-selected="true"
+                >RSK -> ETH</a
+              >
+              <a
+                id="nav-eth-rsk-tab"
+                class="nav-item nav-link"
+                data-toggle="tab"
+                href="#nav-eth-rsk"
+                role="tab"
+                aria-controls="nav-eth-rsk"
+                aria-selected="false"
+                >ETH -> RSK</a
+              >
+            </div>
+          </nav>
+          <div id="nav-tabContent" class="tab-content">
             <div
-              class="wallet-status navbar-item badge-pill text-truncate"
-              style="width: 85px; display: none;"
+              id="nav-rsk-eth"
+              class="tab-pane fade show active"
+              role="tabpanel"
+              aria-labelledby="nav-rsk-eth-tab"
             >
-              <span id="address">0x123456789</span>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Txn hash</th>
+                    <th scope="col">Block number</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Status | Estimated time</th>
+                  </tr>
+                </thead>
+                <tbody id="rsk-eth-tbody">
+                  <!-- Dinamic content made with JS -->
+                </tbody>
+              </table>
             </div>
-            <div class="navbar-item ml-auto">
-              <button id="logIn" type="button" class="btn btn-primary badge-pill">
-                Connect wallet
+            <div
+              id="nav-eth-rsk"
+              class="tab-pane fade"
+              role="tabpanel"
+              aria-labelledby="nav-eth-rsk-tab"
+            >
+              <!-- Dinamic content made with JS -->
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Txn hash</th>
+                    <th scope="col">Block number</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Status | Estimated time</th>
+                  </tr>
+                </thead>
+                <tbody id="eth-rsk-tbody">
+                  <!-- Dinamic content made with JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button id="txn-previous" type="button" class="btn btn-secondary">
+                &lt; previous
               </button>
-              <a id="help" href="https://developers.rsk.co/slack/" style="display: none;">
-                Do you need help?
-              </a>
+              <button id="txn-next" type="button" class="btn btn-secondary">next ></button>
             </div>
           </div>
         </div>
-      </nav>
-      <section id="home">
-        <div class="container">
-          <Title :is-testnet="isTestnet" />
 
-          <CrossForm
-            :origin-network="originNetwork"
-            :destination-network="destinationNetwork"
-            :sender-address="userAddress"
-          />
+        <ImportantDetails />
 
-          <div id="previousTxnsEmptyTab">
-            <h5 class="subtitle">Active account transactions</h5>
-            <p class="text-center">
-              Please note that all transactions listed here will not appear if you use another
-              device
-            </p>
-            <h5 class="subtitle">No transactions for active account found</h5>
-          </div>
-
-          <div id="previousTxnsTab">
-            <h5 class="subtitle">Active account transactions</h5>
-            <nav>
-              <div id="nav-tab" class="nav nav-tabs" role="tablist">
-                <a
-                  id="nav-rsk-eth-tab"
-                  class="nav-item nav-link active"
-                  data-toggle="tab"
-                  href="#nav-rsk-eth"
-                  role="tab"
-                  aria-controls="nav-rsk-eth"
-                  aria-selected="true"
-                  >RSK -> ETH</a
-                >
-                <a
-                  id="nav-eth-rsk-tab"
-                  class="nav-item nav-link"
-                  data-toggle="tab"
-                  href="#nav-eth-rsk"
-                  role="tab"
-                  aria-controls="nav-eth-rsk"
-                  aria-selected="false"
-                  >ETH -> RSK</a
-                >
-              </div>
-            </nav>
-            <div id="nav-tabContent" class="tab-content">
-              <div
-                id="nav-rsk-eth"
-                class="tab-pane fade show active"
-                role="tabpanel"
-                aria-labelledby="nav-rsk-eth-tab"
-              >
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Txn hash</th>
-                      <th scope="col">Block number</th>
-                      <th scope="col">Amount</th>
-                      <th scope="col">Status | Estimated time</th>
-                    </tr>
-                  </thead>
-                  <tbody id="rsk-eth-tbody">
-                    <!-- Dinamic content made with JS -->
-                  </tbody>
-                </table>
-              </div>
-              <div
-                id="nav-eth-rsk"
-                class="tab-pane fade"
-                role="tabpanel"
-                aria-labelledby="nav-eth-rsk-tab"
-              >
-                <!-- Dinamic content made with JS -->
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Txn hash</th>
-                      <th scope="col">Block number</th>
-                      <th scope="col">Amount</th>
-                      <th scope="col">Status | Estimated time</th>
-                    </tr>
-                  </thead>
-                  <tbody id="eth-rsk-tbody">
-                    <!-- Dinamic content made with JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-              <div class="btn-group mr-2" role="group" aria-label="First group">
-                <button id="txn-previous" type="button" class="btn btn-secondary">
-                  &lt; previous
-                </button>
-                <button id="txn-next" type="button" class="btn btn-secondary">next ></button>
-              </div>
-            </div>
-          </div>
-
-          <ImportantDetails />
-
-          <TokensBridgeList />
-        </div>
-        <!--- End Tab Content -->
-      </section>
-    </div>
+        <TokensBridgeList />
+      </div>
+      <!--- End Tab Content -->
+    </section>
     <!-- Modal -->
     <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -165,220 +116,6 @@
         </div>
       </div>
     </div>
-    <footer id="footer" class="section-bg">
-      <div class="footer-top">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-12">
-              <img src="https://www.rsk.co/img/powered_by_iov.svg" class="img-fluid powered_by" />
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="row">
-                <div class="col-sm-7">
-                  <div class="footer-info">
-                    <p>
-                      Rsk is the most secure smart contract network in the world and enables
-                      decentralized applications secured by the Bitcoin Network to empower people
-                      and improve the quality of life of millions.
-                    </p>
-                    <br />
-                    <a
-                      href="https://developers.rsk.co/"
-                      rel="nofollow noopener noreferrer"
-                      target="_blank"
-                      class="footer-button rounded"
-                      title="Start now"
-                      >Start now</a
-                    >
-                  </div>
-                </div>
-                <div class="col-sm-5"></div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="footer-links">
-                    <ul>
-                      <li>
-                        <a
-                          href="https://developers.rsk.co/tools/tokenbridge/dappguide"
-                          target="_blank"
-                          >How to use it?</a
-                        >
-                      </li>
-                      <li><a href="https://developers.rsk.co/tools/tokenbridge/faq/">FAQ</a></li>
-                      <li>
-                        <a href="https://github.com/rsksmart/tokenbridge" target="_blank"
-                          >Repository</a
-                        >
-                      </li>
-                      <li>
-                        <a id="get-rbtc-navlink" href="https://coinswitch.rsk.co/" target="_blank"
-                          >Get RBTC</a
-                        >
-                      </li>
-                      <li>
-                        <a id="network-navlink" href="https://testnet.tokenbridge.rsk.co"
-                          >Use Testnet</a
-                        >
-                      </li>
-                      <li>
-                        <a
-                          href="https://developers.rsk.co/tools/tokenbridge"
-                          rel="nofollow noopener noreferrer"
-                          target="_blank"
-                          class="footer-button"
-                          title="Documentation"
-                          >Documentation</a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="footer-links">
-                    <ul>
-                      <li>
-                        <a
-                          href="https://www.iovlabs.org"
-                          rel="nofollow noopener noreferrer"
-                          target="_blank"
-                          >About IOVlabs</a
-                        >
-                      </li>
-                      <li>
-                        <a
-                          href="https://www.iovlabs.org/contact.html"
-                          rel="nofollow noopener noreferrer"
-                          target="_blank"
-                          >Contact IOVlabs</a
-                        >
-                      </li>
-                      <li>
-                        <a
-                          href="https://blog.rsk.co/"
-                          rel="nofollow noopener noreferrer"
-                          target="_blank"
-                          >Blog</a
-                        >
-                      </li>
-                      <li>
-                        <a
-                          class="bold"
-                          href="https://www.rsk.co/Brand_Guidelines/RSK_BrandManual_V6.pdf"
-                          rel="nofollow noopener noreferrer"
-                          target="_blank"
-                          >Brand Guidelines</a
-                        >
-                      </li>
-                      <li>
-                        <a class="bold" href="https://www.rsk.co/terms-conditions"
-                          >Terms &amp; Conditions</a
-                        >
-                      </li>
-                      <li>
-                        <a class="bold mb-30" href="https://www.rsk.co/privacy-policy"
-                          >Privacy Policy</a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="social-links">
-                <a
-                  href="https://twitter.com/rsksmart"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="twitter"
-                  ><i class="fab fa-twitter"></i
-                ></a>
-                <a
-                  href="https://www.youtube.com/rsksmart"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="facebook"
-                  ><i class="fab fa-youtube"></i
-                ></a>
-                <a
-                  href=" https://www.facebook.com/RSKsmart/"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="linkedin"
-                  ><i class="fab fa-facebook"></i
-                ></a>
-                <a
-                  href="https://gitter.im/rsksmart"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="instagram"
-                  ><i class="fab fa-gitter"></i
-                ></a>
-                <a
-                  href="https://www.reddit.com/r/rootstock/"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="instagram"
-                  ><i class="fab fa-reddit"></i
-                ></a>
-                <a
-                  href="https://t.me/rskofficialcommunity"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="instagram"
-                  ><i class="fab fa-telegram"></i
-                ></a>
-                <a
-                  href="https://medium.com/@RSKNews"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="instagram"
-                  ><i class="fab fa-medium"></i
-                ></a>
-                <a
-                  href="https://t.me/rsksmartcontract"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class="instagram"
-                  ><i class="fab fa-telegram"></i
-                ></a>
-                <a
-                  href="https://www.instagram.com/rsksmart/"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class=""
-                  ><i class="fab fa-instagram"></i
-                ></a>
-                <a
-                  href="https://bitcointalk.org/index.php?topic=5124334"
-                  rel="nofollow noopener noreferrer"
-                  target="_blank"
-                  class=""
-                  ><i class="fab fa-btc"></i
-                ></a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="container">
-          <div class="col-md-12">
-            <div class="row">
-              <div class="col-md-6 col-xs-12 pl-0-mobile">
-                <p class="copyright">Copyright © 2015 RSK Labs. All rights reserved.</p>
-              </div>
-              <div class="col-md-6 col-xs-12 pl-0-mobile">
-                <p class="credits">
-                  RSK Public Key (69F6 F997 2497 8762 D541 8AE4 58D2 260D 5998 6758)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
