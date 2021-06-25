@@ -1,14 +1,14 @@
 <template>
   <form id="crossForm" name="crossForm">
     <div id="bridgeTab" class="align-center">
-      <div class="firstRow">
+      <div class="firstRow row justify-content-sm-center">
         <!-- Column 2 -->
-        <div class="originNetwork text-center">
-          {{ originNetwork }}
+        <div class="originNetwork text-center col-sm-2">
+          {{ originNetwork || 'RSK' }}
         </div>
 
         <!-- Column 4 -->
-        <div class="youOwn text-center">
+        <div class="youOwn text-center col-sm-2">
           <label class="tokenAddress-label" for="tokenAddress">You own</label>
           <div class="input-group">
             <select
@@ -27,13 +27,13 @@
         </div>
 
         <!-- Column 6 -->
-        <div class="amountToCross text-center">
+        <div class="amountToCross text-center col-sm-2">
           <label class="amount-label" for="amount"><a id="max" class="max">Max</a></label>
           <div class="form-group amount">
             <input
               id="amount"
               name="amount"
-              class="outline form-control text-center align-center"
+              class="outline form-control text-center"
               placeholder="Amount"
               required
             />
@@ -42,7 +42,7 @@
         </div>
 
         <!-- Column 8 -->
-        <div class="senderAddress text-center">
+        <div class="senderAddress text-center  col-sm-5">
           <label class="sender-label" for="sender-address"
             ><a id="sender" class="sender">Sender address</a></label
           >
@@ -51,32 +51,39 @@
               id="sender-address"
               type="text"
               name="sender-address"
-              class="outline form-control text-center align-center"
+              class="form-control-plaintext text-center"
+              :class="{ disabled: !senderAddress }"
               readonly
-              :value="senderAddress"
+              :value="senderAddress || '0x00...00'"
             />
           </div>
         </div>
       </div>
 
-      <div class="secondRow">
+      <div class="secondRow row justify-content-sm-center">
         <!-- Column 2 -->
-        <div class="destinationNetwork text-center">
-          {{ destinationNetwork }}
+        <div class="destinationNetwork text-center col-sm-2">
+          {{ destinationNetwork || 'Ethereum' }}
         </div>
 
         <!-- Column 4 -->
-        <div class="text-center youWillReceive">
+        <div class="text-center youWillReceive col-sm-2">
           <label class="willReceive-label" for="willReceive">You will receive</label>
           <div class="input-group">
             <div id="willReceive" class="form-control-plaintext" name="willReceive">
-              <span id="willReceiveToken" class="willReceiveToken" name="willReceiveToken"></span>
+              <span
+                id="willReceiveToken"
+                class="willReceiveToken"
+                :class="{ disabled: !senderAddress }"
+                name="willReceiveToken"
+                >-</span
+              >
             </div>
           </div>
         </div>
 
         <!-- Column 6 -->
-        <div class="convertedAmount text-center">
+        <div class="convertedAmount text-center col-sm-2">
           <label class="amount-label" for="amount"
             ><a id="max" class="max">Converted amount</a></label
           >
@@ -84,15 +91,15 @@
             <input
               id="receive-amount"
               name="receive-amount"
-              class="outline form-control text-center align-center"
+              class="form-control-plaintext text-center align-center"
               readonly
-              value=""
+              value="0"
             />
           </div>
         </div>
 
         <!-- Column 8 -->
-        <div class="receiverAddress text-center">
+        <div class="receiverAddress text-center col-sm-5">
           <label class="amount-label" for="amount"
             ><a id="max" class="max">Receiver address</a></label
           >
@@ -101,7 +108,7 @@
               id="receive-address"
               type="text"
               name="receive-address"
-              class="outline form-control text-center align-center"
+              class="outline form-control text-center"
               placeholder="0x00...af"
             />
             <div class="invalid-feedback"></div>
@@ -143,65 +150,46 @@ export default {
     },
     originNetwork: {
       type: String,
-      default: 'From Network',
+      default: 'RSK',
     },
     destinationNetwork: {
       type: String,
-      default: 'To Network',
+      default: 'Ethereum',
     },
   },
 }
 </script>
 <style scoped>
+.form-control-plaintext.disabled {
+  color: #bfbdbd;
+}
+
 #bridgeTab {
-  min-width: 600px;
-  min-height: 250px;
-  display: grid;
-  grid-template-rows: 20px 1fr 20px 1fr 20px;
+  /* min-width: 600px;
+  min-height: 250px; */
   border: 2px solid #00b520;
   border-radius: 10px;
   margin-top: 3em;
   margin-bottom: 3em;
+  padding-top: 1.2em;
+  padding-bottom: 1.1em;
 }
 
 .firstRow,
 .secondRow {
-  display: grid;
-  grid-template-columns: 10px 1fr 10px 1fr 10px 1fr 10px 3fr 20px;
   align-items: center;
   justify-items: stretch;
 }
 
-.firstRow {
-  grid-row-start: 2;
-  height: 100px;
-}
-
-.secondRow {
-  grid-row-start: 4;
-}
-
 .originNetwork,
 .destinationNetwork {
-  grid-column-start: 2;
   color: #00b520;
   font-size: 1.5em;
   font-weight: 400;
   font-family: 'Quicksand', sans-serif;
 }
 
-.youWillReceive,
-.youOwn {
-  grid-column-start: 4;
-}
-
-.amountToCross,
-.convertedAmount {
-  grid-column-start: 6;
-}
-
-.senderAddress,
-.receiverAddress {
-  grid-column-start: 8;
+.address {
+  font-size: 16px;
 }
 </style>
