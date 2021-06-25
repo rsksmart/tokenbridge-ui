@@ -10,9 +10,7 @@ module.exports = {
     'plugin:prettier/recommended',
     'prettier/vue',
   ],
-  plugins: [
-    'prettier'
-  ],
+  plugins: ['prettier'],
   parserOptions: {
     parser: 'babel-eslint',
   },
@@ -24,8 +22,8 @@ module.exports = {
     'no-console': [
       'warn',
       {
-        'allow': ['warn', 'error']
-      }
+        allow: ['warn', 'error'],
+      },
     ],
   },
-};
+}
