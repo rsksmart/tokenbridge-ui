@@ -1,6 +1,6 @@
 <template>
   <div id="tokensTab">
-    <h5 class="subtitle">Token bridge list</h5>
+    <h2 class="subtitle">Token bridge list</h2>
     <p class="text-center">
       Ethereum native tokens will transform into r(tokenName). RSK native tokens will transform into
       e(tokenName)

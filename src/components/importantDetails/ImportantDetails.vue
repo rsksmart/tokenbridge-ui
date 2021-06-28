@@ -1,6 +1,6 @@
 <template>
   <div id="infoTab">
-    <h5 class="subtitle">Important details</h5>
+    <h2 class="subtitle">Important details</h2>
     <div class="row mb-5">
       <div class="col-md-4 col-sm-4 mb-5 config-section">
         <span id="config-max" class="config-value mb-2">{{ maxAllowed }}</span>

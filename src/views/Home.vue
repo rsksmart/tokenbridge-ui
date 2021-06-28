@@ -11,15 +11,15 @@
         />
 
         <div id="previousTxnsEmptyTab">
-          <h5 class="subtitle">Active account transactions</h5>
+          <h2 class="subtitle">Active account transactions</h2>
           <p class="text-center">
             Please note that all transactions listed here will not appear if you use another device
           </p>
-          <h5 class="subtitle">No transactions for active account found</h5>
+          <h2 class="subtitle">No transactions for active account found</h2>
         </div>
 
         <div id="previousTxnsTab">
-          <h5 class="subtitle">Active account transactions</h5>
+          <h2 class="subtitle">Active account transactions</h2>
           <nav>
             <div id="nav-tab" class="nav nav-tabs" role="tablist">
               <a
@@ -192,7 +192,6 @@ export default {
 
     //Network configuration
     let config = null
-    let isTestnet = true
     let allowTokensContract = null
     let bridgeContract = null
     let federationContract = null
@@ -213,9 +212,8 @@ export default {
       $('[data-toggle="tooltip"]').tooltip()
       $('.selectpicker').selectpicker()
 
-      isTestnet = window.location.href.includes('testnet')
-      if (isTestnet) {
-        $('#title').text('RSK Testnet bridges with Ethereum Kovan')
+      vNode.isTestnet = window.location.href.includes('testnet')
+      if (vNode.isTestnet) {
         let navlink = $('#network-navlink')
         navlink.prop('href', 'https://tokenbridge.rsk.co')
         navlink.text('Use Mainnet')
@@ -244,7 +242,7 @@ export default {
         30: 'https://public-node.rsk.co',
       }
       let supportedChains = [1, 30]
-      if (isTestnet) {
+      if (vNode.isTestnet) {
         rpc = {
           42: `https://kovan.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
           31: 'https://public-node.testnet.rsk.co',
@@ -349,15 +347,15 @@ export default {
       $('#changeNetwork').on('click', function() {
         if (config) {
           var connectToNetwork = ''
-          if (isTestnet) {
+          if (vNode.isTestnet) {
             if (config.crossToNetwork.networkId == 42) {
-              connectToNetwork = 'Ethereum Kovan'
+              connectToNetwork = 'Kovan'
             } else {
               connectToNetwork = 'RSK Testnet'
             }
           } else {
             if (config.crossToNetwork.networkId == 1) {
-              connectToNetwork = 'Ethereum Mainnet'
+              connectToNetwork = 'Ethereum'
             } else {
               connectToNetwork = 'RSK Mainnet'
             }
@@ -1250,7 +1248,7 @@ export default {
         if (config && config.networkId == newNetwork) return
 
         config = null
-        if (isTestnet) {
+        if (vNode.isTestnet) {
           switch (newNetwork) {
             case 42:
               config = KOVAN_CONFIG
@@ -1278,7 +1276,7 @@ export default {
           $('#willReceiveToken').html('-')
           throw new Error(
             `Wrong Network.<br /> Please connect your wallet to <b>${
-              isTestnet ? 'RSK Testnet or Ethereum Kovan' : 'RSK Mainnet or Ethereum Mainnet'
+              vNode.isTestnet ? 'RSK Testnet or Kovan' : 'RSK Mainnet or Ethereum'
             }</b>`,
           )
         }
@@ -1326,7 +1324,7 @@ export default {
 
     function updateTokenListTab() {
       let rskConfig = RSK_TESTNET_CONFIG
-      if (!isTestnet) rskConfig = RSK_MAINNET_CONFIG
+      if (!vNode.isTestnet) rskConfig = RSK_MAINNET_CONFIG
 
       let tabHtml = `<div class="row mb-3 justify-content-center text-center">`
       tabHtml += `\n    <div class="col-5">`
