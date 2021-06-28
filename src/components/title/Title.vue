@@ -1,13 +1,13 @@
 <template>
   <div class="container" @network-change="updateNetworksInfo">
     <div v-if="isTestnet" div class="bridge-info">
-      <h1 id="title">RSK Testnet bridges with Ethereum Kovan</h1>
+      <h1 id="title">RSK Testnet bridge with Kovan</h1>
       <h5 class="bridge-info-subtitle">
         You can convert your tokens from RSK Testnet to Ethereum Kovan and viceversa.
       </h5>
     </div>
     <div v-else class="bridge-info">
-      <h1 id="title">RSK bridges with Ethereum</h1>
+      <h1 id="title">RSK bridge with Ethereum</h1>
       <h5 class="bridge-info-subtitle">
         You can convert your tokens from RSK to Ethereum and viceversa.
       </h5>

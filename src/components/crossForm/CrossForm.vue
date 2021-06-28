@@ -3,8 +3,19 @@
     <div id="bridgeTab" class="align-center">
       <div class="firstRow row justify-content-sm-center">
         <!-- Column 2 -->
-        <div class="originNetwork text-center col-sm-2">
-          {{ originNetwork || 'RSK' }}
+        <div class="text-center  col-sm-2">
+          <label class="tokenAddress-label" for="originNetwork">Origin Network</label>
+          <div class="form-group">
+            <input
+              id="originNetwork"
+              type="text"
+              name="originNetwork"
+              class="form-control-plaintext text-center originNetwork"
+              :class="{ disabled: !originNetwork }"
+              readonly
+              :value="originNetwork || 'RSK'"
+            />
+          </div>
         </div>
 
         <!-- Column 4 -->
@@ -23,7 +34,9 @@
               <!-- Dinamic content made with JS -->
             </select>
           </div>
-          <div class="invalid-feedback"></div>
+          <div class="invalid-feedback-container">
+            <div class="invalid-feedback"></div>
+          </div>
         </div>
 
         <!-- Column 6 -->
@@ -37,7 +50,9 @@
               placeholder="Amount"
               required
             />
-            <div class="invalid-feedback"></div>
+            <div class="invalid-feedback-container">
+              <div class="invalid-feedback"></div>
+            </div>
           </div>
         </div>
 
@@ -62,8 +77,19 @@
 
       <div class="secondRow row justify-content-sm-center">
         <!-- Column 2 -->
-        <div class="destinationNetwork text-center col-sm-2">
-          {{ destinationNetwork || 'Ethereum' }}
+        <div class="text-center  col-sm-2">
+          <label class="tokenAddress-label" for="destinationNetwork">Destination Network</label>
+          <div class="form-group">
+            <input
+              id="destinationNetwork"
+              type="text"
+              name="destinationNetwork"
+              class="form-control-plaintext text-center destinationNetwork"
+              :class="{ disabled: !destinationNetwork }"
+              readonly
+              :value="destinationNetwork || 'Ethereum'"
+            />
+          </div>
         </div>
 
         <!-- Column 4 -->
@@ -111,7 +137,9 @@
               class="outline form-control text-center"
               placeholder="0x00...af"
             />
-            <div class="invalid-feedback"></div>
+            <div class="invalid-feedback-container">
+              <div class="invalid-feedback"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -159,37 +187,3 @@ export default {
   },
 }
 </script>
-<style scoped>
-.form-control-plaintext.disabled {
-  color: #bfbdbd;
-}
-
-#bridgeTab {
-  /* min-width: 600px;
-  min-height: 250px; */
-  border: 2px solid #00b520;
-  border-radius: 10px;
-  margin-top: 3em;
-  margin-bottom: 3em;
-  padding-top: 1.2em;
-  padding-bottom: 1.1em;
-}
-
-.firstRow,
-.secondRow {
-  align-items: center;
-  justify-items: stretch;
-}
-
-.originNetwork,
-.destinationNetwork {
-  color: #00b520;
-  font-size: 1.5em;
-  font-weight: 400;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.address {
-  font-size: 16px;
-}
-</style>
