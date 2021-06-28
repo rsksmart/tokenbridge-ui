@@ -1,0 +1,132 @@
+#cross {
+  display: none;
+}
+.approve-deposit {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.form-check {
+  margin-top: -1em;
+}
+.form-check label {
+  position: relative;
+  bottom: 1px;
+  color: black;
+}
+#approve {
+  min-width: 10em;
+}
+#deposit {
+  align-self: flex-start;
+  min-width: 10em;
+}
+.form-control:disabled {
+  background-color: transparent;
+  color: #bfbdbd;
+}
+
+.max {
+  color: #00b520;
+}
+.network {
+  color: #00b520;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 25px;
+  margin-bottom: 20px;
+}
+
+.fees {
+  font-family: 'Roboto';
+  font-size: 14px;
+  line-height: 30px;
+  color: #919191;
+}
+.fees p {
+  margin-bottom: -10px;
+}
+
+#amount {
+  font-size: 1rem;
+  line-height: 22px;
+}
+#amount.ok {
+  border-color: #00b520;
+}
+
+.invalid-feedback-container {
+  margin-top: .25rem;
+  height: 25px;
+}
+
+.invalid-feedback {
+  margin-top: 0px;
+  font-size: 12px;
+}
+
+.inputs-area {
+  font-family: 'Quicksand';
+  font-size: 20px;
+  line-height: 25px;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+  border-radius: 10px;
+  padding: 2px;
+}
+
+.bootstrap-select .dropdown-toggle .filter-option {
+  font-family: 'Quicksand';
+  font-size: 1rem;
+  line-height: 25px;
+  text-align: center;
+}
+.dropdown-item,
+.form-control-plaintext {
+  font-family: 'Quicksand';
+  font-size: 1rem;
+  line-height: 25px;
+}
+
+.btn-light,
+.btn-light.disabled,
+.btn-light.disabled,
+.show > .btn-light.dropdown-toggle {
+  background-color: transparent;
+  border-color: transparent;
+}
+.btn-light:hover {
+  background-color: transparent;
+}
+.bootstrap-select > .dropdown-toggle.bs-placeholder:hover,
+.bootstrap-select > .dropdown-toggle.bs-placeholder {
+  color: #000;
+}
+.dropdown.bootstrap-select.disabled > .disabled {
+  color: #bfbdbd;
+}
+
+.form-control-plaintext.disabled {
+  color: #bfbdbd;
+}
+
+#bridgeTab {
+  border: 2px solid #00b520;
+  border-radius: 10px;
+  margin-top: 3em;
+  margin-bottom: 3em;
+  padding-top: 3em;
+  padding-bottom: 1.1em;
+}
+
+.originNetwork,
+.destinationNetwork {
+  color: #00b520;
+  font-size: 1.5em;
+  font-weight: 400;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.address {
+  font-size: 16px;
+}
