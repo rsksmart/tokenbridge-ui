@@ -138,8 +138,6 @@ import FEDERATION_ABI from '@/constants/abis/federation.json'
 // external js packages
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
-import RLogin from '@rsksmart/rlogin'
-import WalletConnectProvider from '@walletconnect/web3-provider'
 
 import $ from 'jquery'
 import 'popper.js'
@@ -160,6 +158,7 @@ import CrossForm from '@/components/crossForm/CrossForm.vue'
 import Title from '@/components/title/Title.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
 import TokensBridgeList from '@/components/tokensBridgeList/TokensBridgeList.vue'
+import { store } from '@/store.js'
 
 export default {
   name: 'Home',
@@ -171,6 +170,7 @@ export default {
   },
   data() {
     return {
+      storeState: store.state,
       isTestnet: false,
       userAddress: '',
       originNetwork: '',
@@ -205,15 +205,13 @@ export default {
     let feePercentage = 0
     let fee = 0
     let feePercentageDivider = 10_000
-    let rLogin
 
     $(document).ready(function() {
       new ClipboardJS('.copy')
       $('[data-toggle="tooltip"]').tooltip()
       $('.selectpicker').selectpicker()
 
-      vNode.isTestnet = window.location.href.includes('testnet')
-      if (vNode.isTestnet) {
+      if (vNode.storeState.isTestnet) {
         let navlink = $('#network-navlink')
         navlink.prop('href', 'https://tokenbridge.rsk.co')
         navlink.text('Use Mainnet')
@@ -236,31 +234,6 @@ export default {
       })
 
       $('#logIn').on('click', onLogInClick)
-
-      let rpc = {
-        1: `https://mainnet.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
-        30: 'https://public-node.rsk.co',
-      }
-      let supportedChains = [1, 30]
-      if (vNode.isTestnet) {
-        rpc = {
-          42: `https://kovan.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
-          31: 'https://public-node.testnet.rsk.co',
-        }
-        supportedChains = [42, 31]
-      }
-      rLogin = new RLogin({
-        cachedProvider: false,
-        providerOptions: {
-          walletconnect: {
-            package: WalletConnectProvider,
-            options: {
-              rpc: rpc,
-            },
-          },
-        },
-        supportedChains: supportedChains,
-      })
 
       $('#tokenAddress').change(function(event) {
         cleanAlertSuccess()
@@ -292,13 +265,13 @@ export default {
         }
       })
 
-      $('#receive-address').change(function(event) {
+      $('#receive-address').change(function() {
         if (isReceiverAddressOk()) {
           receiverAddress = $('#receive-address').val()
         }
       })
 
-      $('#receive-address').focusout(function(event) {
+      $('#receive-address').focusout(function() {
         if (isReceiverAddressOk()) {
           receiverAddress = $('#receive-address').val()
         }
@@ -347,7 +320,7 @@ export default {
       $('#changeNetwork').on('click', function() {
         if (config) {
           var connectToNetwork = ''
-          if (vNode.isTestnet) {
+          if (vNode.storeState.isTestnet) {
             if (config.crossToNetwork.networkId == 42) {
               connectToNetwork = 'Kovan'
             } else {
@@ -377,7 +350,7 @@ export default {
       return new Promise((resolve, reject) => {
         const checkInterval = setInterval(async () => {
           timeElapsed += interval
-          let receipt = await web3.eth.getTransactionReceipt(txHash)
+          let receipt = await vNode.storeState.web3.eth.getTransactionReceipt(txHash)
           if (receipt != null) {
             clearInterval(checkInterval)
             resolve(receipt)
@@ -478,7 +451,7 @@ export default {
         return
       }
       const tokenAddress = token[config.networkId].address
-      tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress)
+      tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
 
       const decimals = token[config.networkId].decimals
       return retry3Times(tokenContract.methods.balanceOf(address).call).then(async balance => {
@@ -486,7 +459,9 @@ export default {
         let maxWithdrawInWei = await retry3Times(
           allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call,
         )
-        let maxWithdraw = new BigNumber(web3.utils.fromWei(maxWithdrawInWei, 'ether'))
+        let maxWithdraw = new BigNumber(
+          vNode.storeState.web3.utils.fromWei(maxWithdrawInWei, 'ether'),
+        )
         let maxValue = 0
         if (balanceBNs.isGreaterThan(maxWithdraw)) {
           maxValue = maxWithdraw
@@ -507,7 +482,7 @@ export default {
         crossTokenError('Choose a token to cross')
         return
       }
-      const BN = web3.utils.BN
+      const BN = vNode.storeState.web3.utils.BN
       const amount = $('#amount').val()
 
       if (!amount) {
@@ -519,7 +494,9 @@ export default {
         return
       }
 
-      const amountBN = new BN(web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'))
+      const amountBN = new BN(
+        vNode.storeState.web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'),
+      )
 
       let gasPrice = await getGasPriceHex()
 
@@ -584,8 +561,8 @@ export default {
         return
       }
       const tokenAddress = token[config.networkId].address
-      tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress)
-      const BN = web3.utils.BN
+      tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
+      const BN = vNode.storeState.web3.utils.BN
 
       const amount = $('#amount').val()
       if (!amount) {
@@ -633,7 +610,7 @@ export default {
           const maxWithdraw = new BN(maxWithdrawInWei)
           if (amountBN.gt(maxWithdraw)) {
             throw new Error(
-              `Amount bigger than the daily limit. Daily limit left ${web3.utils.fromWei(
+              `Amount bigger than the daily limit. Daily limit left ${vNode.storeState.web3.utils.fromWei(
                 maxWithdrawInWei,
                 'ether',
               )} tokens`,
@@ -642,11 +619,11 @@ export default {
 
           var gasPriceParsed = 0
           if (config.networkId >= 30 && config.networkId <= 33) {
-            let block = await web3.eth.getBlock('latest')
+            let block = await vNode.storeState.web3.eth.getBlock('latest')
             gasPriceParsed = parseInt(block.minimumGasPrice)
             gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
           } else {
-            let gasPriceAvg = await web3.eth.getGasPrice()
+            let gasPriceAvg = await vNode.storeState.web3.eth.getGasPrice()
             gasPriceParsed = parseInt(gasPriceAvg)
             gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
           }
@@ -720,11 +697,11 @@ export default {
     async function getGasPriceHex() {
       var gasPriceParsed = 0
       if (config.networkId >= 30 && config.networkId <= 33) {
-        let block = await web3.eth.getBlock('latest')
+        let block = await vNode.storeState.web3.eth.getBlock('latest')
         gasPriceParsed = parseInt(block.minimumGasPrice)
         gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
       } else {
-        let gasPriceAvg = await web3.eth.getGasPrice()
+        let gasPriceAvg = await vNode.storeState.web3.eth.getGasPrice()
         gasPriceParsed = parseInt(gasPriceAvg)
         gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
       }
@@ -735,10 +712,10 @@ export default {
       const sideWeb3 = new Web3(config.crossToNetwork.rpc)
       const receipt = await sideWeb3.eth.getTransactionReceipt(txn.transactionHash)
       const eventJsonInterface = BRIDGE_ABI.find(x => x.name === 'Cross' && x.type === 'event')
-      const eventSignature = web3.eth.abi.encodeEventSignature(eventJsonInterface)
+      const eventSignature = sideWeb3.eth.abi.encodeEventSignature(eventJsonInterface)
       const event = receipt.logs.find(x => x.topics[0] === eventSignature)
       event.topics.shift()
-      const decodedEvent = web3.eth.abi.decodeLog(
+      const decodedEvent = sideWeb3.eth.abi.decodeLog(
         eventJsonInterface.inputs,
         event.data,
         event.topics,
@@ -821,17 +798,15 @@ export default {
       $('#secondsPerBlock').text(config.secondsPerBlock)
       $('#amount').removeClass('ok')
       let totalCost = fee == 0 ? parsedAmount : parsedAmount.dividedBy(1 - fee)
-      let serviceFee = totalCost.times(fee)
-
       let tokenToCross = $('#tokenAddress').val()
       let token = TOKENS.find(element => element.token == tokenToCross)
       const tokenAddress = token[config.networkId].address
-      tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress)
+      tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
 
       let allowance = await retry3Times(
         tokenContract.methods.allowance(address, bridgeContract.options.address).call,
       )
-      allowance = web3.utils.fromWei(allowance)
+      allowance = vNode.storeState.web3.utils.fromWei(allowance)
       let allowanceBN = new BigNumber(allowance)
 
       if (totalCost.lte(allowanceBN)) {
@@ -964,31 +939,17 @@ export default {
         window.ethereum.autoRefreshOnNetworkChange = false
       }
 
-      const provider = await rLogin
-        .connect()
-        .then(rLoginResponse => {
-          const provider = rLoginResponse.provider
-          // const dataVault = rLoginResponse.dataVault;
-          const disconnect = rLoginResponse.disconnect
+      await vNode.handleLogin()
 
-          // save the response to be used later, here we are using React context
-          window.disconnect = disconnect
-          return provider
-        })
-        .catch(err => {
-          console.error(err)
-          throw new Error('Login failed. Please try again.')
-        })
-      window.web3 = new Web3(provider)
       let accounts = await getAccounts()
-      let chainId = await web3.eth.net.getId()
+      let chainId = await vNode.storeState.web3.eth.net.getId()
       await updateCallback(chainId, accounts)
 
-      provider.on('chainChanged', function(newChain) {
+      vNode.storeState.provider.on('chainChanged', function(newChain) {
         updateNetwork(newChain)
         showActiveTxnsTab()
       })
-      provider.on('accountsChanged', function(newAddresses) {
+      vNode.storeState.provider.on('accountsChanged', function(newAddresses) {
         checkAllowance()
         updateAddress(newAddresses)
           .then(addr => updateActiveAddressTXNs(addr))
@@ -998,6 +959,7 @@ export default {
     }
 
     function onMetaMaskConnectionError(err) {
+      console.error(err)
       $('#myModal .modal-body').html(`<p>${err.message}</p>`)
       $('#myModal').modal('show')
       $('#logIn').on('click', onLogInClick)
@@ -1191,7 +1153,7 @@ export default {
 
       let rskConfig = config
       let ethConfig = config.crossToNetwork
-      let rskWeb3 = web3
+      let rskWeb3 = vNode.storeState.web3
       let ethWeb3 = new Web3(config.crossToNetwork.rpc)
       let rskBlockNumber = currentBlockNumber
       let ethBlockNumber = await ethWeb3.eth.getBlockNumber()
@@ -1199,8 +1161,8 @@ export default {
         rskConfig = config.crossToNetwork
         ethConfig = config
         rskWeb3 = new Web3(config.crossToNetwork.rpc)
-        ethWeb3 = web3
-        rskBlockNumber = await ethWeb3.eth.getBlockNumber()
+        ethWeb3 = vNode.storeState.web3
+        rskBlockNumber = await rskWeb3.eth.getBlockNumber()
         ethBlockNumber = currentBlockNumber
       }
       const activeAddressTXNsEth2RskRowsPromises = Promise.all(
@@ -1248,7 +1210,7 @@ export default {
         if (config && config.networkId == newNetwork) return
 
         config = null
-        if (vNode.isTestnet) {
+        if (vNode.storeState.isTestnet) {
           switch (newNetwork) {
             case 42:
               config = KOVAN_CONFIG
@@ -1276,13 +1238,19 @@ export default {
           $('#willReceiveToken').html('-')
           throw new Error(
             `Wrong Network.<br /> Please connect your wallet to <b>${
-              vNode.isTestnet ? 'RSK Testnet or Kovan' : 'RSK Mainnet or Ethereum'
+              vNode.storeState.isTestnet ? 'RSK Testnet or Kovan' : 'RSK Mainnet or Ethereum'
             }</b>`,
           )
         }
-        allowTokensContract = new web3.eth.Contract(ALLOW_TOKENS_ABI, config.allowTokens)
-        bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
-        federationContract = new web3.eth.Contract(FEDERATION_ABI, config.federation)
+        allowTokensContract = new vNode.storeState.web3.eth.Contract(
+          ALLOW_TOKENS_ABI,
+          config.allowTokens,
+        )
+        bridgeContract = new vNode.storeState.web3.eth.Contract(BRIDGE_ABI, config.bridge)
+        federationContract = new vNode.storeState.web3.eth.Contract(
+          FEDERATION_ABI,
+          config.federation,
+        )
 
         $('#myModal').modal('hide')
         updateNetworkConfig(config)
@@ -1291,7 +1259,7 @@ export default {
         setInfoTab()
         onMetaMaskConnectionSuccess()
 
-        await poll4LastBlockNumber(function(blockNumber) {
+        await poll4LastBlockNumber(vNode.storeState.web3, function(blockNumber) {
           currentBlockNumber = blockNumber
           showActiveAddressTXNs()
         })
@@ -1324,7 +1292,7 @@ export default {
 
     function updateTokenListTab() {
       let rskConfig = RSK_TESTNET_CONFIG
-      if (!vNode.isTestnet) rskConfig = RSK_MAINNET_CONFIG
+      if (!vNode.storeState.isTestnet) rskConfig = RSK_MAINNET_CONFIG
 
       let tabHtml = `<div class="row mb-3 justify-content-center text-center">`
       tabHtml += `\n    <div class="col-5">`
@@ -1384,13 +1352,18 @@ export default {
     }
 
     async function getAccounts() {
-      let accounts = await web3.eth.getAccounts()
+      let accounts = await vNode.storeState.web3.eth.getAccounts()
       if (accounts.length === 0)
         throw new Error(
           'Nifty Wallet or MetaMask is Locked, please unlock it and Reload the page to continue',
         )
       return accounts
     }
+  },
+  methods: {
+    handleLogin() {
+      return store.handleLogin()
+    },
   },
 }
 </script>
