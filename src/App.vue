@@ -7,8 +7,8 @@
 </template>
 
 <script>
-import NavBar from '@/components/layouts/NavBar.vue'
-import Footer from '@/components/layouts/Footer.vue'
+import NavBar from './components/layouts/NavBar.vue'
+import Footer from './components/layouts/Footer.vue'
 
 export default {
   name: 'App',
