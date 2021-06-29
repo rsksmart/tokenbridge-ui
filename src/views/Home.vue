@@ -800,38 +800,36 @@ export default {
       let totalCost = fee == 0 ? parsedAmount : parsedAmount.dividedBy(1 - fee)
       let tokenToCross = $('#tokenAddress').val()
       let token = TOKENS.find(element => element.token == tokenToCross)
-      const tokenAddress = token[config.networkId].address
-      tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
+      if (token) {
+        const tokenAddress = token[config.networkId].address
+        tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
 
-      let allowance = await retry3Times(
-        tokenContract.methods.allowance(address, bridgeContract.options.address).call,
-      )
-      allowance = vNode.storeState.web3.utils.fromWei(allowance)
-      let allowanceBN = new BigNumber(allowance)
+        let allowance = await retry3Times(
+          tokenContract.methods.allowance(address, bridgeContract.options.address).call,
+        )
+        allowance = vNode.storeState.web3.utils.fromWei(allowance)
+        let allowanceBN = new BigNumber(allowance)
 
-      if (totalCost.lte(allowanceBN)) {
-        $('.approve-deposit').hide()
-        // straight to convert
+        if (totalCost.lte(allowanceBN)) {
+          $('.approve-deposit').hide()
+          // straight to convert
 
-        const crossDisabled = isReceiverAddressOk()
-        disableApproveCross({
-          approvalDisable: true,
-          doNotAskDisabled: true,
-          crossDisabled: !crossDisabled,
-        })
-
-        $('.receive-address .invalid-receiver-feedback').hide()
-        $('#receive-address').removeClass('is-invalid')
-        $('#receive-address').addClass('ok')
-        $('.fees').show()
-      } else {
-        // user must first approve amount
-        disableApproveCross({
-          approvalDisable: false,
-          doNotAskDisabled: false,
-          crossDisabled: true,
-        })
-        $('.approve-deposit').show()
+          const crossDisabled = isReceiverAddressOk()
+          disableApproveCross({
+            approvalDisable: true,
+            doNotAskDisabled: true,
+            crossDisabled: !crossDisabled,
+          })
+          $('.fees').show()
+        } else {
+          // user must first approve amount
+          disableApproveCross({
+            approvalDisable: false,
+            doNotAskDisabled: false,
+            crossDisabled: true,
+          })
+          $('.approve-deposit').show()
+        }
       }
     }
 
@@ -840,7 +838,6 @@ export default {
       if (receiverAddress == '' || !isAddress(receiverAddress)) {
         markInvalidReceiverAddress('Invalid Receiver Address')
 
-        $('.receive-address .invalid-receiver-feedback').show()
         disableApproveCross({
           approvalDisable: null,
           doNotAskDisabled: true,
@@ -849,11 +846,9 @@ export default {
 
         return false
       }
-
-      await checkAllowance()
       $('.receive-address .invalid-feedback').hide()
-      $('.receive-address').removeClass('is-invalid')
-      $('.receive-address').addClass('ok')
+      $('#receive-address').removeClass('is-invalid')
+      $('#receive-address').addClass('ok')
       $('.fees').show()
       return true
     }

@@ -125,9 +125,9 @@
         </div>
 
         <!-- Column 8 -->
-        <div class="receiverAddress text-center col-sm-5">
-          <label class="amount-label" for="amount"
-            ><a id="max" class="max">Receiver address</a></label
+        <div class="receiveAddress text-center col-sm-5">
+          <label class="receive-label-address" for="receive-address"
+            ><a id="same-address" class="same-address">Receiver address</a></label
           >
           <div class="form-group receive-address">
             <input
