@@ -1,8 +1,18 @@
+// Store pattern https://v3.vuejs.org/guide/state-management.html#simple-state-management-from-scratch
 import { reactive } from 'vue'
 
 import Web3 from 'web3'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+
+import {
+  KOVAN_CONFIG,
+  RSK_TESTNET_CONFIG,
+  ETH_CONFIG,
+  RSK_MAINNET_CONFIG,
+} from '@/constants/networks.js'
+
+import { TOKENS } from '@/constants/tokens.js'
 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
 const rskMainnetUri = 'https://public-node.rsk.co'
@@ -24,6 +34,11 @@ const rpcTestnet = {
 const supportedChainsTestnet = [42, 31]
 
 const isTestnet = window.location.href.includes('testnet')
+const rskConfig = isTestnet ? RSK_TESTNET_CONFIG : RSK_MAINNET_CONFIG
+const ethConfig = isTestnet ? KOVAN_CONFIG : ETH_CONFIG
+const tokens = TOKENS.filter(x => {
+  return x[rskConfig.networkId] && x[ethConfig.networkId]
+})
 
 const rLogin = new RLogin({
   cachedProvider: false,
@@ -49,6 +64,9 @@ export const store = {
     isConnected: false,
     rskWeb3: isTestnet ? new Web3(rskTestnetUri) : new Web3(rskMainnetUri),
     ethWeb3: isTestnet ? new Web3(kovanUri) : new Web3(ethMainnetUri),
+    rskConfig: rskConfig,
+    ethConfig: ethConfig,
+    tokens: tokens,
   }),
   handleLogin() {
     const state = this.state
