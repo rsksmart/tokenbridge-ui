@@ -99,7 +99,7 @@
 
         <ImportantDetails />
 
-        <TokensBridgeList />
+        <TokenList />
       </div>
       <!--- End Tab Content -->
     </section>
@@ -120,14 +120,14 @@
 </template>
 
 <script>
-// --------- TOKENS import TOKENS variable  --------------
+// --------- import TOKENS and network CONFIG  --------------
 import {
-  TOKENS,
   KOVAN_CONFIG,
   RSK_TESTNET_CONFIG,
   ETH_CONFIG,
   RSK_MAINNET_CONFIG,
-} from '@/constants'
+} from '@/constants/networks.js'
+import { TOKENS } from '@/constants/tokens.js'
 
 // ------ ABIS -----
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
@@ -157,7 +157,7 @@ import {
 import CrossForm from '@/components/crossForm/CrossForm.vue'
 import Title from '@/components/title/Title.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
-import TokensBridgeList from '@/components/tokensBridgeList/TokensBridgeList.vue'
+import TokenList from '@/components/tokenList/TokenList.vue'
 import { store } from '@/store.js'
 
 export default {
@@ -166,11 +166,11 @@ export default {
     Title,
     CrossForm,
     ImportantDetails,
-    TokensBridgeList,
+    TokenList,
   },
   data() {
     return {
-      storeState: store.state,
+      sharedState: store.state,
       isTestnet: false,
       userAddress: '',
       originNetwork: '',
@@ -211,7 +211,7 @@ export default {
       $('[data-toggle="tooltip"]').tooltip()
       $('.selectpicker').selectpicker()
 
-      if (vNode.storeState.isTestnet) {
+      if (vNode.sharedState.isTestnet) {
         let navlink = $('#network-navlink')
         navlink.prop('href', 'https://tokenbridge.rsk.co')
         navlink.text('Use Mainnet')
@@ -320,7 +320,7 @@ export default {
       $('#changeNetwork').on('click', function() {
         if (config) {
           var connectToNetwork = ''
-          if (vNode.storeState.isTestnet) {
+          if (vNode.sharedState.isTestnet) {
             if (config.crossToNetwork.networkId == 42) {
               connectToNetwork = 'Kovan'
             } else {
@@ -340,7 +340,6 @@ export default {
           onMetaMaskConnectionError(err)
         }
       })
-      updateTokenListTab()
       // isInstalled(); - uncomment to show popup on page load
     })
 
@@ -350,7 +349,7 @@ export default {
       return new Promise((resolve, reject) => {
         const checkInterval = setInterval(async () => {
           timeElapsed += interval
-          let receipt = await vNode.storeState.web3.eth.getTransactionReceipt(txHash)
+          let receipt = await vNode.sharedState.web3.eth.getTransactionReceipt(txHash)
           if (receipt != null) {
             clearInterval(checkInterval)
             resolve(receipt)
@@ -451,7 +450,7 @@ export default {
         return
       }
       const tokenAddress = token[config.networkId].address
-      tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
+      tokenContract = new vNode.sharedState.web3.eth.Contract(ERC20_ABI, tokenAddress)
 
       const decimals = token[config.networkId].decimals
       return retry3Times(tokenContract.methods.balanceOf(address).call).then(async balance => {
@@ -460,7 +459,7 @@ export default {
           allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call,
         )
         let maxWithdraw = new BigNumber(
-          vNode.storeState.web3.utils.fromWei(maxWithdrawInWei, 'ether'),
+          vNode.sharedState.web3.utils.fromWei(maxWithdrawInWei, 'ether'),
         )
         let maxValue = 0
         if (balanceBNs.isGreaterThan(maxWithdraw)) {
@@ -482,7 +481,7 @@ export default {
         crossTokenError('Choose a token to cross')
         return
       }
-      const BN = vNode.storeState.web3.utils.BN
+      const BN = vNode.sharedState.web3.utils.BN
       const amount = $('#amount').val()
 
       if (!amount) {
@@ -495,7 +494,7 @@ export default {
       }
 
       const amountBN = new BN(
-        vNode.storeState.web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'),
+        vNode.sharedState.web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'),
       )
 
       let gasPrice = await getGasPriceHex()
@@ -561,8 +560,8 @@ export default {
         return
       }
       const tokenAddress = token[config.networkId].address
-      tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
-      const BN = vNode.storeState.web3.utils.BN
+      tokenContract = new vNode.sharedState.web3.eth.Contract(ERC20_ABI, tokenAddress)
+      const BN = vNode.sharedState.web3.utils.BN
 
       const amount = $('#amount').val()
       if (!amount) {
@@ -610,7 +609,7 @@ export default {
           const maxWithdraw = new BN(maxWithdrawInWei)
           if (amountBN.gt(maxWithdraw)) {
             throw new Error(
-              `Amount bigger than the daily limit. Daily limit left ${vNode.storeState.web3.utils.fromWei(
+              `Amount bigger than the daily limit. Daily limit left ${vNode.sharedState.web3.utils.fromWei(
                 maxWithdrawInWei,
                 'ether',
               )} tokens`,
@@ -619,11 +618,11 @@ export default {
 
           var gasPriceParsed = 0
           if (config.networkId >= 30 && config.networkId <= 33) {
-            let block = await vNode.storeState.web3.eth.getBlock('latest')
+            let block = await vNode.sharedState.web3.eth.getBlock('latest')
             gasPriceParsed = parseInt(block.minimumGasPrice)
             gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
           } else {
-            let gasPriceAvg = await vNode.storeState.web3.eth.getGasPrice()
+            let gasPriceAvg = await vNode.sharedState.web3.eth.getGasPrice()
             gasPriceParsed = parseInt(gasPriceAvg)
             gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
           }
@@ -697,11 +696,11 @@ export default {
     async function getGasPriceHex() {
       var gasPriceParsed = 0
       if (config.networkId >= 30 && config.networkId <= 33) {
-        let block = await vNode.storeState.web3.eth.getBlock('latest')
+        let block = await vNode.sharedState.web3.eth.getBlock('latest')
         gasPriceParsed = parseInt(block.minimumGasPrice)
         gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
       } else {
-        let gasPriceAvg = await vNode.storeState.web3.eth.getGasPrice()
+        let gasPriceAvg = await vNode.sharedState.web3.eth.getGasPrice()
         gasPriceParsed = parseInt(gasPriceAvg)
         gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
       }
@@ -802,12 +801,12 @@ export default {
       let token = TOKENS.find(element => element.token == tokenToCross)
       if (token) {
         const tokenAddress = token[config.networkId].address
-        tokenContract = new vNode.storeState.web3.eth.Contract(ERC20_ABI, tokenAddress)
+        tokenContract = new vNode.sharedState.web3.eth.Contract(ERC20_ABI, tokenAddress)
 
         let allowance = await retry3Times(
           tokenContract.methods.allowance(address, bridgeContract.options.address).call,
         )
-        allowance = vNode.storeState.web3.utils.fromWei(allowance)
+        allowance = vNode.sharedState.web3.utils.fromWei(allowance)
         let allowanceBN = new BigNumber(allowance)
 
         if (totalCost.lte(allowanceBN)) {
@@ -937,14 +936,14 @@ export default {
       await vNode.handleLogin()
 
       let accounts = await getAccounts()
-      let chainId = await vNode.storeState.web3.eth.net.getId()
+      let chainId = await vNode.sharedState.web3.eth.net.getId()
       await updateCallback(chainId, accounts)
 
-      vNode.storeState.provider.on('chainChanged', function(newChain) {
+      vNode.sharedState.provider.on('chainChanged', function(newChain) {
         updateNetwork(newChain)
         showActiveTxnsTab()
       })
-      vNode.storeState.provider.on('accountsChanged', function(newAddresses) {
+      vNode.sharedState.provider.on('accountsChanged', function(newAddresses) {
         checkAllowance()
         updateAddress(newAddresses)
           .then(addr => updateActiveAddressTXNs(addr))
@@ -1148,7 +1147,7 @@ export default {
 
       let rskConfig = config
       let ethConfig = config.crossToNetwork
-      let rskWeb3 = vNode.storeState.web3
+      let rskWeb3 = vNode.sharedState.web3
       let ethWeb3 = new Web3(config.crossToNetwork.rpc)
       let rskBlockNumber = currentBlockNumber
       let ethBlockNumber = await ethWeb3.eth.getBlockNumber()
@@ -1156,7 +1155,7 @@ export default {
         rskConfig = config.crossToNetwork
         ethConfig = config
         rskWeb3 = new Web3(config.crossToNetwork.rpc)
-        ethWeb3 = vNode.storeState.web3
+        ethWeb3 = vNode.sharedState.web3
         rskBlockNumber = await rskWeb3.eth.getBlockNumber()
         ethBlockNumber = currentBlockNumber
       }
@@ -1205,7 +1204,7 @@ export default {
         if (config && config.networkId == newNetwork) return
 
         config = null
-        if (vNode.storeState.isTestnet) {
+        if (vNode.sharedState.isTestnet) {
           switch (newNetwork) {
             case 42:
               config = KOVAN_CONFIG
@@ -1233,16 +1232,16 @@ export default {
           $('#willReceiveToken').html('-')
           throw new Error(
             `Wrong Network.<br /> Please connect your wallet to <b>${
-              vNode.storeState.isTestnet ? 'RSK Testnet or Kovan' : 'RSK Mainnet or Ethereum'
+              vNode.sharedState.isTestnet ? 'RSK Testnet or Kovan' : 'RSK Mainnet or Ethereum'
             }</b>`,
           )
         }
-        allowTokensContract = new vNode.storeState.web3.eth.Contract(
+        allowTokensContract = new vNode.sharedState.web3.eth.Contract(
           ALLOW_TOKENS_ABI,
           config.allowTokens,
         )
-        bridgeContract = new vNode.storeState.web3.eth.Contract(BRIDGE_ABI, config.bridge)
-        federationContract = new vNode.storeState.web3.eth.Contract(
+        bridgeContract = new vNode.sharedState.web3.eth.Contract(BRIDGE_ABI, config.bridge)
+        federationContract = new vNode.sharedState.web3.eth.Contract(
           FEDERATION_ABI,
           config.federation,
         )
@@ -1254,7 +1253,7 @@ export default {
         setInfoTab()
         onMetaMaskConnectionSuccess()
 
-        await poll4LastBlockNumber(vNode.storeState.web3, function(blockNumber) {
+        await poll4LastBlockNumber(vNode.sharedState.web3, function(blockNumber) {
           currentBlockNumber = blockNumber
           showActiveAddressTXNs()
         })
@@ -1285,69 +1284,8 @@ export default {
       $('#willReceiveToken').html('-')
     }
 
-    function updateTokenListTab() {
-      let rskConfig = RSK_TESTNET_CONFIG
-      if (!vNode.storeState.isTestnet) rskConfig = RSK_MAINNET_CONFIG
-
-      let tabHtml = `<div class="row mb-3 justify-content-center text-center">`
-      tabHtml += `\n    <div class="col-5">`
-      tabHtml += `\n        ${rskConfig.name}`
-      tabHtml += `\n    </div>`
-      tabHtml += `\n    <div class="col-1"></div>`
-      tabHtml += `\n    <div class="col-5">`
-      tabHtml += `\n        ${rskConfig.crossToNetwork.name}`
-      tabHtml += `\n    </div>`
-      tabHtml += `\n</div>`
-      for (let aToken of TOKENS) {
-        if (aToken[rskConfig.networkId] != undefined) {
-          tabHtml += `\n<div class="row mb-3 justify-content-center">`
-          tabHtml += `\n    <div class="col-5 row">`
-          tabHtml += `\n      <div class="col-8 font-weight-bold">`
-          tabHtml += `\n          <a href="${rskConfig.explorer}/address/${aToken[
-            rskConfig.networkId
-          ].address.toLowerCase()}" class="address" target="_blank">`
-          tabHtml += `\n            <span><img src="${aToken.icon}" class="token-logo"></span>${
-            aToken[rskConfig.networkId].symbol
-          }`
-          tabHtml += `\n          </a>`
-          tabHtml += `\n       </div>`
-          tabHtml += `\n       <div class="col-4">`
-          tabHtml += `\n           <button class="copy btn btn-outline-secondary" type="button" data-clipboard-text="${aToken[
-            rskConfig.networkId
-          ].address.toLowerCase()}" data-toggle="tooltip" data-placement="bottom" title="Copy token address to clipboard">`
-          tabHtml += `\n                <i class="far fa-copy"></i>`
-          tabHtml += `\n           </button>`
-          tabHtml += `\n       </div>`
-          tabHtml += `\n    </div>`
-          tabHtml += `\n    <div class="col-2 text-center">`
-          tabHtml += `\n        <i class="fas fa-arrows-alt-h"></i>`
-          tabHtml += `\n    </div>`
-          tabHtml += `\n    <div class="col-5 row">`
-          tabHtml += `\n      <div class="col-8 font-weight-bold">`
-          tabHtml += `\n          <a href="${rskConfig.crossToNetwork.explorer}/address/${aToken[
-            rskConfig.crossToNetwork.networkId
-          ].address.toLowerCase()}" class="address" target="_blank">`
-          tabHtml += `\n              <span><img src="${aToken.icon}" class="token-logo"></span>${
-            aToken[rskConfig.crossToNetwork.networkId].symbol
-          }`
-          tabHtml += `\n          </a>`
-          tabHtml += `\n      </div>`
-          tabHtml += `\n      <div class="col-4">`
-          tabHtml += `\n          <button class="copy btn btn-outline-secondary" type="button" data-clipboard-text="${aToken[
-            rskConfig.crossToNetwork.networkId
-          ].address.toLowerCase()}" data-toggle="tooltip" data-placement="bottom" title="Copy the address">`
-          tabHtml += `\n              <i class="far fa-copy"></i>`
-          tabHtml += `\n          </button>`
-          tabHtml += `\n      </div>`
-          tabHtml += `\n    </div>`
-          tabHtml += `\n</div>`
-        }
-      }
-      $('#tokenListTab').html(tabHtml)
-    }
-
     async function getAccounts() {
-      let accounts = await vNode.storeState.web3.eth.getAccounts()
+      let accounts = await vNode.sharedState.web3.eth.getAccounts()
       if (accounts.length === 0)
         throw new Error(
           'Nifty Wallet or MetaMask is Locked, please unlock it and Reload the page to continue',
