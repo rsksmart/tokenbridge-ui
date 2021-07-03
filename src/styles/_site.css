@@ -169,32 +169,7 @@ a:hover {
 .nav-tabs .nav-link:hover {
   color: black;
 }
-#tokenListTab {
-  font-size: 13px;
-  max-width: 500px;
-  margin-bottom: 110px;
-  margin-top: 25px;
-}
-.tab-content .col-sm-10,
-.tab-content .col-sm-9,
-.tab-content .col-sm-8,
-.tab-content .col-sm-7,
-.tab-content .col-sm-6,
-.tab-content .col-sm-4,
-.tab-content .col-sm-3,
-.tab-content .col-sm-2,
-.tab-content .col-sm-2,
-.tab-content .col-sm-1 {
-  padding-right: 0;
-  padding-left: 0;
-}
-#tokenListTab .btn {
-  font-size: 14px;
-  padding: 0px;
-}
-#tokenListTab a {
-  color: #000;
-}
+
 @keyframes lds-circle {
   0%,
   100% {
