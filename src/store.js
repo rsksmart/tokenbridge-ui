@@ -38,7 +38,7 @@ const rskConfig = isTestnet ? RSK_TESTNET_CONFIG : RSK_MAINNET_CONFIG
 const ethConfig = isTestnet ? KOVAN_CONFIG : ETH_CONFIG
 const tokens = TOKENS.filter(x => {
   return x[rskConfig.networkId] && x[ethConfig.networkId]
-})
+}).sort((first, second) => first.typeId - second.typeId)
 
 const rLogin = new RLogin({
   cachedProvider: false,
