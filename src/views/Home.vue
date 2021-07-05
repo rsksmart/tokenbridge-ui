@@ -418,30 +418,6 @@ export default {
       showActiveAddressTXNs()
     }
 
-    async function setInfoTab() {
-      try {
-        //Harcoded values that don't change often to reduce load on the public server
-        minTokensAllowed = 1
-        maxTokensAllowed = 10_000
-        maxDailyLimit = 100_000
-        feePercentage = await retry3Times(bridgeContract.methods.getFeePercentage().call)
-        fee = feePercentage / feePercentageDivider
-        let feeFormated = (fee * 100).toFixed(2) + '%'
-        let federators = await retry3Times(federationContract.methods.getMembers().call)
-
-        $('#fee').html(feeFormated)
-        $('#config-fee').text(feeFormated)
-        $('#config-min').text(minTokensAllowed.toLocaleString())
-        $('#config-max').text(maxTokensAllowed.toLocaleString())
-        $('#config-to-spend').text(maxDailyLimit.toLocaleString())
-        $('#config-federators-count').text(`${federators.length}`)
-        //$('#config-federators-required').text(`${Math.floor((federators.length / 2) + 1)}`);
-        $('#config-whitelisted-enabled').html(`${config.crossToNetwork.confirmationTime}`)
-      } catch (err) {
-        console.error('Error setting info tab ', err)
-      }
-    }
-
     async function getMaxBalance(event) {
       if (event) event.preventDefault()
       let tokenToCross = $('#tokenAddress').val()
@@ -1250,7 +1226,6 @@ export default {
         updateNetworkConfig(config)
         updateTokenAddressDropdown(config.networkId)
 
-        setInfoTab()
         onMetaMaskConnectionSuccess()
 
         await poll4LastBlockNumber(vNode.sharedState.web3, function(blockNumber) {

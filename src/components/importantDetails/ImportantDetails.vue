@@ -1,7 +1,55 @@
 <template>
-  <div id="infoTab">
+  <div class="important-details">
     <h2 class="subtitle">Important details</h2>
-    <div class="row mb-5">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col">{{ sharedState.rskConfig.name }}</th>
+          <th scope="col">{{ sharedState.ethConfig.name }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Fee</th>
+          <td>{{ rskFeeFormated }}</td>
+          <td>{{ ethFeeFormated }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Confirmations needed for small amounts</th>
+          <td>
+            {{ rskConfirmations?.smallAmount }} blocks (~ {{ rskConfirmations?.smallAmountTime }})
+          </td>
+          <td>
+            {{ ethConfirmations?.smallAmount }} blocks (~ {{ ethConfirmations?.smallAmountTime }})
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Confirmations needed for medium amounts</th>
+          <td>
+            {{ rskConfirmations?.mediumAmount }} blocks (~ {{ rskConfirmations?.mediumAmountTime }})
+          </td>
+          <td>
+            {{ ethConfirmations?.mediumAmount }} blocks (~ {{ ethConfirmations?.mediumAmountTime }})
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Confirmations needed for large amounts</th>
+          <td>
+            {{ rskConfirmations?.largeAmount }} blocks (~ {{ rskConfirmations?.largeAmountTime }})
+          </td>
+          <td>
+            {{ ethConfirmations?.largeAmount }} blocks (~ {{ ethConfirmations?.largeAmountTime }})
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Signatories</th>
+          <td>{{ rskFedMembersLen }}</td>
+          <td>{{ ethFedMembersLen }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- <div class="row mb-5">
       <div class="col-md-4 col-sm-4 mb-5 config-section">
         <span id="config-max" class="config-value mb-2">{{ maxAllowed }}</span>
         <span class="config-title">Max transfer allowed</span>
@@ -50,26 +98,131 @@
           Time needed to have enough confirmations to securely cross assets to the other network
         </p>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
+
 <script>
+import moment from 'moment'
+import { store } from '@/store.js'
+import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
+import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import FEDERATION_ABI from '@/constants/abis/federation.json'
+
+function blocksToTime(blocks, timePerBlock) {
+  return blocks && timePerBlock ? moment.duration(blocks * timePerBlock, 'seconds').humanize() : ''
+}
+
 export default {
   name: 'ImportantDetails',
   data() {
     return {
+      sharedState: store.state,
       maxAllowed: '10,000',
       minAllowed: '1',
       dailyLimit: '100,000',
       fee: '0.20 %',
       federatorsCount: 1,
       crossingPeriod: '5 minutes',
+      rskFeePercentage: 0,
+      ethFeePercentage: 0,
+      rskConfirmations: {},
+      ethConfirmations: {},
+      rskFedMembers: [],
+      ethFedMembers: [],
     }
+  },
+  computed: {
+    rskFeeFormated() {
+      return (
+        ((this.rskFeePercentage / this.sharedState.rskConfig.feePercentageDivider) * 100).toFixed(
+          2,
+        ) + '%'
+      )
+    },
+    ethFeeFormated() {
+      return (
+        ((this.ethFeePercentage / this.sharedState.ethConfig.feePercentageDivider) * 100).toFixed(
+          2,
+        ) + '%'
+      )
+    },
+    rskFedMembersLen() {
+      return this.rskFedMembers.length
+    },
+    ethFedMembersLen() {
+      return this.ethFedMembers.length
+    },
+  },
+  created() {
+    // RSK
+    const data = this
+    const rskWeb3 = this.sharedState.rskWeb3
+    const rskConfig = this.sharedState.rskConfig
+
+    const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
+    rskAllowTokens.methods
+      .getConfirmations()
+      .call()
+      .then(confirmations => {
+        data.rskConfirmations = {
+          smallAmount: confirmations.smallAmount,
+          smallAmountTime: blocksToTime(confirmations.smallAmount, rskConfig.secondsPerBlock),
+          mediumAmount: confirmations.mediumAmount,
+          mediumAmountTime: blocksToTime(confirmations.mediumAmount, rskConfig.secondsPerBlock),
+          largeAmount: confirmations.largeAmount,
+          largeAmountTime: blocksToTime(confirmations.largeAmount, rskConfig.secondsPerBlock),
+        }
+      })
+
+    const rskBridge = new rskWeb3.eth.Contract(BRIDGE_ABI, rskConfig.bridge)
+    rskBridge.methods
+      .getFeePercentage()
+      .call()
+      .then(fee => (data.rskFeePercentage = fee))
+
+    const rskFederation = new rskWeb3.eth.Contract(FEDERATION_ABI, rskConfig.federation)
+    rskFederation.methods
+      .getMembers()
+      .call()
+      .then(members => (data.rskFedMembers = members))
+
+    // ETH
+    const ethWeb3 = this.sharedState.ethWeb3
+    const ethConfig = this.sharedState.ethConfig
+
+    const ethAllowTokens = new ethWeb3.eth.Contract(ALLOW_TOKENS_ABI, ethConfig.allowTokens)
+    ethAllowTokens.methods
+      .getConfirmations()
+      .call()
+      .then(confirmations => {
+        data.ethConfirmations = {
+          smallAmount: confirmations.smallAmount,
+          smallAmountTime: blocksToTime(confirmations.smallAmount, ethConfig.secondsPerBlock),
+          mediumAmount: confirmations.mediumAmount,
+          mediumAmountTime: blocksToTime(confirmations.mediumAmount, ethConfig.secondsPerBlock),
+          largeAmount: confirmations.largeAmount,
+          largeAmountTime: blocksToTime(confirmations.largeAmount, ethConfig.secondsPerBlock),
+        }
+      })
+
+    const ethBridge = new ethWeb3.eth.Contract(BRIDGE_ABI, ethConfig.bridge)
+    ethBridge.methods
+      .getFeePercentage()
+      .call()
+      .then(fee => (data.ethFeePercentage = fee))
+
+    const ethFederation = new ethWeb3.eth.Contract(FEDERATION_ABI, ethConfig.federation)
+    ethFederation.methods
+      .getMembers()
+      .call()
+      .then(members => (data.ethFedMembers = members))
   },
 }
 </script>
+
 <style scoped>
-.config-section {
+/* .config-section {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -96,5 +249,5 @@ export default {
   font-size: 11px;
   line-height: 14px;
   margin: 0 20px;
-}
+} */
 </style>
