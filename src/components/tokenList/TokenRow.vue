@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr class="token-row">
     <th scope="row"><img :src="token.icon" class="token-logo" /></th>
     <td>
       <a :href="rskExplorerUrl" target="_blank">{{ token[rskNetworkId].symbol }}</a>
@@ -10,13 +10,18 @@
     <td>{{ min }}</td>
     <td>{{ max }}</td>
     <td>{{ daily }}</td>
-    <td>{{ mediumAmount }}</td>
-    <td>{{ largeAmount }}</td>
+    <td>&ge; {{ min }} &lt; {{ mediumAmount }}</td>
+    <td>&ge; {{ mediumAmount }} &lt; {{ largeAmount }}</td>
+    <td>&ge; {{ largeAmount }}</td>
   </tr>
 </template>
 <script>
 import { store } from '@/store.js'
 import Web3 from 'web3'
+
+function weiToLocalString(value) {
+  return value ? Number(Web3.utils.fromWei(value)).toLocaleString() : ''
+}
 
 export default {
   name: 'TokenRow',
@@ -56,19 +61,19 @@ export default {
       return this.typesLimits[this.token.typeId]
     },
     min() {
-      return this.limits ? Web3.utils.fromWei(this.limits.min) : ''
+      return weiToLocalString(this.limits?.min)
     },
     max() {
-      return this.limits ? Web3.utils.fromWei(this.limits.max) : ''
+      return weiToLocalString(this.limits?.max)
     },
     daily() {
-      return this.limits ? Web3.utils.fromWei(this.limits.daily) : ''
+      return weiToLocalString(this.limits?.daily)
     },
     mediumAmount() {
-      return this.limits ? Web3.utils.fromWei(this.limits.mediumAmount) : ''
+      return weiToLocalString(this.limits?.mediumAmount)
     },
     largeAmount() {
-      return this.limits ? Web3.utils.fromWei(this.limits.largeAmount) : ''
+      return weiToLocalString(this.limits?.largeAmount)
     },
   },
 }

@@ -15,6 +15,10 @@
           <th scope="col">maximum</th>
           <th scope="col">daily</th>
           <th scope="col">
+            small <br />
+            amount
+          </th>
+          <th scope="col">
             medium <br />
             amount
           </th>
@@ -37,7 +41,7 @@
 </template>
 <script>
 import { store } from '@/store.js'
-import TokenRow from './components/tokenRow/TokenRow.vue'
+import TokenRow from './TokenRow.vue'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 
 export default {

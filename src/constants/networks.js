@@ -12,6 +12,7 @@ export const KOVAN_CONFIG = {
   secondsPerBlock: 5,
   rpc: `https://kovan.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
   v2UpdateBlock: 25547922,
+  feePercentageDivider: 10_000,
 }
 export const RSK_TESTNET_CONFIG = {
   networkId: 31,
@@ -26,6 +27,7 @@ export const RSK_TESTNET_CONFIG = {
   secondsPerBlock: 30,
   rpc: 'https://public-node.testnet.rsk.co',
   v2UpdateBlock: 1945524,
+  feePercentageDivider: 10_000,
   crossToNetwork: KOVAN_CONFIG,
 }
 KOVAN_CONFIG.crossToNetwork = RSK_TESTNET_CONFIG
@@ -43,6 +45,7 @@ export const ETH_CONFIG = {
   confirmationTime: '24 hours',
   secondsPerBlock: 15,
   rpc: `https://mainnet.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
+  feePercentageDivider: 10_000,
 }
 export const RSK_MAINNET_CONFIG = {
   networkId: 30,
@@ -56,6 +59,7 @@ export const RSK_MAINNET_CONFIG = {
   confirmationTime: '24 hours',
   secondsPerBlock: 30,
   rpc: 'https://public-node.rsk.co',
+  feePercentageDivider: 10_000,
   crossToNetwork: ETH_CONFIG,
 }
 ETH_CONFIG.crossToNetwork = RSK_MAINNET_CONFIG
