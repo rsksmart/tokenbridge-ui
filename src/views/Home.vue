@@ -143,7 +143,6 @@ import $ from 'jquery'
 import 'popper.js'
 import 'bootstrap'
 import 'bootstrap-select'
-import ClipboardJS from 'clipboard'
 
 import {
   Paginator,
@@ -207,8 +206,6 @@ export default {
     let feePercentageDivider = 10_000
 
     $(document).ready(function() {
-      new ClipboardJS('.copy')
-      $('[data-toggle="tooltip"]').tooltip()
       $('.selectpicker').selectpicker()
 
       if (vNode.sharedState.isTestnet) {

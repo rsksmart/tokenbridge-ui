@@ -59,6 +59,8 @@ export default {
     const data = this
     const rskWeb3 = this.sharedState.rskWeb3
     const rskConfig = this.sharedState.rskConfig
+    // We have the premice that the limits will be equal in ETH and in RSK
+    // And the tokens wil have the same type on both networks
     const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
     rskAllowTokens.methods
       .getTypesLimits()
