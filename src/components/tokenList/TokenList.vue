@@ -42,32 +42,22 @@
 <script>
 import { store } from '@/store.js'
 import TokenRow from './TokenRow.vue'
-import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 
 export default {
   name: 'TokenList',
   components: {
     TokenRow,
   },
+  props: {
+    typesLimits: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
     return {
       sharedState: store.state,
-      typesLimits: [],
     }
-  },
-  created() {
-    const data = this
-    const rskWeb3 = this.sharedState.rskWeb3
-    const rskConfig = this.sharedState.rskConfig
-    // We have the premice that the limits will be equal in ETH and in RSK
-    // And the tokens wil have the same type on both networks
-    const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
-    rskAllowTokens.methods
-      .getTypesLimits()
-      .call()
-      .then(function(limits) {
-        data.typesLimits = limits
-      })
   },
 }
 </script>

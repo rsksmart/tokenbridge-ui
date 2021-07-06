@@ -4,11 +4,7 @@
       <div class="container">
         <Title :is-testnet="isTestnet" />
 
-        <CrossForm
-          :origin-network="originNetwork"
-          :destination-network="destinationNetwork"
-          :sender-address="userAddress"
-        />
+        <CrossForm :types-limits="typesLimits" />
 
         <div id="previousTxnsEmptyTab">
           <h2 class="subtitle">Active account transactions</h2>
@@ -99,7 +95,7 @@
 
         <ImportantDetails />
 
-        <TokenList />
+        <TokenList :types-limits="typesLimits" />
       </div>
       <!--- End Tab Content -->
     </section>
@@ -171,12 +167,23 @@ export default {
     return {
       sharedState: store.state,
       isTestnet: false,
-      userAddress: '',
-      originNetwork: '',
-      destinationNetwork: '',
+      typesLimits: [],
     }
   },
   created() {
+    const data = this
+    const rskWeb3 = this.sharedState.rskWeb3
+    const rskConfig = this.sharedState.rskConfig
+    // We have the premice that the limits will be equal in ETH and in RSK
+    // And the tokens wil have the same type on both networks
+    const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
+    rskAllowTokens.methods
+      .getTypesLimits()
+      .call()
+      .then(function(limits) {
+        data.typesLimits = limits
+      })
+
     const vNode = this
 
     //User
@@ -223,7 +230,7 @@ export default {
         alert('This site will only work correctly under chrome, chromium or firefox')
       }
 
-      disableInputs(true)
+      // disableInputs(true)
       disableApproveCross({
         approvalDisable: true,
         doNotAskDisabled: true,
@@ -415,37 +422,37 @@ export default {
       showActiveAddressTXNs()
     }
 
-    async function getMaxBalance(event) {
-      if (event) event.preventDefault()
-      let tokenToCross = $('#tokenAddress').val()
-      let token = TOKENS.find(element => element.token == tokenToCross)
-      if (!token) {
-        return
-      }
-      const tokenAddress = token[config.networkId].address
-      tokenContract = new vNode.sharedState.web3.eth.Contract(ERC20_ABI, tokenAddress)
+    // async function getMaxBalance(event) {
+    //   if (event) event.preventDefault()
+    //   let tokenToCross = $('#tokenAddress').val()
+    //   let token = TOKENS.find(element => element.token == tokenToCross)
+    //   if (!token) {
+    //     return
+    //   }
+    //   const tokenAddress = token[config.networkId].address
+    //   tokenContract = new vNode.sharedState.web3.eth.Contract(ERC20_ABI, tokenAddress)
 
-      const decimals = token[config.networkId].decimals
-      return retry3Times(tokenContract.methods.balanceOf(address).call).then(async balance => {
-        let balanceBNs = new BigNumber(balance).shiftedBy(-decimals)
-        let maxWithdrawInWei = await retry3Times(
-          allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call,
-        )
-        let maxWithdraw = new BigNumber(
-          vNode.sharedState.web3.utils.fromWei(maxWithdrawInWei, 'ether'),
-        )
-        let maxValue = 0
-        if (balanceBNs.isGreaterThan(maxWithdraw)) {
-          maxValue = maxWithdraw
-        } else {
-          maxValue = balanceBNs
-        }
-        let serviceFee = new BigNumber(maxValue).times(fee)
-        let value = maxValue.minus(serviceFee).toFixed(decimals, BigNumber.ROUND_DOWN)
-        $('#amount').val(value.toString())
-        $('#amount').keyup()
-      })
-    }
+    //   const decimals = token[config.networkId].decimals
+    //   return retry3Times(tokenContract.methods.balanceOf(address).call).then(async balance => {
+    //     let balanceBNs = new BigNumber(balance).shiftedBy(-decimals)
+    //     let maxWithdrawInWei = await retry3Times(
+    //       allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call,
+    //     )
+    //     let maxWithdraw = new BigNumber(
+    //       vNode.sharedState.web3.utils.fromWei(maxWithdrawInWei, 'ether'),
+    //     )
+    //     let maxValue = 0
+    //     if (balanceBNs.isGreaterThan(maxWithdraw)) {
+    //       maxValue = maxWithdraw
+    //     } else {
+    //       maxValue = balanceBNs
+    //     }
+    //     let serviceFee = new BigNumber(maxValue).times(fee)
+    //     let value = maxValue.minus(serviceFee).toFixed(decimals, BigNumber.ROUND_DOWN)
+    //     $('#amount').val(value.toString())
+    //     $('#amount').keyup()
+    //   })
+    // }
 
     async function approveSpend() {
       var tokenToCross = $('#tokenAddress').val()
@@ -559,7 +566,7 @@ export default {
         .mul(new BN(feePercentageDivider))
         .div(new BN(feePercentageDivider - feePercentage))
 
-      disableInputs(true)
+      // disableInputs(true)
       $('.fees').hide()
       $('#secondsPerBlock').text(config.secondsPerBlock)
       $('#wait').show()
@@ -643,7 +650,7 @@ export default {
           $('#confirmationTime').text(config.confirmationTime)
           $('#receive').text(`${amount} ${token[config.crossToNetwork.networkId].symbol}`)
           $('#success').show()
-          disableInputs(false)
+          // disableInputs(false)
 
           // save transaction to local storage...
           TXN_Storage.addTxn(address, config.name, {
@@ -752,7 +759,7 @@ export default {
       // $('#cross').prop('disabled', false);
       $('#deposit').prop('disabled', false)
 
-      disableInputs(false)
+      // disableInputs(false)
     }
 
     async function checkAllowance() {
@@ -936,13 +943,12 @@ export default {
       $('#help').hide()
       $('.wallet-status').hide()
       $('#address').text('0x00000..')
-      disableInputs(true)
+      // disableInputs(true)
       tokenContract = null
       allowTokensContract = null
       bridgeContract = null
       config = null
       address = ''
-      vNode.userAddress = address
     }
 
     function disableApproveCross({
@@ -957,21 +963,21 @@ export default {
       $('#deposit').prop('disabled', crossDisabled)
     }
 
-    function disableInputs(disable) {
-      $('#tokenAddress').prop('disabled', disable)
-      $("button[data-id='tokenAddress']").prop('disabled', disable)
-      $('#amount').prop('disabled', disable)
-      if (disable) {
-        $('#max').off('click')
-        $('#max').removeAttr('href')
-      } else {
-        $('#max').on('click', getMaxBalance)
-        $('#max').attr('href', '#')
-      }
-    }
+    // function disableInputs(disable) {
+    //   $('#tokenAddress').prop('disabled', disable)
+    //   $("button[data-id='tokenAddress']").prop('disabled', disable)
+    //   $('#amount').prop('disabled', disable)
+    //   if (disable) {
+    //     $('#max').off('click')
+    //     $('#max').removeAttr('href')
+    //   } else {
+    //     $('#max').on('click', getMaxBalance)
+    //     $('#max').attr('href', '#')
+    //   }
+    // }
 
     function onMetaMaskConnectionSuccess() {
-      disableInputs(false)
+      // disableInputs(false)
       disableApproveCross({
         approvalDisable: true,
         doNotAskDisabled: true,
@@ -981,7 +987,6 @@ export default {
 
     function updateAddress(newAddresses) {
       address = newAddresses[0]
-      vNode.userAddress = address
       $('#address').text(address)
       $('#logIn').hide()
       $('#transferTab').removeClass('disabled')
@@ -1165,9 +1170,6 @@ export default {
       $('#confirmations').html(config.confirmations)
       $('#timeToCross').html(config.crossToNetwork.confirmationTime)
       updateTokenAddressDropdown(config.networkId)
-
-      vNode.originNetwork = config.name
-      vNode.destinationNetwork = config.crossToNetwork.name
     }
 
     async function updateNetwork(newNetwork) {
