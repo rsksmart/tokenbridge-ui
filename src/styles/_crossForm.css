@@ -26,8 +26,9 @@
   color: #bfbdbd;
 }
 
-.max {
-  color: #00b520;
+.max,
+.same-address {
+  color: #00b520 !important;
 }
 .network {
   color: #00b520;

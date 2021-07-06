@@ -62,6 +62,8 @@ export const store = {
     isTestnet: isTestnet,
     rLogin: rLogin,
     isConnected: false,
+    accountAddress: '',
+    currentConfig: null,
     rskWeb3: isTestnet ? new Web3(rskTestnetUri) : new Web3(rskMainnetUri),
     ethWeb3: isTestnet ? new Web3(kovanUri) : new Web3(ethMainnetUri),
     rskConfig: rskConfig,
@@ -72,16 +74,39 @@ export const store = {
     const state = this.state
     return rLogin
       .connect()
-      .then(function(rLoginResponse) {
+      .then(async function(rLoginResponse) {
         state.provider = rLoginResponse.provider
         state.dataVault = rLoginResponse.dataVault
         state.disconnect = rLoginResponse.disconnect
         state.web3 = new Web3(rLoginResponse.provider)
+
+        const accounts = await state.web3.eth.getAccounts()
+        if (accounts.length === 0)
+          throw new Error(
+            'Nifty Wallet or MetaMask is Locked, please unlock it and Reload the page to continue',
+          )
+        state.accountAddress = accounts[0]
+        const chainId = await state.web3.eth.net.getId()
+        switch (parseInt(chainId)) {
+          case 1:
+            state.currentConfig = ETH_CONFIG
+            break
+          case 30:
+            state.currentConfig = RSK_MAINNET_CONFIG
+            break
+          case 31:
+            state.currentConfig = RSK_TESTNET_CONFIG
+            break
+          case 42:
+            state.currentConfig = KOVAN_CONFIG
+            break
+        }
         state.isConnected = true
       })
       .catch(function(err) {
         console.error(err)
         state.isConnected = false
+        state.accountAddress = ''
         state.provider = null
         state.dataVault = null
         state.disconnect = null
