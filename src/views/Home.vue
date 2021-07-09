@@ -4,7 +4,7 @@
       <div class="container">
         <Title :is-testnet="isTestnet" />
 
-        <CrossForm :types-limits="typesLimits" />
+        <CrossForm :types-limits="typesLimits" :rsk-fee="rskFee" :eth-fee="ethFee" />
 
         <div id="previousTxnsEmptyTab">
           <h2 class="subtitle">Active account transactions</h2>
@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <ImportantDetails />
+        <ImportantDetails :rsk-fee="rskFee" :eth-fee="ethFee" />
 
         <TokenList :types-limits="typesLimits" />
       </div>
@@ -138,16 +138,8 @@ import Web3 from 'web3'
 import $ from 'jquery'
 import 'popper.js'
 import 'bootstrap'
-import 'bootstrap-select'
 
-import {
-  Paginator,
-  retry3Times,
-  poll4LastBlockNumber,
-  TXN_Storage,
-  isAddress,
-  NULL_HASH,
-} from '@/utils'
+import { Paginator, retry3Times, poll4LastBlockNumber, TXN_Storage, NULL_HASH } from '@/utils'
 
 import CrossForm from '@/components/crossForm/CrossForm.vue'
 import Title from '@/components/title/Title.vue'
@@ -168,12 +160,28 @@ export default {
       sharedState: store.state,
       isTestnet: false,
       typesLimits: [],
+      rskFee: 0,
+      ethFee: 0,
     }
   },
   created() {
     const data = this
     const rskWeb3 = this.sharedState.rskWeb3
     const rskConfig = this.sharedState.rskConfig
+    const ethWeb3 = this.sharedState.ethWeb3
+    const ethConfig = this.sharedState.ethConfig
+
+    const rskBridge = new rskWeb3.eth.Contract(BRIDGE_ABI, rskConfig.bridge)
+    rskBridge.methods
+      .getFeePercentage()
+      .call()
+      .then(fee => (data.rskFee = fee / rskConfig.feePercentageDivider))
+
+    const ethBridge = new ethWeb3.eth.Contract(BRIDGE_ABI, ethConfig.bridge)
+    ethBridge.methods
+      .getFeePercentage()
+      .call()
+      .then(fee => (data.ethFee = fee / ethConfig.feePercentageDivider))
     // We have the premice that the limits will be equal in ETH and in RSK
     // And the tokens wil have the same type on both networks
     const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
@@ -213,7 +221,7 @@ export default {
     let feePercentageDivider = 10_000
 
     $(document).ready(function() {
-      $('.selectpicker').selectpicker()
+      // $('.selectpicker').selectpicker()
 
       if (vNode.sharedState.isTestnet) {
         let navlink = $('#network-navlink')
@@ -239,47 +247,47 @@ export default {
 
       $('#logIn').on('click', onLogInClick)
 
-      $('#tokenAddress').change(function(event) {
-        cleanAlertSuccess()
-        let token = TOKENS.find(element => element.token == event.currentTarget.value)
-        if (token) {
-          $('.selectedToken').html(token[config.networkId].symbol)
-          let html = `<a target="_blank" href="${config.crossToNetwork.explorer}/address/${token[
-            config.crossToNetwork.networkId
-          ].address.toLowerCase()}">`
-          html += `\n   <span><img src="${token.icon}" class="token-logo"></span>${
-            token[config.crossToNetwork.networkId].symbol
-          }`
-          html += `\n </a>`
-          $('#willReceiveToken').html(html)
-          $('#willReceive-copy').show()
-          $('#willReceive-copy').attr(
-            'data-clipboard-text',
-            token[config.crossToNetwork.networkId].address,
-          )
-          if ($('#amount').val()) {
-            isAmountOk()
-            isReceiverAddressOk()
-            checkAllowance()
-          }
-        } else {
-          $('.selectedToken').html('')
-          $('#willReceive').html('')
-          $('#willReceive-copy').hide()
-        }
-      })
+      // $('#tokenAddress').change(function(event) {
+      //   cleanAlertSuccess()
+      //   let token = TOKENS.find(element => element.token == event.currentTarget.value)
+      //   if (token) {
+      //     $('.selectedToken').html(token[config.networkId].symbol)
+      //     let html = `<a target="_blank" href="${config.crossToNetwork.explorer}/address/${token[
+      //       config.crossToNetwork.networkId
+      //     ].address.toLowerCase()}">`
+      //     html += `\n   <span><img src="${token.icon}" class="token-logo"></span>${
+      //       token[config.crossToNetwork.networkId].symbol
+      //     }`
+      //     html += `\n </a>`
+      //     $('#willReceiveToken').html(html)
+      //     $('#willReceive-copy').show()
+      //     $('#willReceive-copy').attr(
+      //       'data-clipboard-text',
+      //       token[config.crossToNetwork.networkId].address,
+      //     )
+      //     if ($('#amount').val()) {
+      //       isAmountOk()
+      //       isReceiverAddressOk()
+      //       checkAllowance()
+      //     }
+      //   } else {
+      //     $('.selectedToken').html('')
+      //     $('#willReceive').html('')
+      //     $('#willReceive-copy').hide()
+      //   }
+      // })
 
-      $('#receive-address').change(function() {
-        if (isReceiverAddressOk()) {
-          receiverAddress = $('#receive-address').val()
-        }
-      })
+      // $('#receive-address').change(function() {
+      //   if (isReceiverAddressOk()) {
+      //     receiverAddress = $('#receive-address').val()
+      //   }
+      // })
 
-      $('#receive-address').focusout(function() {
-        if (isReceiverAddressOk()) {
-          receiverAddress = $('#receive-address').val()
-        }
-      })
+      // $('#receive-address').focusout(function() {
+      //   if (isReceiverAddressOk()) {
+      //     receiverAddress = $('#receive-address').val()
+      //   }
+      // })
 
       $('#amount').keyup(function(event) {
         isAmountOk()
@@ -793,7 +801,7 @@ export default {
           $('.approve-deposit').hide()
           // straight to convert
 
-          const crossDisabled = isReceiverAddressOk()
+          const crossDisabled = true //isReceiverAddressOk()
           disableApproveCross({
             approvalDisable: true,
             doNotAskDisabled: true,
@@ -812,25 +820,25 @@ export default {
       }
     }
 
-    async function isReceiverAddressOk() {
-      const receiverAddress = $('#receive-address').val()
-      if (receiverAddress == '' || !isAddress(receiverAddress)) {
-        markInvalidReceiverAddress('Invalid Receiver Address')
+    // async function isReceiverAddressOk() {
+    //   const receiverAddress = $('#receive-address').val()
+    //   if (receiverAddress == '' || !isAddress(receiverAddress)) {
+    //     markInvalidReceiverAddress('Invalid Receiver Address')
 
-        disableApproveCross({
-          approvalDisable: null,
-          doNotAskDisabled: true,
-          crossDisabled: true,
-        })
+    //     disableApproveCross({
+    //       approvalDisable: null,
+    //       doNotAskDisabled: true,
+    //       crossDisabled: true,
+    //     })
 
-        return false
-      }
-      $('.receive-address .invalid-feedback').hide()
-      $('#receive-address').removeClass('is-invalid')
-      $('#receive-address').addClass('ok')
-      $('.fees').show()
-      return true
-    }
+    //     return false
+    //   }
+    //   $('.receive-address .invalid-feedback').hide()
+    //   $('#receive-address').removeClass('is-invalid')
+    //   $('#receive-address').addClass('ok')
+    //   $('.fees').show()
+    //   return true
+    // }
 
     async function isAmountOk() {
       cleanAlertSuccess()
@@ -1169,7 +1177,7 @@ export default {
       $('.toNetwork').text(config.crossToNetwork.name)
       $('#confirmations').html(config.confirmations)
       $('#timeToCross').html(config.crossToNetwork.confirmationTime)
-      updateTokenAddressDropdown(config.networkId)
+      // updateTokenAddressDropdown(config.networkId)
     }
 
     async function updateNetwork(newNetwork) {
@@ -1223,7 +1231,7 @@ export default {
 
         $('#myModal').modal('hide')
         updateNetworkConfig(config)
-        updateTokenAddressDropdown(config.networkId)
+        // updateTokenAddressDropdown(config.networkId)
 
         onMetaMaskConnectionSuccess()
 
@@ -1243,20 +1251,20 @@ export default {
       }
     }
 
-    function updateTokenAddressDropdown(networkId) {
-      let selectHtml = ''
-      for (let aToken of TOKENS) {
-        if (aToken[networkId] != undefined) {
-          selectHtml += `\n<option value="${aToken.token}" `
-          selectHtml += `data-content="<span><img src='${aToken.icon}' class='token-logo'></span>${aToken[networkId].symbol}">`
-          selectHtml += `\n</option>`
-        }
-      }
-      $('#tokenAddress').html(selectHtml)
-      $('#tokenAddress').prop('disabled', false)
-      $('#tokenAddress').selectpicker('refresh')
-      $('#willReceiveToken').html('-')
-    }
+    // function updateTokenAddressDropdown(networkId) {
+    //   let selectHtml = ''
+    //   for (let aToken of TOKENS) {
+    //     if (aToken[networkId] != undefined) {
+    //       selectHtml += `\n<option value="${aToken.token}" `
+    //       selectHtml += `data-content="<span><img src='${aToken.icon}' class='token-logo'></span>${aToken[networkId].symbol}">`
+    //       selectHtml += `\n</option>`
+    //     }
+    //   }
+    //   $('#tokenAddress').html(selectHtml)
+    //   $('#tokenAddress').prop('disabled', false)
+    //   $('#tokenAddress').selectpicker('refresh')
+    //   $('#willReceiveToken').html('-')
+    // }
 
     async function getAccounts() {
       let accounts = await vNode.sharedState.web3.eth.getAccounts()

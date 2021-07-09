@@ -115,17 +115,21 @@ function blocksToTime(blocks, timePerBlock) {
 
 export default {
   name: 'ImportantDetails',
+  props: {
+    rskFee: {
+      type: Number,
+      required: true,
+    },
+    ethFee: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
       sharedState: store.state,
-      maxAllowed: '10,000',
-      minAllowed: '1',
-      dailyLimit: '100,000',
-      fee: '0.20 %',
       federatorsCount: 1,
       crossingPeriod: '5 minutes',
-      rskFeePercentage: 0,
-      ethFeePercentage: 0,
       rskConfirmations: {},
       ethConfirmations: {},
       rskFedMembers: [],
@@ -134,18 +138,10 @@ export default {
   },
   computed: {
     rskFeeFormated() {
-      return (
-        ((this.rskFeePercentage / this.sharedState.rskConfig.feePercentageDivider) * 100).toFixed(
-          2,
-        ) + '%'
-      )
+      return (this.rskFee * 100).toFixed(2) + '%'
     },
     ethFeeFormated() {
-      return (
-        ((this.ethFeePercentage / this.sharedState.ethConfig.feePercentageDivider) * 100).toFixed(
-          2,
-        ) + '%'
-      )
+      return (this.ethFee * 100).toFixed(2) + '%'
     },
     rskFedMembersLen() {
       return this.rskFedMembers.length
@@ -175,12 +171,6 @@ export default {
         }
       })
 
-    const rskBridge = new rskWeb3.eth.Contract(BRIDGE_ABI, rskConfig.bridge)
-    rskBridge.methods
-      .getFeePercentage()
-      .call()
-      .then(fee => (data.rskFeePercentage = fee))
-
     const rskFederation = new rskWeb3.eth.Contract(FEDERATION_ABI, rskConfig.federation)
     rskFederation.methods
       .getMembers()
@@ -205,12 +195,6 @@ export default {
           largeAmountTime: blocksToTime(confirmations.largeAmount, ethConfig.secondsPerBlock),
         }
       })
-
-    const ethBridge = new ethWeb3.eth.Contract(BRIDGE_ABI, ethConfig.bridge)
-    ethBridge.methods
-      .getFeePercentage()
-      .call()
-      .then(fee => (data.ethFeePercentage = fee))
 
     const ethFederation = new ethWeb3.eth.Contract(FEDERATION_ABI, ethConfig.federation)
     ethFederation.methods
