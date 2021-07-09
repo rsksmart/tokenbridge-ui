@@ -3,7 +3,6 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css');
 
 @import url('https://developers.rsk.co/assets/vendor/malihu-custom-scrollbar-plugin-master/malihu-custom-scrollbar-plugin-master/jquery.mCustomScrollbar.css');
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css');
 
 @import url('https://developers.rsk.co/assets/vendor/bootstrap/css/bootstrap.min.css');
 
@@ -211,27 +210,6 @@ a:hover {
   width: 1.2rem;
   height: 1.2rem;
   margin-right: 0.5rem;
-}
-.dropup .dropdown-toggle::after {
-  content: '\f106';
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  border: 0;
-}
-.dropdown-toggle::after {
-  content: '\f107';
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  border: 0;
-  display: inline-block;
-  vertical-align: 0.255em;
-}
-.bootstrap-select > .dropdown-toggle:after {
-  margin-top: 0px;
-  font-size: 20px;
-  vertical-align: middle;
-  line-height: 25px;
-  text-align: center;
 }
 #wait {
   font-family: 'Rubik';
