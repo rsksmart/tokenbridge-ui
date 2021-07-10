@@ -1,6 +1,9 @@
 #cross {
   display: none;
 }
+#crossForm .row {
+  margin: 0;
+}
 .approve-deposit {
   display: flex;
   flex-direction: column;
@@ -62,6 +65,7 @@
 }
 
 .invalid-feedback {
+  display: block;
   margin-top: 0px;
   font-size: 12px;
 }
