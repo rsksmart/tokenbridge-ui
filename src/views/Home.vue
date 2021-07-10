@@ -290,7 +290,7 @@ export default {
       // })
 
       $('#amount').keyup(function(event) {
-        isAmountOk()
+        // isAmountOk()
         if (event.key === 'Enter') {
           checkAllowance()
         }
@@ -576,7 +576,7 @@ export default {
 
       // disableInputs(true)
       $('.fees').hide()
-      $('#secondsPerBlock').text(config.secondsPerBlock)
+      // $('#secondsPerBlock').text(config.secondsPerBlock)
       $('#wait').show()
       let gasPrice = ''
 
@@ -774,12 +774,12 @@ export default {
       cleanAlertSuccess()
       let amount = $('#amount').val()
       if (amount == '') {
-        markInvalidAmount('Invalid amount')
+        // markInvalidAmount('Invalid amount')
         return
       }
       let parsedAmount = new BigNumber(amount)
       if (parsedAmount <= 0) {
-        markInvalidAmount('Must be bigger than 0')
+        // markInvalidAmount('Must be bigger than 0')
         return
       }
       $('#secondsPerBlock').text(config.secondsPerBlock)
@@ -840,81 +840,81 @@ export default {
     //   return true
     // }
 
-    async function isAmountOk() {
-      cleanAlertSuccess()
-      let amount = $('#amount').val()
-      if (amount == '') {
-        markInvalidAmount('Invalid amount')
+    // async function isAmountOk() {
+    //   cleanAlertSuccess()
+    //   let amount = $('#amount').val()
+    //   if (amount == '') {
+    //     markInvalidAmount('Invalid amount')
 
-        disableApproveCross({
-          approvalDisable: true,
-          doNotAskDisabled: true,
-          crossDisabled: true,
-        })
+    //     disableApproveCross({
+    //       approvalDisable: true,
+    //       doNotAskDisabled: true,
+    //       crossDisabled: true,
+    //     })
 
-        return
-      }
-      let parsedAmount = new BigNumber(amount)
-      if (parsedAmount <= 0) {
-        markInvalidAmount('Must be bigger than 0')
+    //     return
+    //   }
+    //   let parsedAmount = new BigNumber(amount)
+    //   if (parsedAmount <= 0) {
+    //     markInvalidAmount('Must be bigger than 0')
 
-        disableApproveCross({
-          approvalDisable: true,
-          doNotAskDisabled: true,
-          crossDisabled: true,
-        })
+    //     disableApproveCross({
+    //       approvalDisable: true,
+    //       doNotAskDisabled: true,
+    //       crossDisabled: true,
+    //     })
 
-        return
-      }
-      $('#amount').removeClass('ok')
-      let totalCost = fee == 0 ? parsedAmount : parsedAmount.dividedBy(1 - fee)
-      let serviceFee = totalCost.times(fee)
+    //     return
+    //   }
+    //   $('#amount').removeClass('ok')
+    //   let totalCost = fee == 0 ? parsedAmount : parsedAmount.dividedBy(1 - fee)
+    //   let serviceFee = totalCost.times(fee)
 
-      $('#serviceFee').html(serviceFee.toFormat(6, BigNumber.ROUND_DOWN))
-      $('#totalCost').html(totalCost.toFormat(6, BigNumber.ROUND_DOWN))
-      try {
-        if (totalCost < minTokensAllowed) {
-          throw new Error(`Minimum amount ${minTokensAllowed - minTokensAllowed * fee} token`)
-        }
-        if (totalCost > maxTokensAllowed) {
-          throw new Error(`Max amount ${maxTokensAllowed - maxTokensAllowed * fee} tokens`)
-        }
+    //   $('#serviceFee').html(serviceFee.toFormat(6, BigNumber.ROUND_DOWN))
+    //   $('#totalCost').html(totalCost.toFormat(6, BigNumber.ROUND_DOWN))
+    //   try {
+    //     if (totalCost < minTokensAllowed) {
+    //       throw new Error(`Minimum amount ${minTokensAllowed - minTokensAllowed * fee} token`)
+    //     }
+    //     if (totalCost > maxTokensAllowed) {
+    //       throw new Error(`Max amount ${maxTokensAllowed - maxTokensAllowed * fee} tokens`)
+    //     }
 
-        $('.amount .invalid-feedback').hide()
-        $('#amount').removeClass('is-invalid')
-        $('#amount').addClass('ok')
-        $('.fees').show()
-        $('#receive-amount').val(parseInt(amount, 10) * 0.998)
-      } catch (err) {
-        disableApproveCross({
-          approvalDisable: true,
-          doNotAskDisabled: true,
-          crossDisabled: true,
-        })
+    //     $('.amount .invalid-feedback').hide()
+    //     $('#amount').removeClass('is-invalid')
+    //     $('#amount').addClass('ok')
+    //     $('.fees').show()
+    //     $('#receive-amount').val(parseInt(amount, 10) * 0.998)
+    //   } catch (err) {
+    //     disableApproveCross({
+    //       approvalDisable: true,
+    //       doNotAskDisabled: true,
+    //       crossDisabled: true,
+    //     })
 
-        markInvalidAmount(err.message)
-      }
-    }
+    //     // markInvalidAmount(err.message)
+    //   }
+    // }
 
-    function markInvalidReceiverAddress(errorDescription) {
-      let invalidReceiverAddress = $('.receiverAddress .invalid-feedback')
-      invalidReceiverAddress.html(errorDescription)
-      invalidReceiverAddress.show()
-      $('#receive-address').addClass('is-invalid')
-      $('#receive-address').prop('disabled', false)
-      $('#receive-address').removeClass('ok')
-      $('.fees').hide()
-    }
+    // function markInvalidReceiverAddress(errorDescription) {
+    //   let invalidReceiverAddress = $('.receiverAddress .invalid-feedback')
+    //   invalidReceiverAddress.html(errorDescription)
+    //   invalidReceiverAddress.show()
+    //   $('#receive-address').addClass('is-invalid')
+    //   $('#receive-address').prop('disabled', false)
+    //   $('#receive-address').removeClass('ok')
+    //   $('.fees').hide()
+    // }
 
-    function markInvalidAmount(errorDescription) {
-      let invalidAmount = $('.amount .invalid-feedback')
-      invalidAmount.html(errorDescription)
-      invalidAmount.show()
-      $('#amount').addClass('is-invalid')
-      $('#amount').prop('disabled', false)
-      $('#amount').removeClass('ok')
-      $('.fees').hide()
-    }
+    // function markInvalidAmount(errorDescription) {
+    //   let invalidAmount = $('.amount .is-invalid')
+    //   invalidAmount.html(errorDescription)
+    //   invalidAmount.show()
+    //   $('#amount').addClass('is-invalid')
+    //   $('#amount').prop('disabled', false)
+    //   $('#amount').removeClass('ok')
+    //   $('.fees').hide()
+    // }
 
     async function isInstalled() {
       if (window.ethereum) {

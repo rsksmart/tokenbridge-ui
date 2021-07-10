@@ -1,5 +1,5 @@
 <template>
-  <Form id="crossForm" name="crossForm">
+  <Form id="crossForm" name="crossForm" @submit="onSubmit">
     <div id="bridgeTab" class="align-center">
       <div class="firstRow row justify-content-sm-center">
         <!-- Column 2 -->
@@ -23,7 +23,7 @@
           <label class="tokenAddress-label" for="tokenAddress">You own</label>
           <div class="dropdown">
             <button
-              id="dropdownMenuButton"
+              id="tokenAddress"
               class="btn dropdown-toggle"
               :class="{ disabled: !sharedState.isConnected }"
               :disabled="!sharedState.isConnected"
@@ -46,17 +46,20 @@
               </li>
             </div>
           </div>
+          <div class="invalid-feedback-container">
+            <ErrorMessage class="invalid-feedback" name="tokenAddress" />
+          </div>
         </div>
 
         <!-- Column 6 -->
-        <div class="amountToCross text-center col-sm-2">
+        <div class="amountToCross text-center col-sm-3">
           <label class="amount-label" for="amount">
             <a id="max" class="max" @click="setMaxAmount">
               Max
             </a>
           </label>
           <div class="form-group amount">
-            <input
+            <Field
               id="amount"
               v-model="amount"
               name="amount"
@@ -64,10 +67,11 @@
               :class="{ disabled: !sharedState.isConnected }"
               placeholder="Amount"
               :disabled="!sharedState.isConnected"
+              :rules="validateAmount"
               required
             />
             <div class="invalid-feedback-container">
-              <div class="invalid-feedback"></div>
+              <ErrorMessage class="invalid-feedback" name="amount" />
             </div>
           </div>
         </div>
@@ -127,7 +131,7 @@
         </div>
 
         <!-- Column 6 -->
-        <div class="convertedAmount text-center col-sm-2">
+        <div class="convertedAmount text-center col-sm-3">
           <label class="amount-label" for="amount">Amount</label>
           <div class="form-group amount">
             <input
@@ -144,14 +148,14 @@
 
         <!-- Column 8 -->
         <div class="receiverAddress text-center col-sm-5">
-          <label class="receive-label-address" for="receive-address">
+          <label class="receive-label-address" for="receiveAddress">
             <a id="same-address" class="same-address" @click="useSameAddress">
               Receiver address
             </a>
           </label>
           <div class="form-group receive-address">
-            <input
-              id="receive-address"
+            <Field
+              id="receiveAddress"
               v-model="receiverAddress"
               type="text"
               name="receiveAddress"
@@ -159,11 +163,11 @@
               :class="{ disabled: !sharedState.isConnected }"
               placeholder="0x00...af"
               :disabled="!sharedState.isConnected"
+              :rules="validateAddress"
               required
             />
             <div class="invalid-feedback-container">
-              <ErrorMessage class="invalid-feedback" name="field" />
-              <div class="invalid-feedback"></div>
+              <ErrorMessage class="invalid-feedback" name="receiveAddress" />
             </div>
           </div>
         </div>
@@ -186,10 +190,9 @@
 </template>
 <script>
 import { Field, Form, ErrorMessage } from 'vee-validate'
-import { object, string, number } from 'yup'
 import BigNumber from 'bignumber.js'
 
-import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
+// import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import ERC20_ABI from '@/constants/abis/erc20.json'
 
 import WaitSpinner from './messages/WaitSpinner.vue'
@@ -221,34 +224,17 @@ export default {
       required: true,
     },
   },
-  setup() {
-    // const data = this
-    // function onSubmit(values) {
-    //   alert(JSON.stringify(values, null, 2))
-    // }
-    // // Using yup to generate a validation schema
-    // // https://vee-validate.logaretm.com/v4/guide/validation#validation-schemas-with-yup
-    // const schema = object().shape({
-    //   receiveAddress: string()
-    //     .matches(/^(0x)?[0-9a-fA-F]{40}$/, 'Invalid address')
-    //     .required(),
-    //   amount: number()
-    //     .min(0)
-    //     .max(data.selectedToken?.typeId)
-    //     .required(),
-    // })
-    // return {
-    //   onSubmit,
-    //   schema,
-    // }
-  },
   data() {
     return {
       sharedState: store.state,
       receiverAddress: '',
       amount: '',
       selectedToken: {},
-      maxAmount: 0,
+      selectedTokenBalance: 0,
+      selectedTokenMaxLimit: 0,
+      selectedTokenMinLimit: 0,
+      selectedTokenMediumAmount: 0,
+      selectedTokenLargeAmount: 0,
     }
   },
   computed: {
@@ -294,7 +280,10 @@ export default {
     },
   },
   methods: {
-    selectToken: async function(token, event) {
+    onSubmit(values) {
+      alert(JSON.stringify(values, null, 2))
+    },
+    async selectToken(token, event) {
       if (event) event.preventDefault()
       this.selectedToken = token
       const web3 = this.sharedState.web3
@@ -308,33 +297,53 @@ export default {
       const decimals = token.decimals
       const balance = await tokenContract.methods.balanceOf(this.sharedState.accountAddress).call()
 
-      const balanceBNs = new BigNumber(balance).shiftedBy(-decimals)
-      const allowTokensContract = new web3.eth.Contract(ALLOW_TOKENS_ABI, config.allowTokens)
-      const maxWithdrawInWei = await allowTokensContract.methods
-        .calcMaxWithdraw(tokenAddress)
-        .call()
-      const maxWithdraw = new BigNumber(maxWithdrawInWei).shiftedBy(-18)
-      this.maxAmount = balanceBNs
-      if (balanceBNs.isGreaterThan(maxWithdraw)) {
-        this.maxAmount = maxWithdraw
+      this.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
+      // // The correct form is use calcMaxWithdraw to check the limit
+      // // we use the max limit as it is more performant and theres a 99.9% that this is the max limit
+      // const allowTokensContract = new web3.eth.Contract(ALLOW_TOKENS_ABI, config.allowTokens)
+      // const maxWithdrawInWei = await allowTokensContract.methods
+      //   .calcMaxWithdraw(tokenAddress)
+      //   .call()
+      const limits = this.typesLimits[this.selectedToken.typeId]
+      this.selectedTokenMaxLimit = new BigNumber(limits.max).shiftedBy(-18)
+      this.selectedTokenMinLimit = new BigNumber(limits.min).shiftedBy(-18)
+      this.selectedTokenMediumAmount = new BigNumber(limits.mediumAmount).shiftedBy(-18)
+      this.selectedTokenLargeAmount = new BigNumber(limits.largeAmount).shiftedBy(-18)
+      this.validateAmount(this.amount)
+    },
+    async setMaxAmount(event) {
+      if (!this.selectedTokenMaxLimit || !this.selectedTokenBalance) return
+      let maxAmount = this.selectedTokenBalance
+      if (this.selectedTokenBalance.isGreaterThan(this.selectedTokenMaxLimit)) {
+        maxAmount = this.selectedTokenMaxLimit
       }
-    },
-    setMaxAmount: async function(event) {
+      this.amount = maxAmount.toFixed(this.selectedToken.decimals, BigNumber.ROUND_DOWN)
       if (event) event.preventDefault()
-      if (!this.maxAmount) return
-      this.amount = this.maxAmount.toFixed(this.selectedToken.decimals, BigNumber.ROUND_DOWN)
     },
-    useSameAddress: function(event) {
+    useSameAddress(event) {
       if (event) event.preventDefault()
       this.receiverAddress = this.sharedState.accountAddress
     },
-    isRequired(value) {
+    validateAmount(value) {
       if (!value) {
-        return 'this field is required'
+        return 'amount is required'
+      }
+      const amount = new BigNumber(value)
+      if (!this.selectedToken?.symbol) return true
+
+      if (amount.isLessThan(this.selectedTokenMinLimit)) {
+        return `min amount is ${this.selectedTokenMinLimit}`
+      }
+      if (amount.isGreaterThan(this.selectedTokenBalance)) {
+        return `amount bigger than your balance`
+      }
+      if (amount.isGreaterThan(this.selectedTokenMaxAmount)) {
+        return `max amount is ${this.selectedTokenMaxAmount}`
       }
       return true
     },
-    isAddress(value) {
+    validateAddress(value) {
+      if (!value) return 'destionation address is required'
       if (!/^(0x)?[0-9a-fA-F]{40}$/i.test(value)) {
         return 'invalid address'
       }
