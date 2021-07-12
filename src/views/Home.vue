@@ -239,11 +239,11 @@ export default {
       }
 
       // disableInputs(true)
-      disableApproveCross({
-        approvalDisable: true,
-        doNotAskDisabled: true,
-        crossDisabled: true,
-      })
+      // disableApproveCross({
+      //   approvalDisable: true,
+      //   doNotAskDisabled: true,
+      //   crossDisabled: true,
+      // })
 
       $('#logIn').on('click', onLogInClick)
 
@@ -304,11 +304,6 @@ export default {
       $('#crossForm').on('submit', function(e) {
         e.preventDefault()
         crossToken()
-      })
-
-      $('#approve').on('click', function(e) {
-        e.preventDefault()
-        approveSpend()
       })
 
       $('.table').on('click', '.claim', function(e) {
@@ -462,76 +457,6 @@ export default {
     //   })
     // }
 
-    async function approveSpend() {
-      var tokenToCross = $('#tokenAddress').val()
-      var token = TOKENS.find(element => element.token == tokenToCross)
-      if (!token) {
-        crossTokenError('Choose a token to cross')
-        return
-      }
-      const BN = vNode.sharedState.web3.utils.BN
-      const amount = $('#amount').val()
-
-      if (!amount) {
-        crossTokenError('Complete the Amount field')
-        return
-      }
-      if ($('#amount').hasClass('is-invalid')) {
-        crossTokenError('Invalid Amount')
-        return
-      }
-
-      const amountBN = new BN(
-        vNode.sharedState.web3.utils.toWei(Number.MAX_SAFE_INTEGER.toString(), 'ether'),
-      )
-
-      let gasPrice = await getGasPriceHex()
-
-      $('#wait').show()
-
-      return new Promise((resolve, reject) => {
-        tokenContract.methods
-          .approve(bridgeContract.options.address, amountBN.toString())
-          .send({ from: address, gasPrice: gasPrice, gas: 70_000 }, async (err, txHash) => {
-            if (err) return reject(err)
-            try {
-              let receipt = await waitForReceipt(txHash)
-              if (receipt.status) {
-                resolve(receipt)
-              }
-            } catch (err) {
-              reject(err)
-            }
-            reject(
-              new Error(
-                `Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`,
-              ),
-            )
-          })
-      })
-        .then(() => {
-          $('#wait').hide()
-
-          // approve disabled, cross tokens enabled
-          disableApproveCross({
-            approvalDisable: true,
-            doNotAskDisabled: true,
-            crossDisabled: false,
-          })
-        })
-        .catch(err => {
-          $('#wait').hide()
-          console.error(err)
-          crossTokenError(`Couldn't approve amount. ${err.message}`)
-
-          // all options disabled:
-          disableApproveCross({
-            approvalDisable: true,
-            doNotAskDisabled: true,
-            crossDisabled: true,
-          })
-        })
-    }
 
     async function crossToken() {
       cleanAlertError()
@@ -632,11 +557,11 @@ export default {
                 try {
                   let receipt = await waitForReceipt(txHash)
 
-                  disableApproveCross({
-                    approvalDisable: true,
-                    doNotAskDisabled: true,
-                    crossDisabled: true,
-                  })
+                  // disableApproveCross({
+                  //   approvalDisable: true,
+                  //   doNotAskDisabled: true,
+                  //   crossDisabled: true,
+                  // })
 
                   if (receipt.status) {
                     resolve(receipt)
@@ -798,24 +723,24 @@ export default {
         let allowanceBN = new BigNumber(allowance)
 
         if (totalCost.lte(allowanceBN)) {
-          $('.approve-deposit').hide()
+          // $('.approve-deposit').hide()
           // straight to convert
 
           const crossDisabled = true //isReceiverAddressOk()
-          disableApproveCross({
-            approvalDisable: true,
-            doNotAskDisabled: true,
-            crossDisabled: !crossDisabled,
-          })
-          $('.fees').show()
+          // disableApproveCross({
+          //   approvalDisable: true,
+          //   doNotAskDisabled: true,
+          //   crossDisabled: !crossDisabled,
+          // })
+          // $('.fees').show()
         } else {
           // user must first approve amount
-          disableApproveCross({
-            approvalDisable: false,
-            doNotAskDisabled: false,
-            crossDisabled: true,
-          })
-          $('.approve-deposit').show()
+          // disableApproveCross({
+          //   approvalDisable: false,
+          //   doNotAskDisabled: false,
+          //   crossDisabled: true,
+          // })
+          // $('.approve-deposit').show()
         }
       }
     }
@@ -959,17 +884,17 @@ export default {
       address = ''
     }
 
-    function disableApproveCross({
-      approvalDisable = true,
-      doNotAskDisabled = true,
-      crossDisabled = true,
-    }) {
-      if (approvalDisable !== null) {
-        $('#approve').prop('disabled', approvalDisable)
-      }
-      $('#doNotAskAgain').prop('disabled', doNotAskDisabled)
-      $('#deposit').prop('disabled', crossDisabled)
-    }
+    // function disableApproveCross({
+    //   approvalDisable = true,
+    //   doNotAskDisabled = true,
+    //   crossDisabled = true,
+    // }) {
+    //   if (approvalDisable !== null) {
+    //     $('#approve').prop('disabled', approvalDisable)
+    //   }
+    //   $('#doNotAskAgain').prop('disabled', doNotAskDisabled)
+    //   $('#deposit').prop('disabled', crossDisabled)
+    // }
 
     // function disableInputs(disable) {
     //   $('#tokenAddress').prop('disabled', disable)
@@ -984,14 +909,14 @@ export default {
     //   }
     // }
 
-    function onMetaMaskConnectionSuccess() {
-      // disableInputs(false)
-      disableApproveCross({
-        approvalDisable: true,
-        doNotAskDisabled: true,
-        crossDisabled: true,
-      })
-    }
+    // function onMetaMaskConnectionSuccess() {
+    //   // disableInputs(false)
+    //   disableApproveCross({
+    //     approvalDisable: true,
+    //     doNotAskDisabled: true,
+    //     crossDisabled: true,
+    //   })
+    // }
 
     function updateAddress(newAddresses) {
       address = newAddresses[0]
@@ -1233,7 +1158,7 @@ export default {
         updateNetworkConfig(config)
         // updateTokenAddressDropdown(config.networkId)
 
-        onMetaMaskConnectionSuccess()
+        // onMetaMaskConnectionSuccess()
 
         await poll4LastBlockNumber(vNode.sharedState.web3, function(blockNumber) {
           currentBlockNumber = blockNumber

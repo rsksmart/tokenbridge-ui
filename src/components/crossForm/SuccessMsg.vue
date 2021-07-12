@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="show"
     id="success"
     class="mt-3 align-center text-center alert alert-dismissible fade show"
     style="display:none;"
@@ -19,5 +20,11 @@
 <script>
 export default {
   name: 'SuccessMsg',
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
+  },
 }
 </script>

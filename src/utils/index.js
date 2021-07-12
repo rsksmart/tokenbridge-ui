@@ -3,6 +3,8 @@ export * from './txns-storage'
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const NULL_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
+export const MAX_UINT256 =
+  '115792089237316195423570985008687907853269984665640564039457584007913129639935'
 
 /* Checks if the given string is an address
  *
@@ -110,4 +112,26 @@ export async function retry(fn, args = [], config = {}) {
 
 export async function retry3Times(func, params = null) {
   return retry(func, params, { retriesMax: 3, interval: 1_000, exponential: false })
+}
+
+export async function waitForReceipt(txHash, web3) {
+  let timeElapsed = 0
+  let interval = 10_000
+  return new Promise((resolve, reject) => {
+    const checkInterval = setInterval(async () => {
+      timeElapsed += interval
+      let receipt = await web3.eth.getTransactionReceipt(txHash)
+      if (receipt != null) {
+        clearInterval(checkInterval)
+        resolve(receipt)
+      }
+      if (timeElapsed > 300_000) {
+        reject(
+          new Error(
+            'Transaction was not mined within 300 seconds. Be aware that it might still be mined!',
+          ),
+        )
+      }
+    }, interval)
+  })
 }
