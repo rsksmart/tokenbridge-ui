@@ -47,7 +47,9 @@
             </div>
           </div>
           <div class="invalid-feedback-container">
-            <ErrorMessage class="invalid-feedback" name="tokenAddress" />
+            <div class="invalid-feedback" name="tokenAddress">
+              {{ selectedTokenError }}
+            </div>
           </div>
         </div>
 
@@ -175,17 +177,28 @@
     </div>
 
     <div class="row justify-content-center">
-      <div class="approve-deposit">
-        <button id="approve" disabled class="btn btn-primary mr-3 mb-3">Approve</button>
-      </div>
-      <button id="deposit" disabled type="submit" class="btn btn-primary ml-3 mb-3">
+      <button
+        v-if="!hasAllowance"
+        id="approve"
+        class="btn btn-primary mr-3 mb-3"
+        :disabled="!sharedState.isConnected"
+        @click="approveClick"
+      >
+        Approve
+      </button>
+      <button
+        id="deposit"
+        type="submit"
+        class="btn btn-primary ml-3 mb-3"
+        :disabled="!sharedState.isConnected || !hasAllowance"
+      >
         Convert tokens
       </button>
     </div>
 
-    <WaitSpinner />
-    <SuccessMsg />
-    <ErrorMsg />
+    <WaitSpinner :show="showSpinner" />
+    <SuccessMsg :show="showSuccess" />
+    <ErrorMsg :error="error" />
   </Form>
 </template>
 <script>
@@ -194,10 +207,11 @@ import BigNumber from 'bignumber.js'
 
 // import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import ERC20_ABI from '@/constants/abis/erc20.json'
+import { MAX_UINT256, waitForReceipt } from '@/utils'
 
-import WaitSpinner from './messages/WaitSpinner.vue'
-import SuccessMsg from './messages/SuccessMsg.vue'
-import ErrorMsg from './messages/ErrorMsg.vue'
+import WaitSpinner from './WaitSpinner.vue'
+import SuccessMsg from './SuccessMsg.vue'
+import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
 
 export default {
@@ -230,11 +244,16 @@ export default {
       receiverAddress: '',
       amount: '',
       selectedToken: {},
+      selectedTokenError: '',
       selectedTokenBalance: 0,
       selectedTokenMaxLimit: 0,
       selectedTokenMinLimit: 0,
       selectedTokenMediumAmount: 0,
       selectedTokenLargeAmount: 0,
+      hasAllowance: false,
+      showSpinner: false,
+      error: '',
+      showSuccess: false,
     }
   },
   computed: {
@@ -286,6 +305,7 @@ export default {
     async selectToken(token, event) {
       if (event) event.preventDefault()
       this.selectedToken = token
+      this.selectedTokenError = ''
       const web3 = this.sharedState.web3
       const config = this.sharedState.currentConfig
       if (!token || !web3 || !config) {
@@ -310,19 +330,91 @@ export default {
       this.selectedTokenMediumAmount = new BigNumber(limits.mediumAmount).shiftedBy(-18)
       this.selectedTokenLargeAmount = new BigNumber(limits.largeAmount).shiftedBy(-18)
       this.validateAmount(this.amount)
+      const allowance = await tokenContract.methods
+        .allowance(this.sharedState.accountAddress, config.bridge)
+        .call()
+      this.hasAllowance = new BigNumber(allowance).shiftedBy(-18).lte(this.selectedTokenMaxLimit)
     },
     async setMaxAmount(event) {
+      if (event) event.preventDefault()
       if (!this.selectedTokenMaxLimit || !this.selectedTokenBalance) return
       let maxAmount = this.selectedTokenBalance
       if (this.selectedTokenBalance.isGreaterThan(this.selectedTokenMaxLimit)) {
         maxAmount = this.selectedTokenMaxLimit
       }
       this.amount = maxAmount.toFixed(this.selectedToken.decimals, BigNumber.ROUND_DOWN)
-      if (event) event.preventDefault()
     },
     useSameAddress(event) {
       if (event) event.preventDefault()
       this.receiverAddress = this.sharedState.accountAddress
+    },
+    async getGasPriceHex() {
+      const web3 = this.sharedState.web3
+      const config = this.sharedState.currentConfig
+      var gasPriceParsed = 0
+      if (config.networkId >= 30 && config.networkId <= 33) {
+        const block = await web3.eth.getBlock('latest')
+        gasPriceParsed = parseInt(block.minimumGasPrice)
+        gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
+      } else {
+        const gasPriceAvg = await web3.eth.getGasPrice()
+        gasPriceParsed = parseInt(gasPriceAvg)
+        gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
+      }
+      return `0x${Math.ceil(gasPriceParsed).toString(16)}`
+    },
+    async approveClick(event) {
+      event.preventDefault()
+      if (!this.selectedToken?.address) {
+        this.selectedTokenError = 'Choose a token to approve'
+        return
+      }
+      const data = this
+      const web3 = data.sharedState.web3
+      const config = data.sharedState.currentConfig
+      if (!web3 || !config) {
+        // should be disabled
+        return
+      }
+      const accountAddress = data.sharedState.accountAddress
+      const tokenAddress = data.selectedToken.address
+      const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress)
+
+      let gasPrice = await data.getGasPriceHex()
+      data.showSpinner = true
+
+      return new Promise((resolve, reject) => {
+        tokenContract.methods
+          .approve(config.bridge, MAX_UINT256)
+          .send({ from: accountAddress, gasPrice: gasPrice, gas: 70_000 }, async (err, txHash) => {
+            const regExp = new RegExp(/^0x[0-9A-Fa-f]+$/i)
+            const sanitizedTxHash = regExp.test(txHash) ? txHash : ''
+            const txExplorerLink = txHash
+              ? `<a target="_blank" href="${config.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
+              : ''
+            if (err) {
+              reject(new Error(`Execution failed ${err.message} ${txExplorerLink}`))
+            }
+            try {
+              let receipt = await waitForReceipt(txHash, web3)
+              if (receipt.status) {
+                resolve(receipt)
+              }
+            } catch (err) {
+              reject(new Error(`${err} ${txExplorerLink}`))
+            }
+          })
+      })
+        .then(() => {
+          data.hasAllowance = true
+          data.showSpinner = false
+        })
+        .catch(err => {
+          data.hasAllowance = false
+          data.showSpinner = false
+          console.error(err)
+          data.error = `Couldn't approve. ${err.message}`
+        })
     },
     validateAmount(value) {
       if (!value) {
