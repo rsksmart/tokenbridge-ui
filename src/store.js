@@ -64,14 +64,51 @@ export const store = {
     isConnected: false,
     accountAddress: '',
     currentConfig: null,
+    chainId: null,
     rskWeb3: isTestnet ? new Web3(rskTestnetUri) : new Web3(rskMainnetUri),
     ethWeb3: isTestnet ? new Web3(kovanUri) : new Web3(ethMainnetUri),
     rskConfig: rskConfig,
     ethConfig: ethConfig,
     tokens: tokens,
+    connectionError: '',
   }),
+  accountsChanged(accounts) {
+    if (accounts.length === 0) {
+      store.state.connectionError =
+        'Nifty Wallet, Liquality or MetaMask is Locked, please unlock it and Reload the page to continue'
+    }
+    store.state.accountAddress = accounts[0]
+  },
+  async chainChanged(chainId) {
+    console.log('chainChanged(chainId)', parseInt(chainId))
+    const state = store.state
+    state.chainId = parseInt(chainId)
+    if (rskConfig.networkId == chainId) {
+      state.currentConfig = state.rskConfig
+    } else if (ethConfig.networkId == chainId) {
+      state.currentConfig = state.ethConfig
+    } else {
+      state.isConnected = false
+      state.connectionError = `Unknown network, should be ${rskConfig.name} or ${ethConfig.name} networks`
+      return
+    }
+    const accounts = await state.web3.eth.getAccounts()
+    store.accountsChanged(accounts)
+  },
+  handleDisconnect() {
+    const state = store.state
+    if (state.disconnect) state.disconnect()
+    state.isConnected = false
+    state.accountAddress = ''
+    state.provider = null
+    state.dataVault = null
+    state.disconnect = null
+    state.web3 = null
+    state.currentConfig = null
+  },
   handleLogin() {
-    const state = this.state
+    const state = store.state
+    state.connectionError = ''
     return rLogin
       .connect()
       .then(async function(rLoginResponse) {
@@ -80,38 +117,18 @@ export const store = {
         state.disconnect = rLoginResponse.disconnect
         state.web3 = new Web3(rLoginResponse.provider)
 
-        const accounts = await state.web3.eth.getAccounts()
-        if (accounts.length === 0)
-          throw new Error(
-            'Nifty Wallet or MetaMask is Locked, please unlock it and Reload the page to continue',
-          )
-        state.accountAddress = accounts[0]
         const chainId = await state.web3.eth.net.getId()
-        switch (parseInt(chainId)) {
-          case 1:
-            state.currentConfig = ETH_CONFIG
-            break
-          case 30:
-            state.currentConfig = RSK_MAINNET_CONFIG
-            break
-          case 31:
-            state.currentConfig = RSK_TESTNET_CONFIG
-            break
-          case 42:
-            state.currentConfig = KOVAN_CONFIG
-            break
-        }
+        store.chainChanged(chainId)
         state.isConnected = true
+        state.provider.on('chainChanged', store.chainChanged)
+        state.provider.on('accountsChanged', store.accountsChanged)
       })
       .catch(function(err) {
         console.error(err)
-        state.isConnected = false
-        state.accountAddress = ''
-        state.provider = null
-        state.dataVault = null
-        state.disconnect = null
-        state.web3 = null
-        throw new Error('Login failed. Please try again.')
+        store.handleDisconnect()
+        if (!err.includes('Modal closed by user')) {
+          store.state.connectionError = `${err.message}. Login failed. Please try again.`
+        }
       })
   },
 }

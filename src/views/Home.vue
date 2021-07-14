@@ -175,20 +175,24 @@ export default {
     rskBridge.methods
       .getFeePercentage()
       .call()
-      .then(fee => (data.rskFee = fee / rskConfig.feePercentageDivider))
+      .then(fee => {
+        data.rskFee = fee / rskConfig.feePercentageDivider
+      })
 
     const ethBridge = new ethWeb3.eth.Contract(BRIDGE_ABI, ethConfig.bridge)
     ethBridge.methods
       .getFeePercentage()
       .call()
-      .then(fee => (data.ethFee = fee / ethConfig.feePercentageDivider))
+      .then(fee => {
+        data.ethFee = fee / ethConfig.feePercentageDivider
+      })
     // We have the premice that the limits will be equal in ETH and in RSK
     // And the tokens wil have the same type on both networks
     const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
     rskAllowTokens.methods
       .getTypesLimits()
       .call()
-      .then(function(limits) {
+      .then(limits => {
         data.typesLimits = limits
       })
 
@@ -206,19 +210,11 @@ export default {
 
     //Network configuration
     let config = null
-    let allowTokensContract = null
     let bridgeContract = null
-    let federationContract = null
-    let minTokensAllowed = 1
-    let maxTokensAllowed = 100_000
-    let maxDailyLimit = 1_000_000
     let currentBlockNumber = null
 
     // Selected Token To Cross
     let tokenContract = null
-    let feePercentage = 0
-    let fee = 0
-    let feePercentageDivider = 10_000
 
     $(document).ready(function() {
       // $('.selectpicker').selectpicker()
@@ -238,73 +234,8 @@ export default {
         alert('This site will only work correctly under chrome, chromium or firefox')
       }
 
-      // disableInputs(true)
-      // disableApproveCross({
-      //   approvalDisable: true,
-      //   doNotAskDisabled: true,
-      //   crossDisabled: true,
-      // })
+      // $('#logIn').on('click', onLogInClick)
 
-      $('#logIn').on('click', onLogInClick)
-
-      // $('#tokenAddress').change(function(event) {
-      //   cleanAlertSuccess()
-      //   let token = TOKENS.find(element => element.token == event.currentTarget.value)
-      //   if (token) {
-      //     $('.selectedToken').html(token[config.networkId].symbol)
-      //     let html = `<a target="_blank" href="${config.crossToNetwork.explorer}/address/${token[
-      //       config.crossToNetwork.networkId
-      //     ].address.toLowerCase()}">`
-      //     html += `\n   <span><img src="${token.icon}" class="token-logo"></span>${
-      //       token[config.crossToNetwork.networkId].symbol
-      //     }`
-      //     html += `\n </a>`
-      //     $('#willReceiveToken').html(html)
-      //     $('#willReceive-copy').show()
-      //     $('#willReceive-copy').attr(
-      //       'data-clipboard-text',
-      //       token[config.crossToNetwork.networkId].address,
-      //     )
-      //     if ($('#amount').val()) {
-      //       isAmountOk()
-      //       isReceiverAddressOk()
-      //       checkAllowance()
-      //     }
-      //   } else {
-      //     $('.selectedToken').html('')
-      //     $('#willReceive').html('')
-      //     $('#willReceive-copy').hide()
-      //   }
-      // })
-
-      // $('#receive-address').change(function() {
-      //   if (isReceiverAddressOk()) {
-      //     receiverAddress = $('#receive-address').val()
-      //   }
-      // })
-
-      // $('#receive-address').focusout(function() {
-      //   if (isReceiverAddressOk()) {
-      //     receiverAddress = $('#receive-address').val()
-      //   }
-      // })
-
-      $('#amount').keyup(function(event) {
-        // isAmountOk()
-        if (event.key === 'Enter') {
-          checkAllowance()
-        }
-      })
-      $('#amount').focusout(checkAllowance)
-      $('#amount').keypress(function(event) {
-        if (event.key !== '.' && (event.key < '0' || event.key > '9')) {
-          return false
-        }
-      })
-      $('#crossForm').on('submit', function(e) {
-        e.preventDefault()
-        crossToken()
-      })
 
       $('.table').on('click', '.claim', function(e) {
         e.preventDefault()
@@ -425,186 +356,7 @@ export default {
       showActiveAddressTXNs()
     }
 
-    // async function getMaxBalance(event) {
-    //   if (event) event.preventDefault()
-    //   let tokenToCross = $('#tokenAddress').val()
-    //   let token = TOKENS.find(element => element.token == tokenToCross)
-    //   if (!token) {
-    //     return
-    //   }
-    //   const tokenAddress = token[config.networkId].address
-    //   tokenContract = new vNode.sharedState.web3.eth.Contract(ERC20_ABI, tokenAddress)
 
-    //   const decimals = token[config.networkId].decimals
-    //   return retry3Times(tokenContract.methods.balanceOf(address).call).then(async balance => {
-    //     let balanceBNs = new BigNumber(balance).shiftedBy(-decimals)
-    //     let maxWithdrawInWei = await retry3Times(
-    //       allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call,
-    //     )
-    //     let maxWithdraw = new BigNumber(
-    //       vNode.sharedState.web3.utils.fromWei(maxWithdrawInWei, 'ether'),
-    //     )
-    //     let maxValue = 0
-    //     if (balanceBNs.isGreaterThan(maxWithdraw)) {
-    //       maxValue = maxWithdraw
-    //     } else {
-    //       maxValue = balanceBNs
-    //     }
-    //     let serviceFee = new BigNumber(maxValue).times(fee)
-    //     let value = maxValue.minus(serviceFee).toFixed(decimals, BigNumber.ROUND_DOWN)
-    //     $('#amount').val(value.toString())
-    //     $('#amount').keyup()
-    //   })
-    // }
-
-
-    async function crossToken() {
-      cleanAlertError()
-      cleanAlertSuccess()
-      const receiverAddress = $('#receive-address').val()
-      if (!receiverAddress) {
-        crossTokenError('Choose a Receiver address')
-        return
-      }
-      var tokenToCross = $('#tokenAddress').val()
-      var token = TOKENS.find(element => element.token == tokenToCross)
-      if (!token) {
-        crossTokenError('Choose a token to cross')
-        return
-      }
-      const tokenAddress = token[config.networkId].address
-      tokenContract = new vNode.sharedState.web3.eth.Contract(ERC20_ABI, tokenAddress)
-      const BN = vNode.sharedState.web3.utils.BN
-
-      const amount = $('#amount').val()
-      if (!amount) {
-        crossTokenError('Complete the Amount field')
-        return
-      }
-      if ($('#amount').hasClass('is-invalid')) {
-        crossTokenError('Invalid Amount')
-        return
-      }
-      const decimals = token[config.networkId].decimals
-      const splittedAmount = amount.split('.')
-      var amountWithDecimals = splittedAmount[0]
-      for (let i = 0; i < decimals; i++) {
-        if (splittedAmount[1] && i < splittedAmount[1].length) {
-          amountWithDecimals += splittedAmount[1][i]
-        } else {
-          amountWithDecimals += '0'
-        }
-      }
-      const amountBN = new BN(amountWithDecimals)
-        .mul(new BN(feePercentageDivider))
-        .div(new BN(feePercentageDivider - feePercentage))
-
-      // disableInputs(true)
-      $('.fees').hide()
-      // $('#secondsPerBlock').text(config.secondsPerBlock)
-      $('#wait').show()
-      let gasPrice = ''
-
-      return retry3Times(tokenContract.methods.balanceOf(address).call)
-        .then(async balance => {
-          const balanceBN = new BN(balance)
-          if (balanceBN.lt(amountBN)) {
-            const showBalance = new BigNumber(balance)
-            throw new Error(
-              `Insuficient Balance in your account, your current balance is ${showBalance.shiftedBy(
-                -decimals,
-              )} ${token[config.networkId].symbol}`,
-            )
-          }
-          let maxWithdrawInWei = await retry3Times(
-            allowTokensContract.methods.calcMaxWithdraw(tokenAddress).call,
-          )
-          const maxWithdraw = new BN(maxWithdrawInWei)
-          if (amountBN.gt(maxWithdraw)) {
-            throw new Error(
-              `Amount bigger than the daily limit. Daily limit left ${vNode.sharedState.web3.utils.fromWei(
-                maxWithdrawInWei,
-                'ether',
-              )} tokens`,
-            )
-          }
-
-          var gasPriceParsed = 0
-          if (config.networkId >= 30 && config.networkId <= 33) {
-            let block = await vNode.sharedState.web3.eth.getBlock('latest')
-            gasPriceParsed = parseInt(block.minimumGasPrice)
-            gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
-          } else {
-            let gasPriceAvg = await vNode.sharedState.web3.eth.getGasPrice()
-            gasPriceParsed = parseInt(gasPriceAvg)
-            gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
-          }
-          gasPrice = `0x${Math.ceil(gasPriceParsed).toString(16)}`
-        })
-        .then(async () => {
-          $('#myModal .modal-body').html(
-            '<p>When the transaction is mined you will see it like</p>' +
-              '<img src="pending-tx.png">' +
-              '<p>Once it has enough confirmation you will need to <b>claim it on the other network</b></p>' +
-              '<img src="claim-tx.png">',
-          )
-          $('#myModal').modal('show')
-          return new Promise((resolve, reject) => {
-            bridgeContract.methods
-              .receiveTokensTo(tokenContract.options.address, receiverAddress, amountBN.toString())
-              .send({ from: address, gasPrice: gasPrice, gas: 250_000 }, async (err, txHash) => {
-                if (err) return reject(err)
-                try {
-                  let receipt = await waitForReceipt(txHash)
-
-                  // disableApproveCross({
-                  //   approvalDisable: true,
-                  //   doNotAskDisabled: true,
-                  //   crossDisabled: true,
-                  // })
-
-                  if (receipt.status) {
-                    resolve(receipt)
-                  }
-                } catch (err) {
-                  reject(err)
-                }
-                reject(
-                  new Error(
-                    `Execution failed <a target="_blank" href="${config.explorer}/tx/${txHash}">see Tx</a>`,
-                  ),
-                )
-              })
-          })
-        })
-        .then(async receipt => {
-          $('#myModal').modal('hide')
-          $('#wait').hide()
-          $('#confirmationTime').text(config.confirmationTime)
-          $('#receive').text(`${amount} ${token[config.crossToNetwork.networkId].symbol}`)
-          $('#success').show()
-          // disableInputs(false)
-
-          // save transaction to local storage...
-          TXN_Storage.addTxn(address, config.name, {
-            networkId: config.networkId,
-            tokenFrom: token[config.networkId].symbol,
-            tokenTo: token[config.crossToNetwork.networkId].symbol,
-            amount,
-            receiverAddress,
-            ...receipt,
-          })
-
-          updateActiveAddressTXNs(address)
-          showActiveTxnsTab()
-          showActiveAddressTXNs()
-        })
-        .catch(err => {
-          $('#wait').hide()
-          console.error(err)
-          crossTokenError(`Couln't cross the tokens. ${err.message}`)
-        })
-    }
 
     async function getGasPriceHex() {
       var gasPriceParsed = 0
@@ -676,15 +428,6 @@ export default {
         })
     }
 
-    function cleanAlertSuccess() {
-      $('#success').hide()
-    }
-
-    function cleanAlertError() {
-      $('#alert-danger-text').html('')
-      $('#alert-danger').hide()
-    }
-
     function crossTokenError(err) {
       $('#alert-danger-text').html(err)
       $('#alert-danger').show()
@@ -696,7 +439,7 @@ export default {
     }
 
     async function checkAllowance() {
-      cleanAlertSuccess()
+      // cleanAlertSuccess()
       let amount = $('#amount').val()
       if (amount == '') {
         // markInvalidAmount('Invalid amount')
@@ -707,7 +450,7 @@ export default {
         // markInvalidAmount('Must be bigger than 0')
         return
       }
-      $('#secondsPerBlock').text(config.secondsPerBlock)
+      // $('#secondsPerBlock').text(config.secondsPerBlock)
       $('#amount').removeClass('ok')
       let totalCost = fee == 0 ? parsedAmount : parsedAmount.dividedBy(1 - fee)
       let tokenToCross = $('#tokenAddress').val()
@@ -725,8 +468,7 @@ export default {
         if (totalCost.lte(allowanceBN)) {
           // $('.approve-deposit').hide()
           // straight to convert
-
-          const crossDisabled = true //isReceiverAddressOk()
+          // const crossDisabled = true //isReceiverAddressOk()
           // disableApproveCross({
           //   approvalDisable: true,
           //   doNotAskDisabled: true,
@@ -745,125 +487,29 @@ export default {
       }
     }
 
-    // async function isReceiverAddressOk() {
-    //   const receiverAddress = $('#receive-address').val()
-    //   if (receiverAddress == '' || !isAddress(receiverAddress)) {
-    //     markInvalidReceiverAddress('Invalid Receiver Address')
-
-    //     disableApproveCross({
-    //       approvalDisable: null,
-    //       doNotAskDisabled: true,
-    //       crossDisabled: true,
-    //     })
-
-    //     return false
+    // async function isInstalled() {
+    //   if (window.ethereum) {
+    //     window.ethereum.autoRefreshOnNetworkChange = false
     //   }
-    //   $('.receive-address .invalid-feedback').hide()
-    //   $('#receive-address').removeClass('is-invalid')
-    //   $('#receive-address').addClass('ok')
-    //   $('.fees').show()
-    //   return true
+
+    //   await vNode.handleLogin()
+
+    //   let accounts = await getAccounts()
+    //   let chainId = await vNode.sharedState.web3.eth.net.getId()
+    //   await updateCallback(chainId, accounts)
+
+    //   vNode.sharedState.provider.on('chainChanged', function(newChain) {
+    //     updateNetwork(newChain)
+    //     showActiveTxnsTab()
+    //   })
+    //   vNode.sharedState.provider.on('accountsChanged', function(newAddresses) {
+    //     checkAllowance()
+    //     updateAddress(newAddresses)
+    //       .then(addr => updateActiveAddressTXNs(addr))
+    //       .then(() => showActiveAddressTXNs())
+    //   })
+    //   return chainId
     // }
-
-    // async function isAmountOk() {
-    //   cleanAlertSuccess()
-    //   let amount = $('#amount').val()
-    //   if (amount == '') {
-    //     markInvalidAmount('Invalid amount')
-
-    //     disableApproveCross({
-    //       approvalDisable: true,
-    //       doNotAskDisabled: true,
-    //       crossDisabled: true,
-    //     })
-
-    //     return
-    //   }
-    //   let parsedAmount = new BigNumber(amount)
-    //   if (parsedAmount <= 0) {
-    //     markInvalidAmount('Must be bigger than 0')
-
-    //     disableApproveCross({
-    //       approvalDisable: true,
-    //       doNotAskDisabled: true,
-    //       crossDisabled: true,
-    //     })
-
-    //     return
-    //   }
-    //   $('#amount').removeClass('ok')
-    //   let totalCost = fee == 0 ? parsedAmount : parsedAmount.dividedBy(1 - fee)
-    //   let serviceFee = totalCost.times(fee)
-
-    //   $('#serviceFee').html(serviceFee.toFormat(6, BigNumber.ROUND_DOWN))
-    //   $('#totalCost').html(totalCost.toFormat(6, BigNumber.ROUND_DOWN))
-    //   try {
-    //     if (totalCost < minTokensAllowed) {
-    //       throw new Error(`Minimum amount ${minTokensAllowed - minTokensAllowed * fee} token`)
-    //     }
-    //     if (totalCost > maxTokensAllowed) {
-    //       throw new Error(`Max amount ${maxTokensAllowed - maxTokensAllowed * fee} tokens`)
-    //     }
-
-    //     $('.amount .invalid-feedback').hide()
-    //     $('#amount').removeClass('is-invalid')
-    //     $('#amount').addClass('ok')
-    //     $('.fees').show()
-    //     $('#receive-amount').val(parseInt(amount, 10) * 0.998)
-    //   } catch (err) {
-    //     disableApproveCross({
-    //       approvalDisable: true,
-    //       doNotAskDisabled: true,
-    //       crossDisabled: true,
-    //     })
-
-    //     // markInvalidAmount(err.message)
-    //   }
-    // }
-
-    // function markInvalidReceiverAddress(errorDescription) {
-    //   let invalidReceiverAddress = $('.receiverAddress .invalid-feedback')
-    //   invalidReceiverAddress.html(errorDescription)
-    //   invalidReceiverAddress.show()
-    //   $('#receive-address').addClass('is-invalid')
-    //   $('#receive-address').prop('disabled', false)
-    //   $('#receive-address').removeClass('ok')
-    //   $('.fees').hide()
-    // }
-
-    // function markInvalidAmount(errorDescription) {
-    //   let invalidAmount = $('.amount .is-invalid')
-    //   invalidAmount.html(errorDescription)
-    //   invalidAmount.show()
-    //   $('#amount').addClass('is-invalid')
-    //   $('#amount').prop('disabled', false)
-    //   $('#amount').removeClass('ok')
-    //   $('.fees').hide()
-    // }
-
-    async function isInstalled() {
-      if (window.ethereum) {
-        window.ethereum.autoRefreshOnNetworkChange = false
-      }
-
-      await vNode.handleLogin()
-
-      let accounts = await getAccounts()
-      let chainId = await vNode.sharedState.web3.eth.net.getId()
-      await updateCallback(chainId, accounts)
-
-      vNode.sharedState.provider.on('chainChanged', function(newChain) {
-        updateNetwork(newChain)
-        showActiveTxnsTab()
-      })
-      vNode.sharedState.provider.on('accountsChanged', function(newAddresses) {
-        checkAllowance()
-        updateAddress(newAddresses)
-          .then(addr => updateActiveAddressTXNs(addr))
-          .then(() => showActiveAddressTXNs())
-      })
-      return chainId
-    }
 
     function onMetaMaskConnectionError(err) {
       console.error(err)
@@ -878,36 +524,11 @@ export default {
       $('#address').text('0x00000..')
       // disableInputs(true)
       tokenContract = null
-      allowTokensContract = null
       bridgeContract = null
       config = null
       address = ''
     }
 
-    // function disableApproveCross({
-    //   approvalDisable = true,
-    //   doNotAskDisabled = true,
-    //   crossDisabled = true,
-    // }) {
-    //   if (approvalDisable !== null) {
-    //     $('#approve').prop('disabled', approvalDisable)
-    //   }
-    //   $('#doNotAskAgain').prop('disabled', doNotAskDisabled)
-    //   $('#deposit').prop('disabled', crossDisabled)
-    // }
-
-    // function disableInputs(disable) {
-    //   $('#tokenAddress').prop('disabled', disable)
-    //   $("button[data-id='tokenAddress']").prop('disabled', disable)
-    //   $('#amount').prop('disabled', disable)
-    //   if (disable) {
-    //     $('#max').off('click')
-    //     $('#max').removeAttr('href')
-    //   } else {
-    //     $('#max').on('click', getMaxBalance)
-    //     $('#max').attr('href', '#')
-    //   }
-    // }
 
     // function onMetaMaskConnectionSuccess() {
     //   // disableInputs(false)
@@ -918,16 +539,16 @@ export default {
     //   })
     // }
 
-    function updateAddress(newAddresses) {
-      address = newAddresses[0]
-      $('#address').text(address)
-      $('#logIn').hide()
-      $('#transferTab').removeClass('disabled')
-      $('#help').show()
-      $('.wallet-status').show()
+    // function updateAddress(newAddresses) {
+    //   address = newAddresses[0]
+    //   $('#address').text(address)
+    //   $('#logIn').hide()
+    //   $('#transferTab').removeClass('disabled')
+    //   $('#help').show()
+    //   $('.wallet-status').show()
 
-      return Promise.resolve(address)
-    }
+    //   return Promise.resolve(address)
+    // }
 
     function updateActiveAddressTXNs(addr) {
       if (config.name.toLowerCase().includes('eth')) {
@@ -1106,7 +727,7 @@ export default {
     }
 
     async function updateNetwork(newNetwork) {
-      cleanAlertSuccess()
+      // cleanAlertSuccess()
       try {
         newNetwork = parseInt(newNetwork)
         if (config && config.networkId == newNetwork) return
@@ -1176,20 +797,6 @@ export default {
       }
     }
 
-    // function updateTokenAddressDropdown(networkId) {
-    //   let selectHtml = ''
-    //   for (let aToken of TOKENS) {
-    //     if (aToken[networkId] != undefined) {
-    //       selectHtml += `\n<option value="${aToken.token}" `
-    //       selectHtml += `data-content="<span><img src='${aToken.icon}' class='token-logo'></span>${aToken[networkId].symbol}">`
-    //       selectHtml += `\n</option>`
-    //     }
-    //   }
-    //   $('#tokenAddress').html(selectHtml)
-    //   $('#tokenAddress').prop('disabled', false)
-    //   $('#tokenAddress').selectpicker('refresh')
-    //   $('#willReceiveToken').html('-')
-    // }
 
     async function getAccounts() {
       let accounts = await vNode.sharedState.web3.eth.getAccounts()
@@ -1199,11 +806,6 @@ export default {
         )
       return accounts
     }
-  },
-  methods: {
-    handleLogin() {
-      return store.handleLogin()
-    },
   },
 }
 </script>

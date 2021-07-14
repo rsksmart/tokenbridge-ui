@@ -103,15 +103,10 @@
 </template>
 
 <script>
-import moment from 'moment'
 import { store } from '@/store.js'
+import { blocksToTime } from '@/utils'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import FEDERATION_ABI from '@/constants/abis/federation.json'
-
-function blocksToTime(blocks, timePerBlock) {
-  return blocks && timePerBlock ? moment.duration(blocks * timePerBlock, 'seconds').humanize() : ''
-}
 
 export default {
   name: 'ImportantDetails',
@@ -138,10 +133,10 @@ export default {
   },
   computed: {
     rskFeeFormated() {
-      return (this.rskFee * 100).toFixed(2) + '%'
+      return this.rskFee * 100 + '%'
     },
     ethFeeFormated() {
-      return (this.ethFee * 100).toFixed(2) + '%'
+      return this.ethFee * 100 + '%'
     },
     rskFedMembersLen() {
       return this.rskFedMembers.length

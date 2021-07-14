@@ -8,8 +8,10 @@
     <div class="outline-rounded">
       <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
       <div>
-        You will receive <span id="receive" class="black">126 rKovDAI</span> in your wallet in
-        aproximately <span id="confirmationTime">X minutes</span>
+        You will receive
+        <span id="receive" class="black"> {{ receiveAmount }} {{ receiveToken }} </span>
+        in your wallet in {{ confirmations }} blocks
+        <span id="confirmationTime"> aproximately {{ confirmationsTime }}</span>
       </div>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -18,12 +20,37 @@
   </div>
 </template>
 <script>
+import { store } from '@/store.js'
+import { blocksToTime } from '@/utils'
+
 export default {
   name: 'SuccessMsg',
   props: {
     show: {
       type: Boolean,
       required: true,
+    },
+    confirmations: {
+      type: Number,
+      required: true,
+    },
+    receiveAmount: {
+      type: Number,
+      required: true,
+    },
+    receiveToken: {
+      type: String,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      sharedState: store.state,
+    }
+  },
+  computed: {
+    confirmationsTime() {
+      return blocksToTime(this.confirmations, this.sharedState.currentConfig?.secondsPerBlock)
     },
   },
 }

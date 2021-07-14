@@ -11,7 +11,7 @@
               type="text"
               name="originNetwork"
               class="form-control-plaintext text-center originNetwork"
-              :class="{ disabled: !sharedState.isConnected }"
+              :class="{ disabled: disabled }"
               readonly
               :value="originNetwork.name"
             />
@@ -25,8 +25,8 @@
             <button
               id="tokenAddress"
               class="btn dropdown-toggle"
-              :class="{ disabled: !sharedState.isConnected }"
-              :disabled="!sharedState.isConnected"
+              :class="{ disabled: disabled }"
+              :disabled="disabled"
               type="button"
               data-toggle="dropdown"
               aria-haspopup="true"
@@ -53,7 +53,7 @@
           </div>
         </div>
 
-        <!-- Column 6 -->
+        <!-- Column 7 -->
         <div class="amountToCross text-center col-sm-3">
           <label class="amount-label" for="amount">
             <a id="max" class="max" @click="setMaxAmount">
@@ -66,9 +66,9 @@
               v-model="amount"
               name="amount"
               class="outline form-control text-center"
-              :class="{ disabled: !sharedState.isConnected }"
+              :class="{ disabled: disabled }"
               placeholder="Amount"
-              :disabled="!sharedState.isConnected"
+              :disabled="disabled"
               :rules="validateAmount"
               required
             />
@@ -78,7 +78,7 @@
           </div>
         </div>
 
-        <!-- Column 8 -->
+        <!-- Column 12 -->
         <div class="senderAddress text-center  col-sm-5">
           <label class="sender-label" for="sender-address">Sender address</label>
           <div class="form-group">
@@ -87,7 +87,7 @@
               type="text"
               name="senderAddress"
               class="form-control-plaintext text-center"
-              :class="{ disabled: !sharedState.isConnected }"
+              :class="{ disabled: disabled }"
               readonly
               :value="senderAddress"
             />
@@ -105,7 +105,7 @@
               type="text"
               name="destinationNetwork"
               class="form-control-plaintext text-center destinationNetwork"
-              :class="{ disabled: !sharedState.isConnected }"
+              :class="{ disabled: disabled }"
               readonly
               :value="destinationNetwork.name"
             />
@@ -120,7 +120,7 @@
               <span
                 id="willReceiveToken"
                 class="willReceiveToken"
-                :class="{ disabled: !sharedState.isConnected }"
+                :class="{ disabled: disabled }"
                 name="willReceiveToken"
               >
                 <span v-if="willReceiveToken?.icon">
@@ -132,7 +132,7 @@
           </div>
         </div>
 
-        <!-- Column 6 -->
+        <!-- Column 7 -->
         <div class="convertedAmount text-center col-sm-3">
           <label class="amount-label" for="amount">Amount</label>
           <div class="form-group amount">
@@ -140,7 +140,7 @@
               id="receive-amount"
               name="receiveAmount"
               class="form-control-plaintext text-center align-center"
-              :class="{ disabled: !sharedState.isConnected }"
+              :class="{ disabled: disabled }"
               :value="receiveAmount"
               readonly
             />
@@ -148,7 +148,7 @@
           </div>
         </div>
 
-        <!-- Column 8 -->
+        <!-- Column 12 -->
         <div class="receiverAddress text-center col-sm-5">
           <label class="receive-label-address" for="receiveAddress">
             <a id="same-address" class="same-address" @click="useSameAddress">
@@ -162,7 +162,7 @@
               type="text"
               name="receiveAddress"
               class="outline form-control text-center"
-              :class="{ disabled: !sharedState.isConnected }"
+              :class="{ disabled: disabled }"
               placeholder="0x00...af"
               :disabled="!sharedState.isConnected"
               :rules="validateAddress"
@@ -176,12 +176,12 @@
       </div>
     </div>
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center mb-3">
       <button
         v-if="!hasAllowance"
         id="approve"
-        class="btn btn-primary mr-3 mb-3"
-        :disabled="!sharedState.isConnected"
+        class="btn btn-primary mr-3"
+        :disabled="disabled"
         @click="approveClick"
       >
         Approve
@@ -189,15 +189,20 @@
       <button
         id="deposit"
         type="submit"
-        class="btn btn-primary ml-3 mb-3"
-        :disabled="!sharedState.isConnected || !hasAllowance"
+        class="btn btn-primary"
+        :disabled="disabled || !hasAllowance"
       >
         Convert tokens
       </button>
     </div>
 
-    <WaitSpinner :show="showSpinner" />
-    <SuccessMsg :show="showSuccess" />
+    <WaitSpinner :show="showSpinner" :wait-seconds="waitSeconds" />
+    <SuccessMsg
+      :show="showSuccess"
+      :confirmations="confirmations"
+      :receive-amount="receiveAmount"
+      :receive-token="willReceiveToken?.symbol || ''"
+    />
     <ErrorMsg :error="error" />
   </Form>
 </template>
@@ -207,12 +212,15 @@ import BigNumber from 'bignumber.js'
 
 // import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import ERC20_ABI from '@/constants/abis/erc20.json'
+import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { MAX_UINT256, waitForReceipt } from '@/utils'
 
 import WaitSpinner from './WaitSpinner.vue'
 import SuccessMsg from './SuccessMsg.vue'
 import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
+
+import { TXN_Storage } from '@/utils'
 
 export default {
   name: 'CrossForm',
@@ -250,6 +258,7 @@ export default {
       selectedTokenMinLimit: 0,
       selectedTokenMediumAmount: 0,
       selectedTokenLargeAmount: 0,
+      confirmations: 0,
       hasAllowance: false,
       showSpinner: false,
       error: '',
@@ -260,6 +269,9 @@ export default {
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
       return this.sharedState.currentConfig.isRsk ? this.rskFee : this.ethFee
+    },
+    disabled() {
+      return !this.sharedState.isConnected || this.showSpinner
     },
     currentNetworkTokens() {
       const result = []
@@ -297,12 +309,56 @@ export default {
     receiveAmount() {
       return this.amount - this.amount * this.fee
     },
+    waitSeconds() {
+      if (!this.sharedState.currentConfig || !this.selectedTokenMediumAmount || !this.amount) {
+        return 0
+      }
+      return this.sharedState.currentConfig.secondsPerBlock
+    },
+  },
+  watch: {
+    amount(value) {
+      this.error = ''
+      this.showSuccess = false
+      this.amount = value.replace(',', '.').replace(/[^0-9]\./gi, '')
+      // TODO set correct value
+      this.confirmations = 0
+    },
   },
   methods: {
-    onSubmit(values) {
-      alert(JSON.stringify(values, null, 2))
+    refreshBalanceAndAllowance() {
+      const data = this
+      const web3 = data.sharedState.web3
+      const config = data.sharedState.currentConfig
+      const token = data.selectedToken
+      if (!token || !web3 || !config) {
+        return
+      }
+      const decimals = token.decimals
+      const tokenContract = new web3.eth.Contract(ERC20_ABI, token.address)
+
+      tokenContract.methods
+        .balanceOf(data.sharedState.accountAddress)
+        .call()
+        .then(balance => {
+          data.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
+          // validateAmount depends on the user balance and token limits
+          data.validateAmount(data.amount)
+        })
+      tokenContract.methods
+        .allowance(data.sharedState.accountAddress, config.bridge)
+        .call()
+        .then(allowance => {
+          // as we set the allowance to the highest uint256 it should always be bigger than selectedTokenMaxLimit
+          data.hasAllowance = new BigNumber(allowance)
+            .shiftedBy(-18)
+            .gte(data.selectedTokenMaxLimit)
+        })
     },
     async selectToken(token, event) {
+      const data = this
+      data.error = ''
+      data.showSuccess = false
       if (event) event.preventDefault()
       this.selectedToken = token
       this.selectedTokenError = ''
@@ -311,46 +367,41 @@ export default {
       if (!token || !web3 || !config) {
         return
       }
-      const tokenAddress = token.address
-      const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress)
 
-      const decimals = token.decimals
-      const balance = await tokenContract.methods.balanceOf(this.sharedState.accountAddress).call()
-
-      this.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
       // // The correct form is use calcMaxWithdraw to check the limit
       // // we use the max limit as it is more performant and theres a 99.9% that this is the max limit
       // const allowTokensContract = new web3.eth.Contract(ALLOW_TOKENS_ABI, config.allowTokens)
       // const maxWithdrawInWei = await allowTokensContract.methods
       //   .calcMaxWithdraw(tokenAddress)
       //   .call()
-      const limits = this.typesLimits[this.selectedToken.typeId]
-      this.selectedTokenMaxLimit = new BigNumber(limits.max).shiftedBy(-18)
-      this.selectedTokenMinLimit = new BigNumber(limits.min).shiftedBy(-18)
-      this.selectedTokenMediumAmount = new BigNumber(limits.mediumAmount).shiftedBy(-18)
-      this.selectedTokenLargeAmount = new BigNumber(limits.largeAmount).shiftedBy(-18)
-      this.validateAmount(this.amount)
-      const allowance = await tokenContract.methods
-        .allowance(this.sharedState.accountAddress, config.bridge)
-        .call()
-      this.hasAllowance = new BigNumber(allowance).shiftedBy(-18).lte(this.selectedTokenMaxLimit)
+      const limits = data.typesLimits[data.selectedToken.typeId]
+      data.selectedTokenMaxLimit = new BigNumber(limits.max).shiftedBy(-18)
+      data.selectedTokenMinLimit = new BigNumber(limits.min).shiftedBy(-18)
+      data.selectedTokenMediumAmount = new BigNumber(limits.mediumAmount).shiftedBy(-18)
+      data.selectedTokenLargeAmount = new BigNumber(limits.largeAmount).shiftedBy(-18)
+      // TODO set correct value
+      data.confirmations = 0
+      data.refreshBalanceAndAllowance()
     },
     async setMaxAmount(event) {
+      const data = this
       if (event) event.preventDefault()
-      if (!this.selectedTokenMaxLimit || !this.selectedTokenBalance) return
-      let maxAmount = this.selectedTokenBalance
-      if (this.selectedTokenBalance.isGreaterThan(this.selectedTokenMaxLimit)) {
-        maxAmount = this.selectedTokenMaxLimit
+      if (!data.selectedTokenMaxLimit || !data.selectedTokenBalance) return
+      let maxAmount = data.selectedTokenBalance
+      if (data.selectedTokenBalance.isGreaterThan(data.selectedTokenMaxLimit)) {
+        maxAmount = data.selectedTokenMaxLimit
       }
-      this.amount = maxAmount.toFixed(this.selectedToken.decimals, BigNumber.ROUND_DOWN)
+      data.amount = maxAmount.toFixed(data.selectedToken.decimals, BigNumber.ROUND_DOWN)
     },
     useSameAddress(event) {
+      const data = this
       if (event) event.preventDefault()
-      this.receiverAddress = this.sharedState.accountAddress
+      data.receiverAddress = data.sharedState.accountAddress
     },
     async getGasPriceHex() {
-      const web3 = this.sharedState.web3
-      const config = this.sharedState.currentConfig
+      const data = this
+      const web3 = data.sharedState.web3
+      const config = data.sharedState.currentConfig
       var gasPriceParsed = 0
       if (config.networkId >= 30 && config.networkId <= 33) {
         const block = await web3.eth.getBlock('latest')
@@ -363,13 +414,22 @@ export default {
       }
       return `0x${Math.ceil(gasPriceParsed).toString(16)}`
     },
+    txExplorerLink(txHash) {
+      const regExp = new RegExp(/^0x[0-9A-Fa-f]+$/i)
+      const sanitizedTxHash = regExp.test(txHash) ? txHash : ''
+      return txHash
+        ? `<a target="_blank" href="${this.sharedState.currentConfig.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
+        : ''
+    },
     async approveClick(event) {
+      const data = this
+      data.error = ''
+      data.showSuccess = false
       event.preventDefault()
-      if (!this.selectedToken?.address) {
-        this.selectedTokenError = 'Choose a token to approve'
+      if (!data.selectedToken?.address) {
+        data.selectedTokenError = 'Choose a token to approve'
         return
       }
-      const data = this
       const web3 = data.sharedState.web3
       const config = data.sharedState.currentConfig
       if (!web3 || !config) {
@@ -387,21 +447,21 @@ export default {
         tokenContract.methods
           .approve(config.bridge, MAX_UINT256)
           .send({ from: accountAddress, gasPrice: gasPrice, gas: 70_000 }, async (err, txHash) => {
-            const regExp = new RegExp(/^0x[0-9A-Fa-f]+$/i)
-            const sanitizedTxHash = regExp.test(txHash) ? txHash : ''
-            const txExplorerLink = txHash
-              ? `<a target="_blank" href="${config.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
-              : ''
+            const txExplorerLink = data.txExplorerLink(txHash)
             if (err) {
-              reject(new Error(`Execution failed ${err.message} ${txExplorerLink}`))
+              return reject(new Error(`Execution failed ${err.message} ${txExplorerLink}`))
             }
             try {
-              let receipt = await waitForReceipt(txHash, web3)
+              const receipt = await waitForReceipt(txHash, web3)
               if (receipt.status) {
-                resolve(receipt)
+                return resolve(receipt)
+              } else {
+                return reject(
+                  new Error(`Transaction status failed ${err.message} ${txExplorerLink}`),
+                )
               }
             } catch (err) {
-              reject(new Error(`${err} ${txExplorerLink}`))
+              return reject(new Error(`${err} ${txExplorerLink}`))
             }
           })
       })
@@ -416,21 +476,118 @@ export default {
           data.error = `Couldn't approve. ${err.message}`
         })
     },
+    async onSubmit() {
+      const data = this
+      data.error = ''
+      data.showSuccess = false
+      const web3 = data.sharedState.web3
+      const config = data.sharedState.currentConfig
+      if (!web3 || !config || !data.sharedState.accountAddress) {
+        data.error = 'Need to connect a wallet'
+        return
+      }
+      const receiverAddress = data.receiverAddress
+      const token = data.selectedToken
+      const tokenAddress = token?.address
+      if (!tokenAddress) {
+        data.selectedTokenError = 'Choose a token to cross'
+        return
+      }
+      if (!receiverAddress) {
+        data.error = 'Choose a Receiver address'
+        return
+      }
+      if (!data.hasAllowance) {
+        data.error = 'Need to approve first'
+        return
+      }
+
+      if (!data.amount) {
+        data.error = 'Complete the Amount field'
+        return
+      }
+      const decimals = token.decimals
+      const amountWithDecimals = new BigNumber(data.amount).shiftedBy(decimals).toFixed(0)
+
+      this.showSpinner = true
+      const gasPrice = await this.getGasPriceHex()
+
+      // .then(async () => {
+      //   $('#myModal .modal-body').html(
+      //     '<p>When the transaction is mined you will see it like</p>' +
+      //       '<img src="pending-tx.png">' +
+      //       '<p>Once it has enough confirmation you will need to <b>claim it on the other network</b></p>' +
+      //       '<img src="claim-tx.png">',
+      //   )
+      //   $('#myModal').modal('show')
+      const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
+      return new Promise((resolve, reject) => {
+        bridgeContract.methods
+          .receiveTokensTo(tokenAddress, receiverAddress, amountWithDecimals)
+          .send(
+            { from: data.sharedState.accountAddress, gasPrice: gasPrice, gas: 250_000 },
+            async (err, txHash) => {
+              const txExplorerLink = data.txExplorerLink(txHash)
+              if (err) {
+                return reject(new Error(`Execution failed ${err.message} ${txExplorerLink}`))
+              }
+              try {
+                const receipt = await waitForReceipt(txHash, web3)
+                if (receipt.status) {
+                  return resolve(receipt)
+                } else {
+                  return reject(
+                    new Error(`Transaction status failed ${err.message} ${txExplorerLink}`),
+                  )
+                }
+              } catch (err) {
+                return reject(new Error(`${err} ${txExplorerLink}`))
+              }
+            },
+          )
+      })
+        .then(async receipt => {
+          // $('#myModal').modal('hide')
+          data.showSpinner = false
+          data.showSuccess = true
+
+          // save transaction to local storage...
+          TXN_Storage.addTxn(data.sharedState.accountAddress, config.name, {
+            networkId: config.networkId,
+            tokenFrom: token.symbol,
+            tokenTo: token.receiveToken.symbol,
+            amount: data.amount,
+            receiverAddress,
+            ...receipt,
+          })
+
+          // TODO record txns and show them
+          // updateActiveAddressTXNs(data.sharedState.address)
+          // showActiveTxnsTab()
+          // showActiveAddressTXNs()
+        })
+        .catch(err => {
+          data.showSpinner = false
+          console.error(err)
+          data.error = `Couln't cross the tokens. ${err.message}`
+        })
+    },
     validateAmount(value) {
+      const data = this
       if (!value) {
         return 'amount is required'
       }
       const amount = new BigNumber(value)
-      if (!this.selectedToken?.symbol) return true
+      if (!data.selectedToken?.symbol) return true
 
-      if (amount.isLessThan(this.selectedTokenMinLimit)) {
-        return `min amount is ${this.selectedTokenMinLimit}`
+      if (amount.isLessThan(data.selectedTokenMinLimit)) {
+        return `min amount is ${data.selectedTokenMinLimit}`
       }
-      if (amount.isGreaterThan(this.selectedTokenBalance)) {
+      if (amount.isGreaterThan(data.selectedTokenBalance)) {
         return `amount bigger than your balance`
       }
-      if (amount.isGreaterThan(this.selectedTokenMaxAmount)) {
-        return `max amount is ${this.selectedTokenMaxAmount}`
+      if (amount.isGreaterThan(data.selectedTokenMaxAmount)) {
+        return `max amount is ${data.selectedTokenMaxAmount}`
       }
       return true
     },

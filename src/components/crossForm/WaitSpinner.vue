@@ -22,8 +22,11 @@
       <div class="sk-circle12 sk-circle"></div>
     </div>
     <div class="mt-2">
-      Wait for aproximately <b><span id="secondsPerBlock">X</span> seconds:</b> the waiting period
-      is required to confirm the transaction on the blockchain. Please
+      Wait for aproximately
+      <b>
+        <span id="secondsPerBlock">{{ waitSeconds }}</span> seconds:
+      </b>
+      the waiting period is required to confirm the transaction on the blockchain. Please
       <b>do not close this tab</b> until the process has finished.
     </div>
   </div>
@@ -34,6 +37,10 @@ export default {
   props: {
     show: {
       type: Boolean,
+      required: true,
+    },
+    waitSeconds: {
+      type: Number,
       required: true,
     },
   },
