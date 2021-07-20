@@ -39,12 +39,6 @@ h1 {
   margin-bottom: 30px;
   padding: 40px 20px;
 }
-#previousTxnsEmptyTab {
-  display: none;
-}
-#previousTxnsTab {
-  display: none;
-}
 
 label {
   font-weight: 500;
@@ -235,8 +229,8 @@ a:hover {
   color: #fead0d;
 }
 
-table.table tr th:last-child,
-table.table tr td:last-child {
+table.table tr th,
+table.table tr td {
   text-align: center;
 }
 

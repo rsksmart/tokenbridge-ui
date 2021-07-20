@@ -36,15 +36,6 @@ export class TXN_Storage {
   }
 
   static addTxn(accountAddress, networkName = '', data = {}) {
-    delete data.transactionIndex
-    delete data.cumulativeGasUsed
-    delete data.gasUsed
-    delete data.contractAddress
-    delete data.logs
-    delete data.to
-    delete data.root
-    delete data.logsBloom
-
     let key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
     let { txns } = this.unserializeTxns(key)
     this.serializeTxns(key, [...txns, data])

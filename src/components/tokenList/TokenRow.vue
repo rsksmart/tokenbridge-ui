@@ -10,17 +10,17 @@
     <td>{{ min }}</td>
     <td>{{ max }}</td>
     <td>{{ daily }}</td>
-    <td>&ge; {{ min }} &lt; {{ mediumAmount }}</td>
+    <td>&lt; {{ mediumAmount }}</td>
     <td>&ge; {{ mediumAmount }} &lt; {{ largeAmount }}</td>
     <td>&ge; {{ largeAmount }}</td>
   </tr>
 </template>
 <script>
 import { store } from '@/store.js'
-import Web3 from 'web3'
+import BigNumber from 'bignumber.js'
 
-function weiToLocalString(value) {
-  return value ? Number(Web3.utils.fromWei(value)).toLocaleString() : ''
+function weiToFormat(value) {
+  return value ? new BigNumber(value).shiftedBy(-18).toFormat() : ''
 }
 
 export default {
@@ -61,19 +61,19 @@ export default {
       return this.typesLimits[this.token.typeId]
     },
     min() {
-      return weiToLocalString(this.limits?.min)
+      return weiToFormat(this.limits?.min)
     },
     max() {
-      return weiToLocalString(this.limits?.max)
+      return weiToFormat(this.limits?.max)
     },
     daily() {
-      return weiToLocalString(this.limits?.daily)
+      return weiToFormat(this.limits?.daily)
     },
     mediumAmount() {
-      return weiToLocalString(this.limits?.mediumAmount)
+      return weiToFormat(this.limits?.mediumAmount)
     },
     largeAmount() {
-      return weiToLocalString(this.limits?.largeAmount)
+      return weiToFormat(this.limits?.largeAmount)
     },
   },
 }

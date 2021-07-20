@@ -54,25 +54,13 @@
       </div>
     </div>
   </nav>
-  <Modal v-if="sharedState.connectionError" @close="sharedState.connectionError = ''">
-    <template #title>
-      Connection Error
-    </template>
-    <template #body>
-      <p>{{ sharedState.connectionError }}</p>
-    </template>
-  </Modal>
 </template>
 
 <script>
 import { store } from '@/store.js'
-import Modal from '@/components/commons/Modal.vue'
 
 export default {
   name: 'NavBar',
-  components: {
-    Modal,
-  },
   data() {
     return {
       sharedState: store.state,

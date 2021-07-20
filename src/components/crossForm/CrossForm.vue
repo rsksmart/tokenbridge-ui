@@ -1,5 +1,5 @@
 <template>
-  <Form id="crossForm" name="crossForm" @submit="onSubmit">
+  <Form id="crossForm" name="crossForm" class="cross-form" @submit="onSubmit">
     <div id="bridgeTab" class="align-center">
       <div class="firstRow row justify-content-sm-center">
         <!-- Column 2 -->
@@ -130,6 +130,12 @@
               </span>
             </div>
           </div>
+          <div class="confirmation-time">
+            Confirmations
+            {{ confirmations.blocks ? ` ${confirmations.blocks} blocks` : ' -' }}
+            <br />
+            {{ confirmations.time ? ` ~ aprox ${confirmations.time}` : '' }}
+          </div>
         </div>
 
         <!-- Column 7 -->
@@ -144,7 +150,7 @@
               :value="receiveAmount"
               readonly
             />
-            <div class="">Service fee {{ fee * 100 + '%' }}</div>
+            <div class="fee">Service fee {{ fee * 100 + '%' }}</div>
           </div>
         </div>
 
@@ -192,11 +198,12 @@
         class="btn btn-primary"
         :disabled="disabled || !hasAllowance"
       >
-        Convert tokens
+        Cross tokens
       </button>
     </div>
 
     <WaitSpinner :show="showSpinner" :wait-seconds="waitSeconds" />
+
     <SuccessMsg
       :show="showSuccess"
       :confirmations="confirmations"
@@ -204,17 +211,31 @@
       :receive-token="willReceiveToken?.symbol || ''"
     />
     <ErrorMsg :error="error" />
+
+    <Modal v-if="showModal" @close="showModal = false">
+      <template #title>
+        How to obtain the tokens
+      </template>
+      <template #body>
+        <p>When the transaction is mined you will see it like</p>
+        <img src="pending-tx.png" alt="pending transaction" />
+        <p>Once it has enough confirmation you will need to <b>claim it on the other network</b></p>
+        <img src="claim-tx.png" alt="claim transaction" />
+      </template>
+    </Modal>
   </Form>
 </template>
 <script>
 import { Field, Form, ErrorMessage } from 'vee-validate'
 import BigNumber from 'bignumber.js'
+import moment from 'moment'
 
 // import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import ERC20_ABI from '@/constants/abis/erc20.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
-import { MAX_UINT256, waitForReceipt } from '@/utils'
+import { MAX_UINT256, waitForReceipt, sanitizeTxHash } from '@/utils'
 
+import Modal from '@/components/commons/Modal.vue'
 import WaitSpinner from './WaitSpinner.vue'
 import SuccessMsg from './SuccessMsg.vue'
 import ErrorMsg from './ErrorMsg.vue'
@@ -225,6 +246,7 @@ import { TXN_Storage } from '@/utils'
 export default {
   name: 'CrossForm',
   components: {
+    Modal,
     WaitSpinner,
     SuccessMsg,
     ErrorMsg,
@@ -245,7 +267,16 @@ export default {
       type: Number,
       required: true,
     },
+    rskConfirmations: {
+      type: Object,
+      required: true,
+    },
+    ethConfirmations: {
+      type: Object,
+      required: true,
+    },
   },
+  emits: ['newTransaction'],
   data() {
     return {
       sharedState: store.state,
@@ -258,14 +289,56 @@ export default {
       selectedTokenMinLimit: 0,
       selectedTokenMediumAmount: 0,
       selectedTokenLargeAmount: 0,
-      confirmations: 0,
       hasAllowance: false,
       showSpinner: false,
-      error: '',
       showSuccess: false,
+      showModal: false,
+      error: '',
     }
   },
   computed: {
+    confirmations() {
+      if (
+        !this.sharedState.currentConfig ||
+        !this.amount ||
+        !this.typesLimits?.length ||
+        !this.selectedToken?.typeId
+      )
+        return {}
+      const config = this.sharedState.currentConfig
+      const confirmations = config.isRsk ? this.rskConfirmations : this.ethConfirmations
+      // convert amount to wei to compare against limits
+      const amount = new BigNumber(this.amount).shiftedBy(18)
+      const limit = this.typesLimits[this.selectedToken?.typeId]
+      if (amount.isLessThan(limit.mediumAmount)) {
+        return {
+          blocks: confirmations.smallAmount,
+          time: moment
+            .duration(confirmations.smallAmount * config.secondsPerBlock, 'seconds')
+            .add(2, 'minutes') // voting time
+            .humanize(),
+        }
+      } else if (amount.isLessThan(limit.largeAmount)) {
+        return {
+          blocks: confirmations.mediumAmount,
+          time: moment
+            .duration(confirmations.mediumAmountTime * config.secondsPerBlock, 'seconds')
+            .add(2, 'minutes') // voting time
+            .humanize(),
+        }
+      } else {
+        return {
+          blocks: confirmations.largeAmount,
+          time: moment
+            .duration(confirmations.largeAmountTime * config.secondsPerBlock, 'seconds')
+            .add(2, 'minutes') // voting time
+            .humanize(),
+        }
+      }
+    },
+    accountConnected() {
+      return `${this.sharedState.chainId} ${this.sharedState.accountAddress}`
+    },
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
       return this.sharedState.currentConfig.isRsk ? this.rskFee : this.ethFee
@@ -321,8 +394,9 @@ export default {
       this.error = ''
       this.showSuccess = false
       this.amount = value.replace(',', '.').replace(/[^0-9]\./gi, '')
-      // TODO set correct value
-      this.confirmations = 0
+    },
+    accountConnected() {
+      this.refreshBalanceAndAllowance()
     },
   },
   methods: {
@@ -331,7 +405,7 @@ export default {
       const web3 = data.sharedState.web3
       const config = data.sharedState.currentConfig
       const token = data.selectedToken
-      if (!token || !web3 || !config) {
+      if (!token?.address || !web3 || !config) {
         return
       }
       const decimals = token.decimals
@@ -342,8 +416,9 @@ export default {
         .call()
         .then(balance => {
           data.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
-          // validateAmount depends on the user balance and token limits
-          data.validateAmount(data.amount)
+          if (new BigNumber(data.amount).isGreaterThan(data.selectedTokenBalance)) {
+            data.amount = data.selectedTokenBalance.toFixed(decimals)
+          }
         })
       tokenContract.methods
         .allowance(data.sharedState.accountAddress, config.bridge)
@@ -364,7 +439,7 @@ export default {
       this.selectedTokenError = ''
       const web3 = this.sharedState.web3
       const config = this.sharedState.currentConfig
-      if (!token || !web3 || !config) {
+      if (!token?.address || !web3 || !config) {
         return
       }
 
@@ -379,8 +454,7 @@ export default {
       data.selectedTokenMinLimit = new BigNumber(limits.min).shiftedBy(-18)
       data.selectedTokenMediumAmount = new BigNumber(limits.mediumAmount).shiftedBy(-18)
       data.selectedTokenLargeAmount = new BigNumber(limits.largeAmount).shiftedBy(-18)
-      // TODO set correct value
-      data.confirmations = 0
+
       data.refreshBalanceAndAllowance()
     },
     async setMaxAmount(event) {
@@ -398,25 +472,8 @@ export default {
       if (event) event.preventDefault()
       data.receiverAddress = data.sharedState.accountAddress
     },
-    async getGasPriceHex() {
-      const data = this
-      const web3 = data.sharedState.web3
-      const config = data.sharedState.currentConfig
-      var gasPriceParsed = 0
-      if (config.networkId >= 30 && config.networkId <= 33) {
-        const block = await web3.eth.getBlock('latest')
-        gasPriceParsed = parseInt(block.minimumGasPrice)
-        gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
-      } else {
-        const gasPriceAvg = await web3.eth.getGasPrice()
-        gasPriceParsed = parseInt(gasPriceAvg)
-        gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
-      }
-      return `0x${Math.ceil(gasPriceParsed).toString(16)}`
-    },
     txExplorerLink(txHash) {
-      const regExp = new RegExp(/^0x[0-9A-Fa-f]+$/i)
-      const sanitizedTxHash = regExp.test(txHash) ? txHash : ''
+      const sanitizedTxHash = sanitizeTxHash(txHash)
       return txHash
         ? `<a target="_blank" href="${this.sharedState.currentConfig.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
         : ''
@@ -440,7 +497,7 @@ export default {
       const tokenAddress = data.selectedToken.address
       const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress)
 
-      let gasPrice = await data.getGasPriceHex()
+      const gasPrice = await store.getGasPriceHex()
       data.showSpinner = true
 
       return new Promise((resolve, reject) => {
@@ -509,17 +566,10 @@ export default {
       const decimals = token.decimals
       const amountWithDecimals = new BigNumber(data.amount).shiftedBy(decimals).toFixed(0)
 
-      this.showSpinner = true
-      const gasPrice = await this.getGasPriceHex()
+      data.showSpinner = true
+      const gasPrice = await store.getGasPriceHex()
 
-      // .then(async () => {
-      //   $('#myModal .modal-body').html(
-      //     '<p>When the transaction is mined you will see it like</p>' +
-      //       '<img src="pending-tx.png">' +
-      //       '<p>Once it has enough confirmation you will need to <b>claim it on the other network</b></p>' +
-      //       '<img src="claim-tx.png">',
-      //   )
-      //   $('#myModal').modal('show')
+      data.showModal = true
       const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
       return new Promise((resolve, reject) => {
         bridgeContract.methods
@@ -547,27 +597,36 @@ export default {
           )
       })
         .then(async receipt => {
-          // $('#myModal').modal('hide')
           data.showSpinner = false
           data.showSuccess = true
 
-          // save transaction to local storage...
-          TXN_Storage.addTxn(data.sharedState.accountAddress, config.name, {
+          if (TXN_Storage.isStorageAvailable('localStorage')) {
+            console.log(`Local Storage Available!`)
+          } else {
+            console.log(`Local Storage Unavailable!`)
+          }
+
+          const transaction = {
+            type: 'Cross tokens',
             networkId: config.networkId,
             tokenFrom: token.symbol,
             tokenTo: token.receiveToken.symbol,
             amount: data.amount,
+            receiveAmount: data.receiveAmount,
+            senderAddress: data.sharedState.accountAddress,
             receiverAddress,
+            timestamp: Date.now(),
             ...receipt,
-          })
+          }
 
-          // TODO record txns and show them
-          // updateActiveAddressTXNs(data.sharedState.address)
-          // showActiveTxnsTab()
-          // showActiveAddressTXNs()
+          // save transaction to local storage...
+          TXN_Storage.addTxn(data.sharedState.accountAddress, config.localStorageName, transaction)
+
+          data.$emit('newTransaction', transaction)
         })
         .catch(err => {
           data.showSpinner = false
+          data.showModal = false
           console.error(err)
           data.error = `Couln't cross the tokens. ${err.message}`
         })
