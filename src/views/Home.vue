@@ -39,12 +39,6 @@
 
 <script>
 // --------- import TOKENS and network CONFIG  --------------
-import {
-  KOVAN_CONFIG,
-  RSK_TESTNET_CONFIG,
-  ETH_CONFIG,
-  RSK_MAINNET_CONFIG,
-} from '@/constants/networks.js'
 import { TOKENS } from '@/constants/tokens.js'
 
 // ------ ABIS -----
@@ -108,85 +102,64 @@ export default {
       })
 
     const ethBridge = new ethWeb3.eth.Contract(BRIDGE_ABI, ethConfig.bridge)
-    ethBridge.methods
-      .getFeePercentage()
-      .call()
-      .then(fee => {
-        data.ethFee = fee / ethConfig.feePercentageDivider
-      })
+    retry3Times(ethBridge.methods.getFeePercentage().call).then(fee => {
+      data.ethFee = fee / ethConfig.feePercentageDivider
+    })
     // We have the premice that the limits will be equal in ETH and in RSK
     // And the tokens wil have the same type on both networks
     const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
-    rskAllowTokens.methods
-      .getTypesLimits()
-      .call()
-      .then(limits => {
-        data.typesLimits = limits
-      })
+    retry3Times(rskAllowTokens.methods.getTypesLimits().call).then(limits => {
+      data.typesLimits = limits
+    })
 
-    rskAllowTokens.methods
-      .getConfirmations()
-      .call()
-      .then(confirmations => {
-        data.rskConfirmations = {
-          smallAmount: confirmations.smallAmount,
-          smallAmountTime: blocksToTime(confirmations.smallAmount, rskConfig.secondsPerBlock),
-          mediumAmount: confirmations.mediumAmount,
-          mediumAmountTime: blocksToTime(confirmations.mediumAmount, rskConfig.secondsPerBlock),
-          largeAmount: confirmations.largeAmount,
-          largeAmountTime: blocksToTime(confirmations.largeAmount, rskConfig.secondsPerBlock),
-        }
-      })
+    retry3Times(rskAllowTokens.methods.getConfirmations().call).then(confirmations => {
+      data.rskConfirmations = {
+        smallAmount: confirmations.smallAmount,
+        smallAmountTime: blocksToTime(confirmations.smallAmount, rskConfig.secondsPerBlock),
+        mediumAmount: confirmations.mediumAmount,
+        mediumAmountTime: blocksToTime(confirmations.mediumAmount, rskConfig.secondsPerBlock),
+        largeAmount: confirmations.largeAmount,
+        largeAmountTime: blocksToTime(confirmations.largeAmount, rskConfig.secondsPerBlock),
+      }
+    })
 
     const rskFederation = new rskWeb3.eth.Contract(FEDERATION_ABI, rskConfig.federation)
-    rskFederation.methods
-      .getMembers()
-      .call()
-      .then(members => (data.rskFedMembers = members))
+    retry3Times(rskFederation.methods.getMembers().call).then(
+      members => (data.rskFedMembers = members),
+    )
 
     const ethAllowTokens = new ethWeb3.eth.Contract(ALLOW_TOKENS_ABI, ethConfig.allowTokens)
-    ethAllowTokens.methods
-      .getConfirmations()
-      .call()
-      .then(confirmations => {
-        data.ethConfirmations = {
-          smallAmount: confirmations.smallAmount,
-          smallAmountTime: blocksToTime(confirmations.smallAmount, ethConfig.secondsPerBlock),
-          mediumAmount: confirmations.mediumAmount,
-          mediumAmountTime: blocksToTime(confirmations.mediumAmount, ethConfig.secondsPerBlock),
-          largeAmount: confirmations.largeAmount,
-          largeAmountTime: blocksToTime(confirmations.largeAmount, ethConfig.secondsPerBlock),
-        }
-      })
+    retry3Times(ethAllowTokens.methods.getConfirmations().call).then(confirmations => {
+      data.ethConfirmations = {
+        smallAmount: confirmations.smallAmount,
+        smallAmountTime: blocksToTime(confirmations.smallAmount, ethConfig.secondsPerBlock),
+        mediumAmount: confirmations.mediumAmount,
+        mediumAmountTime: blocksToTime(confirmations.mediumAmount, ethConfig.secondsPerBlock),
+        largeAmount: confirmations.largeAmount,
+        largeAmountTime: blocksToTime(confirmations.largeAmount, ethConfig.secondsPerBlock),
+      }
+    })
 
     const ethFederation = new ethWeb3.eth.Contract(FEDERATION_ABI, ethConfig.federation)
-    ethFederation.methods
-      .getMembers()
-      .call()
-      .then(members => (data.ethFedMembers = members))
+    retry3Times(ethFederation.methods.getMembers().call).then(
+      members => (data.ethFedMembers = members),
+    )
 
     const vNode = this
 
     //User
     let address = ''
-    let activeAddressEth2RskTxns = []
-    let eth2RskTablePage = 1
     let eth2RskPaginationObj = {}
-    let activeAddressRsk2EthTxns = []
-    let rsk2EthTablePage = 1
     let rsk2EthPaginationObj = {}
 
     //Network configuration
     let config = null
     let bridgeContract = null
-    let currentBlockNumber = null
 
     // Selected Token To Cross
     let tokenContract = null
 
     $(document).ready(function() {
-      // $('.selectpicker').selectpicker()
-
       if (vNode.sharedState.isTestnet) {
         let navlink = $('#network-navlink')
         navlink.prop('href', 'https://tokenbridge.rsk.co')
@@ -201,24 +174,6 @@ export default {
       ) {
         alert('This site will only work correctly under chrome, chromium or firefox')
       }
-
-      // $('.table').on('click', '.claim', function(e) {
-      //   e.preventDefault()
-      //   const url = e.currentTarget.closest('tr').querySelector('.confirmed').href
-      //   const txHash = url.slice(url.indexOf('tx/') + 3)
-
-      //   let txn
-      //   if (config.name.toLowerCase().includes('eth')) {
-      //     txn = activeAddressRsk2EthTxns.find(x => x.transactionHash === txHash)
-      //   } else {
-      //     txn = activeAddressEth2RskTxns.find(x => x.transactionHash === txHash)
-      //   }
-      //   if (!txn) {
-      //     alert('You need to switch the network to claim this')
-      //     return
-      //   }
-      //   claim(txn, e.currentTarget)
-      // })
 
       $('#changeNetwork').on('click', function() {
         if (config) {
@@ -243,30 +198,7 @@ export default {
           onMetaMaskConnectionError(err)
         }
       })
-      // isInstalled(); - uncomment to show popup on page load
     })
-
-    async function waitForReceipt(txHash) {
-      let timeElapsed = 0
-      let interval = 10_000
-      return new Promise((resolve, reject) => {
-        const checkInterval = setInterval(async () => {
-          timeElapsed += interval
-          let receipt = await vNode.sharedState.web3.eth.getTransactionReceipt(txHash)
-          if (receipt != null) {
-            clearInterval(checkInterval)
-            resolve(receipt)
-          }
-          if (timeElapsed > 190_000) {
-            reject(
-              new Error(
-                `Operation took too long <a target="_blank" href="${config.explorer}/tx/${txHash}">check Tx on the explorer</a>`,
-              ),
-            )
-          }
-        }, interval)
-      })
-    }
 
     function onLogInClick() {
       if (!config) {
@@ -320,7 +252,6 @@ export default {
 
       showActiveAddressTXNs()
     }
-
 
     function crossTokenError(err) {
       $('#alert-danger-text').html(err)
@@ -381,30 +312,6 @@ export default {
       }
     }
 
-    // async function isInstalled() {
-    //   if (window.ethereum) {
-    //     window.ethereum.autoRefreshOnNetworkChange = false
-    //   }
-
-    //   await vNode.handleLogin()
-
-    //   let accounts = await getAccounts()
-    //   let chainId = await vNode.sharedState.web3.eth.net.getId()
-    //   await updateCallback(chainId, accounts)
-
-    //   vNode.sharedState.provider.on('chainChanged', function(newChain) {
-    //     updateNetwork(newChain)
-    //     showActiveTxnsTab()
-    //   })
-    //   vNode.sharedState.provider.on('accountsChanged', function(newAddresses) {
-    //     checkAllowance()
-    //     updateAddress(newAddresses)
-    //       .then(addr => updateActiveAddressTXNs(addr))
-    //       .then(() => showActiveAddressTXNs())
-    //   })
-    //   return chainId
-    // }
-
     function onMetaMaskConnectionError(err) {
       console.error(err)
       $('#myModal .modal-body').html(`<p>${err.message}</p>`)
@@ -423,153 +330,6 @@ export default {
       address = ''
     }
 
-    // function onMetaMaskConnectionSuccess() {
-    //   // disableInputs(false)
-    //   disableApproveCross({
-    //     approvalDisable: true,
-    //     doNotAskDisabled: true,
-    //     crossDisabled: true,
-    //   })
-    // }
-
-    // function updateAddress(newAddresses) {
-    //   address = newAddresses[0]
-    //   $('#address').text(address)
-    //   $('#logIn').hide()
-    //   $('#transferTab').removeClass('disabled')
-    //   $('#help').show()
-    //   $('.wallet-status').show()
-
-    //   return Promise.resolve(address)
-    // }
-
-    // function updateActiveAddressTXNs(addr) {
-    //   if (config.name.toLowerCase().includes('eth')) {
-    //     activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(addr, config.name)
-    //     activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(addr, config.crossToNetwork.name)
-    //   } else {
-    //     activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(addr, config.name)
-    //     activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(addr, config.crossToNetwork.name)
-    //   }
-    // }
-
-    // async function showActiveAddressTXNs() {
-    //   if (!address || (!activeAddressEth2RskTxns.length && !activeAddressRsk2EthTxns.length)) {
-    //     return
-    //   }
-
-    //   $('#txn-previous')
-    //     .off()
-    //     .on('click', onPreviousTxnClick)
-    //   $('#txn-next')
-    //     .off()
-    //     .on('click', onNextTxnClick)
-
-    //   let eth2RskTable = $('#eth-rsk-tbody')
-    //   let rsk2EthTable = $('#rsk-eth-tbody')
-
-    //   eth2RskPaginationObj = Paginator(activeAddressEth2RskTxns, eth2RskTablePage, 3)
-    //   let { data: eth2RskTxns } = eth2RskPaginationObj
-
-    //   rsk2EthPaginationObj = Paginator(activeAddressRsk2EthTxns, rsk2EthTablePage, 3)
-    //   let { data: rsk2EthTxns } = rsk2EthPaginationObj
-
-    //   const processTxn = async (txn, networkConfig, blockNumber, sideWeb3) => {
-    //     const { confirmations, secondsPerBlock, explorer } = networkConfig
-
-    //     let elapsedBlocks = blockNumber - txn.blockNumber
-    //     let remainingBlocks2Confirmation = confirmations - elapsedBlocks
-    //     let status = 'Info Not Available'
-    //     if (txn.blockNumber > networkConfig.v2UpdateBlock) {
-    //       // V2 Protocol
-    //       const sideBridgeContract = new sideWeb3.eth.Contract(
-    //         BRIDGE_ABI,
-    //         networkConfig.crossToNetwork.bridge,
-    //       )
-    //       const txDataHash = await sideBridgeContract.methods
-    //         .transactionsDataHashes(txn.transactionHash)
-    //         .call()
-    //       if (txDataHash === NULL_HASH) status = '<span class="pending"> Pending</span>'
-    //       else {
-    //         const claimed = await sideBridgeContract.methods.claimed(txDataHash).call()
-    //         if (claimed) {
-    //           status = '<span class="confirmed"> Claimed</span>'
-    //         } else {
-    //           status = '<span><button class="btn btn-primary claim">Claim</button></span>'
-    //         }
-    //       }
-    //     } else {
-    //       // V1 Protocol
-    //       status =
-    //         elapsedBlocks >= confirmations
-    //           ? `<span class="confirmed"> Confirmed</span>`
-    //           : `<span class="pending"> Pending</span>`
-    //     }
-
-    //     let seconds2Confirmation =
-    //       remainingBlocks2Confirmation > 0 ? remainingBlocks2Confirmation * secondsPerBlock : 0
-
-    //     let hoursToConfirmation = Math.floor(seconds2Confirmation / 60 / 60)
-    //     let hoursToConfirmationStr = hoursToConfirmation > 0 ? `${hoursToConfirmation}hs ` : ''
-    //     let minutesToConfirmation = Math.floor(seconds2Confirmation / 60) - hoursToConfirmation * 60
-    //     let humanTimeToConfirmation =
-    //       elapsedBlocks < confirmations
-    //         ? `| ~ ${hoursToConfirmationStr} ${minutesToConfirmation}mins`
-    //         : ''
-
-    //     let txnExplorerLink = `${explorer}/tx/${txn.transactionHash}`
-    //     let shortTxnHash = `${txn.transactionHash.substring(0, 8)}...${txn.transactionHash.slice(
-    //       -8,
-    //     )}`
-
-    //     let htmlRow = `<tr class="black">
-    //             <th scope="row"><a href="${txnExplorerLink}">${shortTxnHash}</a></th>
-    //             <td>${txn.blockNumber}</td>
-    //             <td>${txn.amount} ${txn.tokenFrom}</td>
-    //             <td>${status} ${humanTimeToConfirmation}</td>
-    //         </tr>`
-
-    //     return htmlRow
-    //   }
-
-    //   let rskConfig = config
-    //   let ethConfig = config.crossToNetwork
-    //   let rskWeb3 = vNode.sharedState.web3
-    //   let ethWeb3 = new Web3(config.crossToNetwork.rpc)
-    //   let rskBlockNumber = currentBlockNumber
-    //   let ethBlockNumber = await ethWeb3.eth.getBlockNumber()
-    //   if (config.name.toLowerCase().includes('eth')) {
-    //     rskConfig = config.crossToNetwork
-    //     ethConfig = config
-    //     rskWeb3 = new Web3(config.crossToNetwork.rpc)
-    //     ethWeb3 = vNode.sharedState.web3
-    //     rskBlockNumber = await rskWeb3.eth.getBlockNumber()
-    //     ethBlockNumber = currentBlockNumber
-    //   }
-    //   const activeAddressTXNsEth2RskRowsPromises = Promise.all(
-    //     eth2RskTxns.map(txn => {
-    //       return processTxn(txn, ethConfig, ethBlockNumber, rskWeb3)
-    //     }),
-    //   )
-    //   const activeAddressTXNsRsk2EthRowsPromises = Promise.all(
-    //     rsk2EthTxns.map(txn => {
-    //       return processTxn(txn, rskConfig, rskBlockNumber, ethWeb3)
-    //     }),
-    //   )
-
-    //   const activeAddressTXNsEth2RskRows = await activeAddressTXNsEth2RskRowsPromises
-    //   const activeAddressTXNsRsk2EthRows = await activeAddressTXNsRsk2EthRowsPromises
-    //   eth2RskTable.html(activeAddressTXNsEth2RskRows.join())
-    //   rsk2EthTable.html(activeAddressTXNsRsk2EthRows.join())
-    // }
-
-    async function updateCallback(chainId, accounts) {
-      return updateNetwork(chainId)
-        .then(() => updateAddress(accounts))
-        .then(addr => updateActiveAddressTXNs(addr))
-        .then(() => showActiveAddressTXNs())
-    }
-
     function updateNetworkConfig(config) {
       $('.fromNetwork').text(config.name)
       $('.indicator span').html(config.name)
@@ -579,72 +339,6 @@ export default {
       $('#confirmations').html(config.confirmations)
       $('#timeToCross').html(config.crossToNetwork.confirmationTime)
       // updateTokenAddressDropdown(config.networkId)
-    }
-
-    async function updateNetwork(newNetwork) {
-      // cleanAlertSuccess()
-      try {
-        newNetwork = parseInt(newNetwork)
-        if (config && config.networkId == newNetwork) return
-
-        config = null
-        if (vNode.sharedState.isTestnet) {
-          switch (newNetwork) {
-            case 42:
-              config = KOVAN_CONFIG
-              break
-            case 31:
-              config = RSK_TESTNET_CONFIG
-              break
-          }
-        } else {
-          switch (newNetwork) {
-            case 1:
-              config = ETH_CONFIG
-              break
-            case 30:
-              config = RSK_MAINNET_CONFIG
-              break
-          }
-        }
-        if (config == null) {
-          $('.fromNetwork').text('From Network')
-          $('.indicator span').html('Unknown Network')
-          $('.indicator').removeClass('btn-outline-success')
-          $('.indicator').addClass('btn-outline-danger')
-          $('.toNetwork').text('To Network')
-          $('#willReceiveToken').html('-')
-          throw new Error(
-            `Wrong Network.<br /> Please connect your wallet to <b>${
-              vNode.sharedState.isTestnet ? 'RSK Testnet or Kovan' : 'RSK Mainnet or Ethereum'
-            }</b>`,
-          )
-        }
-        // const allowTokensContract = new vNode.sharedState.web3.eth.Contract(
-        //   ALLOW_TOKENS_ABI,
-        //   config.allowTokens,
-        // )
-        // bridgeContract = new vNode.sharedState.web3.eth.Contract(BRIDGE_ABI, config.bridge)
-        // const federationContract = new vNode.sharedState.web3.eth.Contract(
-        //   FEDERATION_ABI,
-        //   config.federation,
-        // )
-
-        $('#myModal').modal('hide')
-        updateNetworkConfig(config)
-        // updateTokenAddressDropdown(config.networkId)
-
-        // onMetaMaskConnectionSuccess()
-
-        // if (TXN_Storage.isStorageAvailable('localStorage')) {
-        //   console.log(`Local Storage Available!`)
-        // } else {
-        //   console.log(`Local Storage Unavailable!`)
-        // }
-      } catch (err) {
-        onMetaMaskConnectionError(err)
-        throw err
-      }
     }
 
     async function getAccounts() {
