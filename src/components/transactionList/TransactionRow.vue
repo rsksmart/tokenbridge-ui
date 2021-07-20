@@ -266,6 +266,14 @@ export default {
         data.showConnectionProblemModal = true
         return
       }
+      if (
+        data.sharedState.accountAddress.toLowerCase() !=
+        data.transaction.receiverAddress.toLowerCase()
+      ) {
+        data.connectionProblem = `You are trying to claim a transaction for another address ${data.transaction.receiverAddress}`
+        data.showConnectionProblemModal = true
+        return
+      }
       data.loading = true
       const originWeb3 = data.fromNetwork.isRsk
         ? data.sharedState.rskWeb3
