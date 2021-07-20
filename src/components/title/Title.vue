@@ -1,5 +1,5 @@
 <template>
-  <div class="container" @network-change="updateNetworksInfo">
+  <div class="title">
     <div v-if="isTestnet" div class="bridge-info">
       <h1 id="title">RSK Testnet bridge with Kovan</h1>
       <h5 class="bridge-info-subtitle">

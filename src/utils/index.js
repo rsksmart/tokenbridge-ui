@@ -7,6 +7,16 @@ export function blocksToTime(blocks, timePerBlock) {
   return blocks && timePerBlock ? moment.duration(blocks * timePerBlock, 'seconds').humanize() : ''
 }
 
+export function sanitizeTxHash(txHash) {
+  const regExp = new RegExp(/^0x[0-9A-F]+$/i)
+  return regExp.test(txHash) ? txHash : ''
+}
+
+export function wrappedFormat(hash) {
+  if (!hash) return ''
+  return `${hash.substring(0, 6)}...${hash.slice(-6)}`
+}
+
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const NULL_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
 export const MAX_UINT256 =
@@ -20,24 +30,6 @@ export const MAX_UINT256 =
  */
 export function isAddress(address) {
   return /^(0x)?[0-9a-fA-F]{40}$/i.test(address)
-}
-
-/**
- * Poll given network for latest block number
- *
- * @param {Function} cb: callback function to call upon new value
- */
-export async function poll4LastBlockNumber(web3, cb) {
-  let interval = 5_000
-  let number = await web3.eth.getBlockNumber()
-  cb(number)
-
-  let intervalId = setInterval(async () => {
-    let number = await web3.eth.getBlockNumber()
-    cb(number)
-  }, interval)
-
-  return intervalId
 }
 
 /**

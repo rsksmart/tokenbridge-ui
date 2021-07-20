@@ -1,5 +1,5 @@
 // Store pattern https://v3.vuejs.org/guide/state-management.html#simple-state-management-from-scratch
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
 import Web3 from 'web3'
 import RLogin from '@rsksmart/rlogin'
@@ -33,7 +33,7 @@ const rpcTestnet = {
 }
 const supportedChainsTestnet = [42, 31]
 
-const isTestnet = window.location.href.includes('testnet')
+const isTestnet = !(process.env.VUE_APP_IS_MAINNET == 'true')
 const rskConfig = isTestnet ? RSK_TESTNET_CONFIG : RSK_MAINNET_CONFIG
 const ethConfig = isTestnet ? KOVAN_CONFIG : ETH_CONFIG
 const tokens = TOKENS.filter(x => {
@@ -80,7 +80,6 @@ export const store = {
     store.state.accountAddress = accounts[0]
   },
   async chainChanged(chainId) {
-    console.log('chainChanged(chainId)', parseInt(chainId))
     const state = store.state
     state.chainId = parseInt(chainId)
     if (rskConfig.networkId == chainId) {
@@ -130,5 +129,21 @@ export const store = {
           store.state.connectionError = `${err.message}. Login failed. Please try again.`
         }
       })
+  },
+  async getGasPriceHex() {
+    const state = store.state
+    const web3 = state.web3
+    const config = state.currentConfig
+    var gasPriceParsed = 0
+    if (config.networkId >= 30 && config.networkId <= 33) {
+      const block = await web3.eth.getBlock('latest')
+      gasPriceParsed = parseInt(block.minimumGasPrice)
+      gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.03
+    } else {
+      const gasPriceAvg = await web3.eth.getGasPrice()
+      gasPriceParsed = parseInt(gasPriceAvg)
+      gasPriceParsed = gasPriceParsed <= 1 ? 1 : gasPriceParsed * 1.3
+    }
+    return `0x${Math.ceil(gasPriceParsed).toString(16)}`
   },
 }

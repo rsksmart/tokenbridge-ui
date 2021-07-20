@@ -10,8 +10,8 @@
       <div>
         You will receive
         <span id="receive" class="black"> {{ receiveAmount }} {{ receiveToken }} </span>
-        in your wallet in {{ confirmations }} blocks
-        <span id="confirmationTime"> aproximately {{ confirmationsTime }}</span>
+        in your wallet in {{ confirmations.block }} blocks
+        <span id="confirmationTime"> aproximately {{ confirmations.time }}</span>
       </div>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -31,7 +31,7 @@ export default {
       required: true,
     },
     confirmations: {
-      type: Number,
+      type: Object,
       required: true,
     },
     receiveAmount: {
