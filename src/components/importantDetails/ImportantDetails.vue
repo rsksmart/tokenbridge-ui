@@ -1,5 +1,5 @@
 <template>
-  <div class="important-details mt-3 mb-3">
+  <div class="important-details mt-5 mb-5">
     <h2 class="subtitle">Important details</h2>
     <table class="table">
       <thead>

@@ -13,7 +13,7 @@
       </a>
     </td>
     <td>{{ transaction.blockNumber }}</td>
-    <td>{{ `${transaction.amount} ${transaction.tokenFrom}` }}</td>
+    <td>{{ amountAndSymbol }}</td>
     <td :class="{ bold: isReceiverNetwork }">{{ toNetwork.name }}</td>
     <td>
       <a :href="receiverAddressExplorerUrl" :class="{ bold: isReceiverAddress }" target="_blank">
@@ -79,6 +79,7 @@ import {
 } from '@/utils'
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import { CROSSING_STEPS } from '@/constants/enums.js'
 
 export default {
   name: 'TransactionRow',
@@ -126,12 +127,7 @@ export default {
     return {
       sharedState: store.state,
       currentStep: this.transaction.currentStep || 0,
-      steps: {
-        Pending: 0,
-        Voting: 1,
-        ToClaim: 2,
-        Claimed: 3,
-      },
+      steps: CROSSING_STEPS,
       currentConfirmations: 0,
       estimatedTime: '',
       votesCount: 0,
@@ -216,6 +212,11 @@ export default {
       const sanitizedTxHash = sanitizeTxHash(this.claimTxHash)
       return `${this.sharedState.currentConfig.explorer}/tx/${sanitizedTxHash}`
     },
+    amountAndSymbol() {
+      return this.transaction.receiveAmount
+        ? `${this.transaction.receiveAmount} ${this.transaction.tokenTo}`
+        : `${this.transaction.amount} ${this.transaction.tokenFrom}`
+    },
   },
   watch: {
     rskBlockNumber() {
@@ -282,11 +283,19 @@ export default {
           const claimed = await retry3Times(bridgeContract.methods.claimed(data.txDataHash).call)
           if (claimed) {
             data.currentStep = data.steps.Claimed
-            TXN_Storage.updateTxn(
-              data.sharedState.accountAddress,
-              data.fromNetwork.localStorageName,
-              { currentStep: data.currentStep, ...data.transaction },
-            )
+            if (data.isSenderAddress) {
+              TXN_Storage.addOrUpdateTxn(
+                data.sharedState.accountAddress,
+                data.fromNetwork.localStorageName,
+                { currentStep: data.currentStep, ...data.transaction },
+              )
+            } else if (data.isReceiverAddress) {
+              TXN_Storage.addOrUpdateTxn(
+                data.sharedState.accountAddress,
+                data.toNetwork.localStorageName,
+                { currentStep: data.currentStep, ...data.transaction },
+              )
+            }
           } else {
             data.currentStep = data.steps.ToClaim
           }
@@ -375,117 +384,8 @@ export default {
           data.error = err.message
           data.showResultModal = true
           console.error(err)
-          //crossTokenError(`Couldn't Claim. ${err.message}`)
         })
     },
   },
 }
-
-// async function showActiveAddressTXNs() {
-//   if (!address || (!activeAddressEth2RskTxns.length && !activeAddressRsk2EthTxns.length)) {
-//     return
-//   }
-
-//   $('#txn-previous')
-//     .off()
-//     .on('click', onPreviousTxnClick)
-//   $('#txn-next')
-//     .off()
-//     .on('click', onNextTxnClick)
-
-//   let eth2RskTable = $('#eth-rsk-tbody')
-//   let rsk2EthTable = $('#rsk-eth-tbody')
-
-//   eth2RskPaginationObj = Paginator(activeAddressEth2RskTxns, eth2RskTablePage, 3)
-//   let { data: eth2RskTxns } = eth2RskPaginationObj
-
-//   rsk2EthPaginationObj = Paginator(activeAddressRsk2EthTxns, rsk2EthTablePage, 3)
-//   let { data: rsk2EthTxns } = rsk2EthPaginationObj
-
-//   const processTxn = async (txn, networkConfig, blockNumber, sideWeb3) => {
-//     const { confirmations, secondsPerBlock, explorer } = networkConfig
-
-//     let elapsedBlocks = blockNumber - txn.blockNumber
-//     let remainingBlocks2Confirmation = confirmations - elapsedBlocks
-//     let status = 'Info Not Available'
-//     if (txn.blockNumber > networkConfig.v2UpdateBlock) {
-//       // V2 Protocol
-//       const sideBridgeContract = new sideWeb3.eth.Contract(
-//         BRIDGE_ABI,
-//         networkConfig.crossToNetwork.bridge,
-//       )
-//       const txDataHash = await sideBridgeContract.methods
-//         .transactionsDataHashes(txn.transactionHash)
-//         .call()
-//       if (txDataHash === NULL_HASH) status = '<span class="pending"> Pending</span>'
-//       else {
-//         const claimed = await sideBridgeContract.methods.claimed(txDataHash).call()
-//         if (claimed) {
-//           status = '<span class="confirmed"> Claimed</span>'
-//         } else {
-//           status = '<span><button class="btn btn-primary claim">Claim</button></span>'
-//         }
-//       }
-//     } else {
-//       // V1 Protocol
-//       status =
-//         elapsedBlocks >= confirmations
-//           ? `<span class="confirmed"> Confirmed</span>`
-//           : `<span class="pending"> Pending</span>`
-//     }
-
-//     let seconds2Confirmation =
-//       remainingBlocks2Confirmation > 0 ? remainingBlocks2Confirmation * secondsPerBlock : 0
-
-//     let hoursToConfirmation = Math.floor(seconds2Confirmation / 60 / 60)
-//     let hoursToConfirmationStr = hoursToConfirmation > 0 ? `${hoursToConfirmation}hs ` : ''
-//     let minutesToConfirmation = Math.floor(seconds2Confirmation / 60) - hoursToConfirmation * 60
-//     let humanTimeToConfirmation =
-//       elapsedBlocks < confirmations
-//         ? `| ~ ${hoursToConfirmationStr} ${minutesToConfirmation}mins`
-//         : ''
-
-//     let txnExplorerLink = `${explorer}/tx/${txn.transactionHash}`
-//     let shortTxnHash = `${txn.transactionHash.substring(0, 8)}...${txn.transactionHash.slice(-8)}`
-
-//     let htmlRow = `<tr class="black">
-//                 <th scope="row"><a href="${txnExplorerLink}">${shortTxnHash}</a></th>
-//                 <td>${txn.blockNumber}</td>
-//                 <td>${txn.amount} ${txn.tokenFrom}</td>
-//                 <td>${status} ${humanTimeToConfirmation}</td>
-//             </tr>`
-
-//     return htmlRow
-//   }
-
-//   let rskConfig = config
-//   let ethConfig = config.crossToNetwork
-//   let rskWeb3 = vNode.sharedState.web3
-//   let ethWeb3 = new Web3(config.crossToNetwork.rpc)
-//   let rskBlockNumber = currentBlockNumber
-//   let ethBlockNumber = await ethWeb3.eth.getBlockNumber()
-//   if (config.name.toLowerCase().includes('eth')) {
-//     rskConfig = config.crossToNetwork
-//     ethConfig = config
-//     rskWeb3 = new Web3(config.crossToNetwork.rpc)
-//     ethWeb3 = vNode.sharedState.web3
-//     rskBlockNumber = await rskWeb3.eth.getBlockNumber()
-//     ethBlockNumber = currentBlockNumber
-//   }
-//   const activeAddressTXNsEth2RskRowsPromises = Promise.all(
-//     eth2RskTxns.map(txn => {
-//       return processTxn(txn, ethConfig, ethBlockNumber, rskWeb3)
-//     }),
-//   )
-//   const activeAddressTXNsRsk2EthRowsPromises = Promise.all(
-//     rsk2EthTxns.map(txn => {
-//       return processTxn(txn, rskConfig, rskBlockNumber, ethWeb3)
-//     }),
-//   )
-
-//   const activeAddressTXNsEth2RskRows = await activeAddressTXNsEth2RskRowsPromises
-//   const activeAddressTXNsRsk2EthRows = await activeAddressTXNsRsk2EthRowsPromises
-//   eth2RskTable.html(activeAddressTXNsEth2RskRows.join())
-//   rsk2EthTable.html(activeAddressTXNsRsk2EthRows.join())
-// }
 </script>
