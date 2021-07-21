@@ -242,20 +242,6 @@
     },
     {
         "inputs": [],
-        "name": "bridge",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function",
-        "constant": true
-    },
-    {
-        "inputs": [],
         "name": "isOwner",
         "outputs": [
             {
@@ -745,6 +731,47 @@
     },
     {
         "inputs": [],
+        "name": "getTypesLimits",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "min",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "max",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "daily",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mediumAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "largeAmount",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct IAllowTokens.Limits[]",
+                "name": "limits",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function",
+        "constant": true
+    },
+    {
+        "inputs": [],
         "name": "getTypeDescriptionsLength",
         "outputs": [
             {
@@ -758,19 +785,13 @@
         "constant": true
     },
     {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "index",
-                "type": "uint256"
-            }
-        ],
+        "inputs": [],
         "name": "getTypeDescriptions",
         "outputs": [
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
+                "internalType": "string[]",
+                "name": "descriptions",
+                "type": "string[]"
             }
         ],
         "stateMutability": "view",

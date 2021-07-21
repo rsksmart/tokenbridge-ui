@@ -27,34 +27,39 @@ export class TXN_Storage {
     }
   }
 
+  static removeAllTxns4Address(accountAddress = '', networkName = '') {
+    let key = `${accountAddress}-${networkName.replace(' ', '-')}`
+    this.serializeTxns(key, [])
+  }
+
   static getAllTxns4Address(accountAddress = '', networkName = '') {
-    let key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
+    let key = `${accountAddress}-${networkName.replace(' ', '-')}`
     let { _, txns } = this.unserializeTxns(key)
-    return txns.sort((txn1, txn2) => {
-      return txn1.blockNumber <= txn2.blockNumber ? 1 : -1
-    })
+    return txns
   }
 
   static addTxn(accountAddress, networkName = '', data = {}) {
-    delete data.transactionIndex
-    delete data.cumulativeGasUsed
-    delete data.gasUsed
-    delete data.contractAddress
-    delete data.logs
-    delete data.to
-    delete data.root
-    delete data.logsBloom
-
-    let key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
-    let { txns } = this.unserializeTxns(key)
-    this.serializeTxns(key, [...txns, data])
+    const key = `${accountAddress}-${networkName.replace(' ', '-')}`
+    const { txns } = this.unserializeTxns(key)
+    txns.push(data)
+    this.serializeTxns(key, txns)
   }
 
-  static deleteTxn(accountAddress, txnId = '') {
-    let key = `${accountAddress}-txns`
-    let { _, txns = [] } = this.unserializeTxns(key)
-    let toKeepTransactions = txns.filter(tx => txnId != tx.transactionHash)
-    this.serializeTxns(key, toKeepTransactions)
+  static addOrUpdateTxn(accountAddress, networkName = '', data = {}) {
+    const key = `${accountAddress}-${networkName.replace(' ', '-')}`
+    const { txns } = this.unserializeTxns(key)
+    let found = false
+    for (var i in txns) {
+      if (txns[i].transactionHash == data.transactionHash) {
+        txns[i] = data
+        found = true
+        break
+      }
+    }
+    if (!found) {
+      txns.push(data)
+    }
+    this.serializeTxns(key, txns)
   }
 
   static unserializeTxns(key = '') {
@@ -64,7 +69,6 @@ export class TXN_Storage {
   }
 
   static serializeTxns(key, transactions = []) {
-    this.Storage.removeItem(key.toLowerCase())
     this.Storage.setItem(key.toLowerCase(), JSON.stringify(transactions))
   }
 }

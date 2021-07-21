@@ -1,8 +1,9 @@
 <template>
   <div
+    v-if="show"
     id="wait"
     class="mt-3 align-center text-center"
-    style="max-width:350px; line-height: 16px; display:none;"
+    style="max-width:350px; line-height: 16px;"
   >
     <!-- Spinner <div class="spinner-border mb-4" style="height:70px; width:70px"></div> -->
     <!-- https://tobiasahlin.com/spinkit/ -->
@@ -21,8 +22,11 @@
       <div class="sk-circle12 sk-circle"></div>
     </div>
     <div class="mt-2">
-      Wait for aproximately <b><span id="secondsPerBlock">X</span> seconds:</b> the waiting period
-      is required to confirm the transaction on the blockchain. Please
+      Wait for aproximately
+      <b>
+        <span id="secondsPerBlock">{{ waitSeconds }}</span> seconds:
+      </b>
+      the waiting period is required to confirm the transaction on the blockchain. Please
       <b>do not close this tab</b> until the process has finished.
     </div>
   </div>
@@ -30,6 +34,16 @@
 <script>
 export default {
   name: 'WaitSpinner',
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
+    waitSeconds: {
+      type: Number,
+      required: true,
+    },
+  },
 }
 </script>
 <style scoped></style>
