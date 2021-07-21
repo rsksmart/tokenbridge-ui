@@ -91,8 +91,10 @@ export const store = {
       state.connectionError = `Unknown network, should be ${rskConfig.name} or ${ethConfig.name} networks`
       return
     }
-    const accounts = await state.web3.eth.getAccounts()
-    store.accountsChanged(accounts)
+    if (state.web3) {
+      const accounts = await state.web3.eth.getAccounts()
+      store.accountsChanged(accounts)
+    }
   },
   handleDisconnect() {
     const state = store.state

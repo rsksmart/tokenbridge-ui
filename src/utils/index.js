@@ -51,7 +51,18 @@ export function Paginator(items, page = 1, per_page = 5) {
   }
 }
 
-const clone = obj => {
+export const getPromise = (fn, args) => {
+  return new Promise((resolve, reject) => {
+    if (!args) args = []
+    args.push((err, data) => {
+      if (err) return reject(err)
+      return resolve(data)
+    })
+    fn.apply(null, args)
+  })
+}
+
+export const clone = obj => {
   if (obj === null || typeof obj !== 'object') {
     return obj
   } else if (Array.isArray(obj)) {

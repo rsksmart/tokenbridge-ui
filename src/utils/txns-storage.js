@@ -36,16 +36,25 @@ export class TXN_Storage {
   }
 
   static addTxn(accountAddress, networkName = '', data = {}) {
-    let key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
+    const key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
     let { txns } = this.unserializeTxns(key)
     this.serializeTxns(key, [...txns, data])
   }
 
-  static deleteTxn(accountAddress, txnId = '') {
-    let key = `${accountAddress}-txns`
-    let { _, txns = [] } = this.unserializeTxns(key)
-    let toKeepTransactions = txns.filter(tx => txnId != tx.transactionHash)
-    this.serializeTxns(key, toKeepTransactions)
+  static updateTxn(accountAddress, networkName = '', data = {}) {
+    const key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
+    let { txns } = this.unserializeTxns(key)
+    console.log('data', data)
+    console.log('txns', txns)
+    for (var i in txns) {
+      if (txns[i].transactionHash == data.transactionHash) {
+        txns[i] = data
+        console.log('found', i)
+        break
+      }
+    }
+    console.log('txns', txns)
+    this.serializeTxns(key, txns)
   }
 
   static unserializeTxns(key = '') {
@@ -55,7 +64,6 @@ export class TXN_Storage {
   }
 
   static serializeTxns(key, transactions = []) {
-    this.Storage.removeItem(key.toLowerCase())
     this.Storage.setItem(key.toLowerCase(), JSON.stringify(transactions))
   }
 }

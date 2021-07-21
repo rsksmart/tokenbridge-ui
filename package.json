@@ -13,7 +13,7 @@
     "prettier:autofix": "yarn prettier --write"
   },
   "dependencies": {
-    "@rsksmart/rlogin": "^1.0.7",
+    "@rsksmart/rlogin": "^1.0.9",
     "@walletconnect/web3-provider": "^1.4.1",
     "bignumber.js": "^9.0.1",
     "bootstrap": "4.6.0",
