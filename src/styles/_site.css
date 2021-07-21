@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;700&family=Rubik&family=Roboto:wght@400;700&display=swap');
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css');
+
+@import url('https://developers.rsk.co/assets/vendor/malihu-custom-scrollbar-plugin-master/malihu-custom-scrollbar-plugin-master/jquery.mCustomScrollbar.css');
+
+@import url('https://developers.rsk.co/assets/vendor/bootstrap/css/bootstrap.min.css');
+
+@import url('https://developers.rsk.co/assets/css/styles.css');
+@import url('https://developers.rsk.co/assets/css/styles_dark.css');
+@import url('https://developers.rsk.co/assets/css/code.css');
+
+body {
+  font-family: 'Quicksand', sans-serif !important;
+  font-size: 12px !important;
+}
+body .btn {
+  font-size: 14px;
+}
+h2 {
+  color: #00b520;
+  font-size: 25px;
+  line-height: 31px;
+}
+h1 {
+  color: #00b520;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 45px;
+  margin-top: 15px;
+  padding-bottom: 0;
+}
+.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+label {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  color: #bfbdbd;
+  margin-bottom: 0px;
+}
+
+.black {
+  color: #000;
+  font-weight: bold;
+}
+
+.outline {
+  border: 1px solid #000;
+}
+.outline,
+.outline-rounded,
+.badge-outline {
+  background-color: transparent;
+  line-height: 1.5;
+  padding-right: 0.6em;
+  padding-left: 0.6em;
+}
+.outline-rounded,
+.badge-outline {
+  border: 1px solid #00b520;
+}
+.disabled,
+.disabled .network,
+.max:disabled {
+  color: #e5e5e5;
+}
+.disabled .outline,
+.disabled .outline-rounded,
+.disabled .badge-outline,
+.outline:disabled,
+.outline-rounded:disabled,
+.badge-outline:disabled {
+  color: #e5e5e5;
+  border: 1px solid #e5e5e5;
+}
+.outline-rounded {
+  color: #00b520;
+  border-radius: 0.6em;
+  padding: 0.375rem 0.75rem;
+}
+.badge-outline {
+  color: #00b520;
+  border-radius: 10rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.btn-toolbar {
+  justify-content: center;
+}
+.btn-primary {
+  font-family: 'Quicksand';
+  color: #fff;
+  background-color: #00b520;
+  border-color: #00b520;
+  border-radius: 10px;
+}
+.btn-primary:hover,
+.btn-primary:not(:disabled):not(.disabled):active {
+  color: #fff;
+  background-color: #03a335;
+  border-color: #03a335;
+}
+.btn-primary.disabled,
+.btn-primary:disabled {
+  color: #fff;
+  background-color: #e5e5e5;
+  border-color: #e5e5e5;
+}
+.navbar-dark.bg-dark {
+  background-color: white !important;
+}
+input::placeholder {
+  color: grey !important;
+  font-weight: normal;
+}
+#home {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+#footer {
+  margin-top: 0;
+}
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.subtitle {
+  text-align: center;
+  margin-bottom: 5px;
+}
+.logo {
+  width: 106px;
+  height: auto;
+  transition: all 0.5s ease;
+}
+.navbar,
+.navbar a {
+  font-family: 'Rubik';
+  color: #00b520;
+  font-size: 14px;
+}
+a:hover {
+  color: #03a335;
+  text-decoration: none;
+}
+.navbar-item {
+  margin-top: 15px;
+}
+.nav-tabs .nav-link {
+  font-weight: bold;
+  color: #00b520;
+}
+.nav-tabs .nav-link:hover {
+  color: black;
+}
+
+@keyframes lds-circle {
+  0%,
+  100% {
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(1800deg);
+    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+  }
+  100% {
+    transform: rotateY(3600deg);
+  }
+}
+.indicator span {
+  position: relative;
+  margin-left: 5px;
+  padding-left: 3px;
+}
+.indicator.btn-outline-danger span:before {
+  background-color: #dc3545;
+}
+.indicator span:before {
+  position: absolute;
+  right: 98%;
+  top: 50%;
+  -webkit-transform: translate(-5px, -50%);
+  transform: translate(-5px, -50%);
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #40d512;
+}
+.token-logo {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.5rem;
+}
+#success {
+  padding: 0px;
+  max-width: 222px;
+}
+.confirmed {
+  color: #00b520;
+}
+.pending {
+  color: #fead0d;
+}
+
+table.table tr th,
+table.table tr td {
+  text-align: center;
+}
+
+/* this is added because rLogin is wrongly displayed */
+.navbar {
+  position: inherit;
+}
