@@ -11,10 +11,12 @@
         />
       </a>
       <div
+        v-if="sharedState.isConnected"
         class="wallet-status navbar-item indicator badge-outline badge-pill"
-        style="display: none;"
       >
-        <span aria-describedby="tooltip-status" class="fromNetwork">Network</span>
+        <span aria-describedby="tooltip-status" class="fromNetwork">
+          {{ sharedState.currentConfig.name }}
+        </span>
       </div>
       <button
         class="navbar-toggler collapsed"
@@ -29,16 +31,23 @@
       </button>
       <div id="navbarResponsive" class="navbar-collapse collapse">
         <div
+          v-if="sharedState.isConnected"
           class="wallet-status navbar-item badge-pill text-truncate"
-          style="width: 85px; display: none;"
+          style="width: 85px;"
         >
-          <span id="address">0x123456789</span>
+          <span id="address">{{ sharedState.accountAddress }}</span>
         </div>
         <div class="navbar-item ml-auto">
-          <button id="logIn" type="button" class="btn btn-primary badge-pill">
+          <button
+            v-if="!sharedState.isConnected"
+            id="logIn"
+            type="button"
+            class="btn btn-primary badge-pill"
+            @click="connectWalletClick"
+          >
             Connect wallet
           </button>
-          <a id="help" href="https://developers.rsk.co/slack/" style="display: none;">
+          <a v-if="sharedState.isConnected" id="help" href="https://developers.rsk.co/slack/">
             Do you need help?
           </a>
         </div>
@@ -48,8 +57,19 @@
 </template>
 
 <script>
+import { store } from '@/store.js'
+
 export default {
   name: 'NavBar',
-  components: {},
+  data() {
+    return {
+      sharedState: store.state,
+    }
+  },
+  methods: {
+    connectWalletClick() {
+      return store.handleLogin()
+    },
+  },
 }
 </script>
