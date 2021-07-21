@@ -1,0 +1,136 @@
+#cross {
+  display: none;
+}
+#crossForm .row {
+  margin: 0;
+}
+.approve-deposit {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.form-check {
+  margin-top: -1em;
+}
+.form-check label {
+  position: relative;
+  bottom: 1px;
+  color: black;
+}
+#approve {
+  min-width: 10em;
+}
+#deposit {
+  align-self: flex-start;
+  min-width: 10em;
+}
+.form-control:disabled {
+  background-color: transparent;
+  color: #bfbdbd;
+}
+
+.max,
+.same-address {
+  color: #00b520 !important;
+}
+.network {
+  color: #00b520;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 25px;
+  margin-bottom: 20px;
+}
+
+.fees {
+  font-family: 'Roboto';
+  font-size: 14px;
+  line-height: 30px;
+  color: #919191;
+}
+.fees p {
+  margin-bottom: -10px;
+}
+
+#amount {
+  font-size: 1rem;
+  line-height: 22px;
+}
+#amount.ok {
+  border-color: #00b520;
+}
+
+.invalid-feedback-container {
+  margin-top: .25rem;
+  height: 25px;
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: 0px;
+  font-size: 12px;
+}
+
+.inputs-area {
+  font-family: 'Quicksand';
+  font-size: 20px;
+  line-height: 25px;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+  border-radius: 10px;
+  padding: 2px;
+}
+
+.dropdown-item,
+.form-control-plaintext {
+  font-family: 'Quicksand';
+  font-size: 1rem;
+  line-height: 25px;
+}
+
+.btn-light,
+.btn-light.disabled,
+.btn-light.disabled,
+.show > .btn-light.dropdown-toggle {
+  background-color: transparent;
+  border-color: transparent;
+}
+.btn-light:hover {
+  background-color: transparent;
+}
+
+
+.dropdown-toggle::after {
+  content: '\f107';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  border: 0;
+  display: inline-block;
+  vertical-align: 0;
+}
+
+.dropdown-toggle.disabled,
+.form-control-plaintext.disabled {
+  color: #bfbdbd;
+  opacity: 1;
+}
+
+#bridgeTab {
+  border: 2px solid #00b520;
+  border-radius: 10px;
+  margin-top: 3em;
+  margin-bottom: 3em;
+  padding-top: 3em;
+  padding-bottom: 1.1em;
+}
+
+.originNetwork,
+.destinationNetwork {
+  color: #00b520;
+  font-size: 1.5em;
+  font-weight: 400;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.address {
+  font-size: 16px;
+}
