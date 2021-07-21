@@ -1,9 +1,9 @@
 <template>
   <tr class="transaction-row">
     <th scope="row">Cross</th>
-    <td>{{ fromNetwork.name }}</td>
+    <td :class="{ bold: isSenderNetwork }">{{ fromNetwork.name }}</td>
     <td>
-      <a :href="senderAddressExplorerUrl" target="_blank">
+      <a :href="senderAddressExplorerUrl" :class="{ bold: isSenderAddress }" target="_blank">
         {{ formattedSenderAddress }}
       </a>
     </td>
@@ -14,9 +14,9 @@
     </td>
     <td>{{ transaction.blockNumber }}</td>
     <td>{{ `${transaction.amount} ${transaction.tokenFrom}` }}</td>
-    <td>{{ toNetwork.name }}</td>
+    <td :class="{ bold: isReceiverNetwork }">{{ toNetwork.name }}</td>
     <td>
-      <a :href="receiverAddressExplorerUrl" target="_blank">
+      <a :href="receiverAddressExplorerUrl" :class="{ bold: isReceiverAddress }" target="_blank">
         {{ formattedReceiverAddress }}
       </a>
     </td>
@@ -49,7 +49,8 @@
         {{ error ? 'Error' : 'Claimed' }}
       </template>
       <template #body>
-        <p>{{ error ? `There was an error: ${error}` : 'Operation succesful!' }}</p>
+        <p v-if="error">There was an error: {{ error }}</p>
+        <h2 v-else>Operation succesful!</h2>
         <a v-if="claimTxHash" target="_blank" :href="txExplorerLink">See the transaction</a>
       </template>
     </Modal>
@@ -67,7 +68,15 @@
 <script>
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
-import { wrappedFormat, blocksToTime, waitForReceipt, sanitizeTxHash, NULL_HASH } from '@/utils'
+import {
+  wrappedFormat,
+  blocksToTime,
+  waitForReceipt,
+  sanitizeTxHash,
+  retry3Times,
+  NULL_HASH,
+  TXN_Storage,
+} from '@/utils'
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 
@@ -106,10 +115,17 @@ export default {
       required: true,
     },
   },
+  setup() {
+    if (TXN_Storage.isStorageAvailable('localStorage')) {
+      console.log(`Local Storage Available!`)
+    } else {
+      console.log(`Local Storage Unavailable!`)
+    }
+  },
   data() {
     return {
       sharedState: store.state,
-      currentStep: 0,
+      currentStep: this.transaction.currentStep || 0,
       steps: {
         Pending: 0,
         Voting: 1,
@@ -143,6 +159,24 @@ export default {
     transactionHashExplorerUrl() {
       if (!this.transaction.transactionHash) return ''
       return `${this.fromNetwork.explorer}/tx/${this.transaction.transactionHash}`
+    },
+    isSenderNetwork() {
+      return this.fromNetwork.networkId == this.sharedState.currentConfig?.networkId
+    },
+    isReceiverNetwork() {
+      return this.toNetwork.networkId == this.sharedState.currentConfig?.networkId
+    },
+    isSenderAddress() {
+      return (
+        this.transaction.senderAddress?.toLowerCase() ==
+          this.sharedState.accountAddress?.toLowerCase() && this.isSenderNetwork
+      )
+    },
+    isReceiverAddress() {
+      return (
+        this.transaction.receiverAddress?.toLowerCase() ==
+          this.sharedState.accountAddress?.toLowerCase() && this.isReceiverNetwork
+      )
     },
     senderAddressExplorerUrl() {
       if (!this.transaction.senderAddress) return ''
@@ -240,14 +274,19 @@ export default {
         //   }
         // }
 
-        data.txDataHash = await bridgeContract.methods
-          .transactionsDataHashes(data.transaction.transactionHash)
-          .call()
+        data.txDataHash = await retry3Times(
+          bridgeContract.methods.transactionsDataHashes(data.transaction.transactionHash).call,
+        )
         if (data.txDataHash != NULL_HASH) {
           data.estimatedTime = ''
-          const claimed = await bridgeContract.methods.claimed(data.txDataHash).call()
+          const claimed = await retry3Times(bridgeContract.methods.claimed(data.txDataHash).call)
           if (claimed) {
             data.currentStep = data.steps.Claimed
+            TXN_Storage.updateTxn(
+              data.sharedState.accountAddress,
+              data.fromNetwork.localStorageName,
+              { currentStep: data.currentStep, ...data.transaction },
+            )
           } else {
             data.currentStep = data.steps.ToClaim
           }

@@ -64,7 +64,7 @@
 import { store } from '@/store.js'
 import TransactionRow from './TransactionRow.vue'
 
-import { TXN_Storage } from '@/utils'
+import { TXN_Storage, retry3Times } from '@/utils'
 
 export default {
   name: 'TransactionList',
@@ -140,12 +140,12 @@ export default {
       const rskWeb3 = this.sharedState.rskWeb3
       const ethWeb3 = this.sharedState.ethWeb3
       if (rskWeb3) {
-        rskWeb3.eth.getBlockNumber().then(blockNumber => {
+        retry3Times(rskWeb3.eth.getBlockNumber).then(blockNumber => {
           data.rskBlockNumber = blockNumber
         })
       }
       if (ethWeb3) {
-        ethWeb3.eth.getBlockNumber().then(blockNumber => {
+        retry3Times(ethWeb3.eth.getBlockNumber).then(blockNumber => {
           data.ethBlockNumber = blockNumber
         })
       }
@@ -175,9 +175,8 @@ export default {
         x.receiverAddress = x.receiverAddress ? x.receiverAddress : this.sharedState.accountAddress
         return x
       })
-      this.transactions = activeAddressRsk2EthTxns
-        .concat(activeAddressEth2RskTxns)
-        .sort(x => x.timeStamp)
+      const allTransactions = activeAddressRsk2EthTxns.concat(activeAddressEth2RskTxns)
+      this.transactions = allTransactions.sort(x => x.timestamp).reverse() // sort decsending
     },
   },
 }

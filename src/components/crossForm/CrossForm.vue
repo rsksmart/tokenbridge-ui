@@ -241,7 +241,7 @@ import SuccessMsg from './SuccessMsg.vue'
 import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
 
-import { TXN_Storage } from '@/utils'
+import { TXN_Storage, retry3Times } from '@/utils'
 
 export default {
   name: 'CrossForm',
@@ -411,24 +411,20 @@ export default {
       const decimals = token.decimals
       const tokenContract = new web3.eth.Contract(ERC20_ABI, token.address)
 
-      tokenContract.methods
-        .balanceOf(data.sharedState.accountAddress)
-        .call()
-        .then(balance => {
+      retry3Times(tokenContract.methods.balanceOf(data.sharedState.accountAddress).call).then(
+        balance => {
           data.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
           if (new BigNumber(data.amount).isGreaterThan(data.selectedTokenBalance)) {
             data.amount = data.selectedTokenBalance.toFixed(decimals)
           }
-        })
-      tokenContract.methods
-        .allowance(data.sharedState.accountAddress, config.bridge)
-        .call()
-        .then(allowance => {
-          // as we set the allowance to the highest uint256 it should always be bigger than selectedTokenMaxLimit
-          data.hasAllowance = new BigNumber(allowance)
-            .shiftedBy(-18)
-            .gte(data.selectedTokenMaxLimit)
-        })
+        },
+      )
+      retry3Times(
+        tokenContract.methods.allowance(data.sharedState.accountAddress, config.bridge).call,
+      ).then(allowance => {
+        // as we set the allowance to the highest uint256 it should always be bigger than selectedTokenMaxLimit
+        data.hasAllowance = new BigNumber(allowance).shiftedBy(-18).gte(data.selectedTokenMaxLimit)
+      })
     },
     async selectToken(token, event) {
       const data = this
@@ -607,7 +603,7 @@ export default {
           }
 
           const transaction = {
-            type: 'Cross tokens',
+            type: 'Cross',
             networkId: config.networkId,
             tokenFrom: token.symbol,
             tokenTo: token.receiveToken.symbol,
@@ -618,9 +614,16 @@ export default {
             timestamp: Date.now(),
             ...receipt,
           }
-
           // save transaction to local storage...
           TXN_Storage.addTxn(data.sharedState.accountAddress, config.localStorageName, transaction)
+          if (data.sharedState.accountAddress.toLowerCase() != receiverAddress.toLowerCase()) {
+            // save transaction for receiver ...
+            TXN_Storage.addTxn(
+              data.receiverAddress,
+              config.crossToNetwork.localStorageName,
+              transaction,
+            )
+          }
 
           data.$emit('newTransaction', transaction)
         })

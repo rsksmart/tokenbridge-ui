@@ -65,7 +65,6 @@
 
 <script>
 import { store } from '@/store.js'
-import FEDERATION_ABI from '@/constants/abis/federation.json'
 
 export default {
   name: 'ImportantDetails',
