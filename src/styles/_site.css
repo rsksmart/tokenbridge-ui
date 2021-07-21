@@ -34,12 +34,6 @@ h1 {
   margin-left: auto;
   margin-right: auto;
 }
-#newTransferTab,
-#transferTab {
-  max-width: 760px;
-  margin-bottom: 30px;
-  padding: 40px 20px;
-}
 
 label {
   font-weight: 500;
@@ -205,19 +199,6 @@ a:hover {
   width: 1.2rem;
   height: 1.2rem;
   margin-right: 0.5rem;
-}
-#wait {
-  font-family: 'Rubik';
-  font-size: 16px;
-  line-height: 19px;
-  color: #919191;
-}
-#txBridge,
-#txBridge:hover {
-  font-family: 'Rubik';
-  font-size: 12px;
-  line-height: 14px;
-  color: #919191;
 }
 #success {
   padding: 0px;

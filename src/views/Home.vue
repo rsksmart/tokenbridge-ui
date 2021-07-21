@@ -13,7 +13,7 @@
           @new-transaction="newTransaction = $event"
         />
 
-        <TransactionList
+        <Transactions
           :types-limits="typesLimits"
           :rsk-confirmations="rskConfirmations"
           :eth-confirmations="ethConfirmations"
@@ -53,7 +53,8 @@ import { retry3Times, blocksToTime } from '@/utils'
 
 import CrossForm from '@/components/crossForm/CrossForm.vue'
 import Title from '@/components/title/Title.vue'
-import TransactionList from '@/components/transactionList/TransactionList.vue'
+// import SearchTransaction from '@/components/transactions/SearchTransaction.vue'
+import Transactions from '@/components/transactions/Transactions.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
 import TokenList from '@/components/tokenList/TokenList.vue'
 import { store } from '@/store.js'
@@ -65,7 +66,7 @@ export default {
     CrossForm,
     ImportantDetails,
     TokenList,
-    TransactionList,
+    Transactions,
   },
   data() {
     return {

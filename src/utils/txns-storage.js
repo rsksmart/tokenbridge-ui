@@ -27,33 +27,38 @@ export class TXN_Storage {
     }
   }
 
+  static removeAllTxns4Address(accountAddress = '', networkName = '') {
+    let key = `${accountAddress}-${networkName.replace(' ', '-')}`
+    this.serializeTxns(key, [])
+  }
+
   static getAllTxns4Address(accountAddress = '', networkName = '') {
-    let key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
+    let key = `${accountAddress}-${networkName.replace(' ', '-')}`
     let { _, txns } = this.unserializeTxns(key)
-    return txns.sort((txn1, txn2) => {
-      return txn1.blockNumber <= txn2.blockNumber ? 1 : -1
-    })
+    return txns
   }
 
   static addTxn(accountAddress, networkName = '', data = {}) {
-    const key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
-    let { txns } = this.unserializeTxns(key)
-    this.serializeTxns(key, [...txns, data])
+    const key = `${accountAddress}-${networkName.replace(' ', '-')}`
+    const { txns } = this.unserializeTxns(key)
+    txns.push(data)
+    this.serializeTxns(key, txns)
   }
 
-  static updateTxn(accountAddress, networkName = '', data = {}) {
-    const key = `${accountAddress}-${networkName.toLowerCase().replace(' ', '-')}`
-    let { txns } = this.unserializeTxns(key)
-    console.log('data', data)
-    console.log('txns', txns)
+  static addOrUpdateTxn(accountAddress, networkName = '', data = {}) {
+    const key = `${accountAddress}-${networkName.replace(' ', '-')}`
+    const { txns } = this.unserializeTxns(key)
+    let found = false
     for (var i in txns) {
       if (txns[i].transactionHash == data.transactionHash) {
         txns[i] = data
-        console.log('found', i)
+        found = true
         break
       }
     }
-    console.log('txns', txns)
+    if (!found) {
+      txns.push(data)
+    }
     this.serializeTxns(key, txns)
   }
 

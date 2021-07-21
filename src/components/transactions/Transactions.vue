@@ -1,75 +1,38 @@
 <template>
-  <div class="transaction-list mt-5 mb-5">
-    <h2 class="subtitle">Account transactions</h2>
-    <p class="text-center">
-      Please note that all transactions listed here will not appear if you use another device
-    </p>
-
-    <div v-if="!sharedState.isConnected">
-      <h5 class="subtitle">No active account, please connect your wallet</h5>
-    </div>
-    <div v-else-if="transactions.length == 0">
-      <h5 class="subtitle">No transactions found for the active account</h5>
-    </div>
-    <div v-else>
-      <div
-        id="nav-eth-rsk"
-        class="tab-pane fade show active"
-        role="tabpanel"
-        aria-labelledby="nav-eth-rsk-tab"
-      >
-        <!-- Dinamic content made with JS -->
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Action</th>
-              <th scope="col">From</th>
-              <th scope="col">Sender</th>
-              <th scope="col">Txn hash</th>
-              <th scope="col">Block number</th>
-              <th scope="col">Amount</th>
-              <th scope="col">To</th>
-              <th scope="col">Receiver</th>
-              <th scope="col">Status | Estimated time</th>
-            </tr>
-          </thead>
-          <tbody id="eth-rsk-tbody">
-            <TransactionRow
-              v-for="transaction in transactions"
-              :key="transaction.transactionHash"
-              :transaction="transaction"
-              :types-limits="typesLimits"
-              :rsk-confirmations="rskConfirmations"
-              :eth-confirmations="ethConfirmations"
-              :rsk-block-number="rskBlockNumber"
-              :eth-block-number="ethBlockNumber"
-              :fed-members-len="fedMembersLen"
-            />
-          </tbody>
-        </table>
-      </div>
-      <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <button id="txn-previous" type="button" class="btn btn-secondary">
-            &lt; previous
-          </button>
-          <button id="txn-next" type="button" class="btn btn-secondary">next ></button>
-        </div>
-      </div>
-    </div>
+  <div class="transactions">
+    <SearchTransaction
+      :types-limits="typesLimits"
+      :rsk-confirmations="rskConfirmations"
+      :eth-confirmations="ethConfirmations"
+      :fed-members-len="fedMembersLen"
+      :rsk-block-number="rskBlockNumber"
+      :eth-block-number="ethBlockNumber"
+    />
+    <TransactionList
+      :types-limits="typesLimits"
+      :rsk-confirmations="rskConfirmations"
+      :eth-confirmations="ethConfirmations"
+      :fed-members-len="fedMembersLen"
+      :new-transaction="newTransaction"
+      :transactions="transactions"
+      :rsk-block-number="rskBlockNumber"
+      :eth-block-number="ethBlockNumber"
+    />
   </div>
 </template>
 
 <script>
 import { store } from '@/store.js'
-import TransactionRow from './TransactionRow.vue'
+import TransactionList from './TransactionList.vue'
+import SearchTransaction from './SearchTransaction.vue'
 
 import { TXN_Storage, retry3Times } from '@/utils'
 
 export default {
-  name: 'TransactionList',
+  name: 'Transactions',
   components: {
-    TransactionRow,
+    SearchTransaction,
+    TransactionList,
   },
   props: {
     typesLimits: {

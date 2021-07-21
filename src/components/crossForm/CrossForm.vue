@@ -655,7 +655,7 @@ export default {
     },
     validateAddress(value) {
       if (!value) return 'destionation address is required'
-      if (!/^(0x)?[0-9a-fA-F]{40}$/i.test(value)) {
+      if (!/^(0x)?[0-9a-f]{40}$/i.test(value)) {
         return 'invalid address'
       }
       return true
