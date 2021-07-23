@@ -1,6 +1,6 @@
 <template>
   <div class="important-details mt-5 mb-5">
-    <h2 class="subtitle">Important details</h2>
+    <h2 id="important-details" class="subtitle">Important details</h2>
     <table class="table">
       <thead>
         <tr>
