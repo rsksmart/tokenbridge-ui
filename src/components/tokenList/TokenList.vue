@@ -1,6 +1,6 @@
 <template>
   <div class="token-list mt-5 mb-5">
-    <h2 class="subtitle">Token list</h2>
+    <h2 id="token-list" class="subtitle">Token list</h2>
     <p class="text-center">
       Ethereum native tokens will transform into r(tokenName). RSK native tokens will transform into
       e(tokenName)
