@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-list mt-5 mb-5">
-    <h2 class="subtitle">Account transactions</h2>
+    <h2 id="account-transactions" class="subtitle">Account transactions</h2>
     <p class="text-center">
       Please note that all transactions listed here will not appear if you use another device
     </p>
