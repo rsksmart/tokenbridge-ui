@@ -1,6 +1,6 @@
 <template>
   <div class="search-transaction mt-5 mb-5">
-    <h2 class="subtitle">Search a crossing transaction</h2>
+    <h2 id="search-crossing" class="subtitle">Search a crossing transaction</h2>
   </div>
   <Form
     id="searchForm"
