@@ -66,6 +66,7 @@
 </template>
 
 <script>
+import BigNumber from 'bignumber.js'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
 import {
@@ -202,9 +203,15 @@ export default {
     neededConfirmations() {
       const limits = this.typesLimits[this.token.typeId]
       const confirmations = this.fromNetwork.isRsk ? this.rskConfirmations : this.ethConfirmations
-      return this.transaction.amount < limits.mediumAmount
+      let amount = this.transaction.amount
+      if (!amount) {
+        // add fees to receiveAmount to get the original amount
+        // TODO use props fee instead of harcoded 0.2%
+        amount = this.transaction.receiveAmount / (1 - 0.002)
+      }
+      return amount < new BigNumber(limits.mediumAmount).shiftedBy(-18).toNumber()
         ? confirmations.smallAmount
-        : this.transaction.amount < limits.largeAmount
+        : amount < new BigNumber(limits.largeAmount).shiftedBy(-18)
         ? confirmations.mediumAmount
         : confirmations.largeAmount
     },
