@@ -134,3 +134,8 @@
 .address {
   font-size: 16px;
 }
+
+.note-container {
+  border-radius: 4px;
+  font-size: 1.125em;
+}
