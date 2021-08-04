@@ -62,6 +62,31 @@
         <p>{{ connectionProblem }}</p>
       </template>
     </Modal>
+    <Modal v-if="showMissmatchAddressModal" @close="showMissmatchAddressModal = false">
+      <template #title>
+        Receiver address is not the wallet
+      </template>
+      <template #body>
+        <p>
+          The receiver address {{ transaction.receiverAddress }} is not your currently connected
+          wallet {{ sharedState.accountAddress }}
+        </p>
+        <p class="font-weight-bold">
+          Are you sure you want to claim the funds to {{ transaction.receiverAddress }} anyway?
+        </p>
+      </template>
+      <template #footer>
+        <button class="btn btn-primary modal-default-button" @click="claim()">
+          Yes
+        </button>
+        <button
+          class="btn btn-danger modal-default-button"
+          @click="showMissmatchAddressModal = false"
+        >
+          No
+        </button>
+      </template>
+    </Modal>
   </tr>
 </template>
 
@@ -139,6 +164,7 @@ export default {
       error: '',
       showConnectionProblemModal: false,
       connectionProblem: '',
+      showMissmatchAddressModal: false,
     }
   },
   computed: {
@@ -309,26 +335,9 @@ export default {
         }
       }
     },
-    async claimClick() {
+    async claim() {
       const data = this
-      if (!data.sharedState.isConnected) {
-        data.connectionProblem = `Wallet not connected. You need to connect your wallet to ${data.toNetwork.name}`
-        data.showConnectionProblemModal = true
-        return
-      }
-      if (data.sharedState.currentConfig.networkId != this.toNetwork.networkId) {
-        data.connectionProblem = `Wrong network. To claim this tokens you need to connect your wallet to ${data.toNetwork.name}`
-        data.showConnectionProblemModal = true
-        return
-      }
-      if (
-        data.sharedState.accountAddress.toLowerCase() !=
-        data.transaction.receiverAddress.toLowerCase()
-      ) {
-        data.connectionProblem = `You are trying to claim a transaction for another address ${data.transaction.receiverAddress}`
-        data.showConnectionProblemModal = true
-        return
-      }
+      data.showMissmatchAddressModal = false
       data.loading = true
       const originWeb3 = data.fromNetwork.isRsk
         ? data.sharedState.rskWeb3
@@ -392,6 +401,27 @@ export default {
           data.showResultModal = true
           console.error(err)
         })
+    },
+    async claimClick() {
+      const data = this
+      if (!data.sharedState.isConnected) {
+        data.connectionProblem = `Wallet not connected. You need to connect your wallet to ${data.toNetwork.name}`
+        data.showConnectionProblemModal = true
+        return
+      }
+      if (data.sharedState.currentConfig.networkId != this.toNetwork.networkId) {
+        data.connectionProblem = `Wrong network. To claim this tokens you need to connect your wallet to ${data.toNetwork.name}`
+        data.showConnectionProblemModal = true
+        return
+      }
+      if (
+        data.sharedState.accountAddress.toLowerCase() ==
+        data.transaction.receiverAddress.toLowerCase()
+      ) {
+        await this.claim()
+      } else {
+        data.showMissmatchAddressModal = true
+      }
     },
   },
 }
