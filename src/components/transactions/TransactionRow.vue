@@ -62,14 +62,14 @@
         <p>{{ connectionProblem }}</p>
       </template>
     </Modal>
-    <Modal v-if="showMissmatchAddressModal" @close="showMissmatchAddressModal = false">
+    <Modal v-if="showMismatchAddressModal" @close="showMismatchAddressModal = false">
       <template #title>
-        Receiver address is not the wallet
+        Receiver address is not the current account
       </template>
       <template #body>
         <p>
           The receiver address {{ transaction.receiverAddress }} is not your currently connected
-          wallet {{ sharedState.accountAddress }}
+          account {{ sharedState.accountAddress }}
         </p>
         <p class="font-weight-bold">
           Are you sure you want to claim the funds to {{ transaction.receiverAddress }} anyway?
@@ -81,7 +81,7 @@
         </button>
         <button
           class="btn btn-danger modal-default-button"
-          @click="showMissmatchAddressModal = false"
+          @click="showMismatchAddressModal = false"
         >
           No
         </button>
@@ -164,7 +164,7 @@ export default {
       error: '',
       showConnectionProblemModal: false,
       connectionProblem: '',
-      showMissmatchAddressModal: false,
+      showMismatchAddressModal: false,
     }
   },
   computed: {
@@ -337,11 +337,10 @@ export default {
     },
     async claim() {
       const data = this
-      data.showMissmatchAddressModal = false
+      const sharedState = data.sharedState
+      data.showMismatchAddressModal = false
       data.loading = true
-      const originWeb3 = data.fromNetwork.isRsk
-        ? data.sharedState.rskWeb3
-        : data.sharedState.ethWeb3
+      const originWeb3 = data.fromNetwork.isRsk ? sharedState.rskWeb3 : sharedState.ethWeb3
       // Always retrieve transaction block hash as data.transaction.blockHash
       // may not be the final block hash in RSK
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transaction.transactionHash)
@@ -355,10 +354,7 @@ export default {
         event.topics,
       )
       const gasPrice = await store.getGasPriceHex()
-      const bridgeContract = new data.sharedState.web3.eth.Contract(
-        BRIDGE_ABI,
-        data.toNetwork.bridge,
-      )
+      const bridgeContract = new sharedState.web3.eth.Contract(BRIDGE_ABI, data.toNetwork.bridge)
 
       return new Promise((resolve, reject) => {
         bridgeContract.methods
@@ -370,7 +366,7 @@ export default {
             logIndex: event.logIndex,
           })
           .send(
-            { from: data.sharedState.accountAddress, gasPrice: gasPrice, gas: 250_000 },
+            { from: sharedState.accountAddress, gasPrice: gasPrice, gas: 250_000 },
             async (err, txHash) => {
               data.claimTxHash = txHash
               if (err) {
@@ -404,23 +400,23 @@ export default {
     },
     async claimClick() {
       const data = this
-      if (!data.sharedState.isConnected) {
+      const sharedState = data.sharedState
+      if (!sharedState.isConnected) {
         data.connectionProblem = `Wallet not connected. You need to connect your wallet to ${data.toNetwork.name}`
         data.showConnectionProblemModal = true
         return
       }
-      if (data.sharedState.currentConfig.networkId != this.toNetwork.networkId) {
+      if (sharedState.currentConfig.networkId != this.toNetwork.networkId) {
         data.connectionProblem = `Wrong network. To claim this tokens you need to connect your wallet to ${data.toNetwork.name}`
         data.showConnectionProblemModal = true
         return
       }
       if (
-        data.sharedState.accountAddress.toLowerCase() ==
-        data.transaction.receiverAddress.toLowerCase()
+        sharedState.accountAddress.toLowerCase() == data.transaction.receiverAddress.toLowerCase()
       ) {
         await this.claim()
       } else {
-        data.showMissmatchAddressModal = true
+        data.showMismatchAddressModal = true
       }
     },
   },
