@@ -180,7 +180,7 @@ const UBI_TOKEN = {
   typeId: 6,
   icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/ubi.png',
   30: { symbol: 'rUBI', address: '0x70566d8541beabe984c8babf8a816ed908514ba8', decimals: 18 },
-  31: { symbol: 'rUBI', address: '0x1c85316116131133cf6fdb0cde836b23035ea775', decimals: 18 },
+  31: { symbol: 'rKovUBI', address: '0x1c85316116131133cf6fdb0cde836b23035ea775', decimals: 18 },
   1: { symbol: 'UBI', address: '0xdd1ad9a21ce722c151a836373babe42c868ce9a4', decimals: 18 },
   42: { symbol: 'UBI', address: '0xddade19b13833d1bf52c1fe1352d41a8dd9fe8c9', decimals: 18 },
 }
