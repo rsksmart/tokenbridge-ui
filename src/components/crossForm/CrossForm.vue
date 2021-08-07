@@ -1,5 +1,5 @@
 <template>
-  <Form id="crossForm" name="crossForm" class="cross-form" @submit="onSubmit">
+  <Form id="crossForm" ref="crossForm" name="crossForm" class="cross-form" @submit="onSubmit">
     <div id="bridgeTab" class="align-center">
       <div class="firstRow row justify-content-sm-center">
         <!-- Column 2 -->
@@ -181,11 +181,11 @@
         </div>
       </div>
     </div>
-    <div v-if="costClaim" class="row justify-content-center mb-4">
+    <div v-if="claimCost" class="row justify-content-center mb-4">
       <div class="col-sm-12 col-md-5 border note-container px-4 py-2 bg-light text-center">
         <strong class="fw-bold d-block">Important!</strong>
         <span>
-          You'll need <strong>{{ costClaim }} ETH</strong> to claim the tokens
+          You'll need <strong>{{ claimCost }} ETH</strong> to claim the tokens
         </span>
       </div>
     </div>
@@ -247,7 +247,7 @@ import WaitSpinner from './WaitSpinner.vue'
 import SuccessMsg from './SuccessMsg.vue'
 import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
-import { ESTIMATED_GAS_AVG } from '@/constants/global'
+import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 
 export default {
   name: 'CrossForm',
@@ -300,7 +300,7 @@ export default {
       showSuccess: false,
       showModal: false,
       error: '',
-      costClaim: null,
+      claimCost: null,
     }
   },
   computed: {
@@ -404,9 +404,16 @@ export default {
     },
     accountConnected() {
       this.refreshBalanceAndAllowance()
+      this.resetForm()
+      this.setClaimCost()
     },
   },
   methods: {
+    resetForm() {
+      this.selectedToken = {}
+      this.amount = ''
+      this.$refs.crossForm.resetForm()
+    },
     refreshBalanceAndAllowance() {
       const data = this
       const web3 = data.sharedState.web3
@@ -668,11 +675,13 @@ export default {
       }
       return true
     },
-    async getCostClaim() {
-      const { ethWeb3 } = this.sharedState
-      const gasPrice = await ethWeb3.eth.getGasPrice()
-      const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
-      this.costClaim = costInWei.shiftedBy(-18).toString()
+    setClaimCost() {
+      const { currentConfig: { isRsk } = {} } = this.sharedState
+      const web3 = isRsk ? this.sharedState.ethWeb3 : this.sharedState.rskWeb3
+      web3.eth.getGasPrice().then(gasPrice => {
+        const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
+        this.claimCost = costInWei.shiftedBy(-18).toString()
+      })
     },
   },
 }
