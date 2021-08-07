@@ -1,1 +1,0 @@
-export const ESTIMATED_GAS_AVG = 135_000

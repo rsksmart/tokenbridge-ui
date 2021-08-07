@@ -466,7 +466,6 @@ export default {
       data.selectedTokenLargeAmount = new BigNumber(limits.largeAmount).shiftedBy(-18)
 
       data.refreshBalanceAndAllowance()
-      await data.getCostClaim()
     },
     async setMaxAmount(event) {
       const data = this
