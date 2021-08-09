@@ -1,5 +1,5 @@
 <template>
-  <Form id="crossForm" name="crossForm" class="cross-form" @submit="onSubmit">
+  <Form id="crossForm" ref="crossForm" name="crossForm" class="cross-form" @submit="onSubmit">
     <div id="bridgeTab" class="align-center">
       <div class="firstRow row justify-content-sm-center">
         <!-- Column 2 -->
@@ -181,6 +181,14 @@
         </div>
       </div>
     </div>
+    <div v-if="claimCost" class="row justify-content-center mb-4">
+      <div class="col-sm-12 col-md-5 border note-container px-4 py-2 bg-light text-center">
+        <strong class="fw-bold d-block">Important!</strong>
+        <span>
+          You'll need <strong>{{ claimCost }} ETH</strong> to claim the tokens
+        </span>
+      </div>
+    </div>
 
     <div class="row justify-content-center mb-3">
       <button
@@ -230,18 +238,16 @@ import { Field, Form, ErrorMessage } from 'vee-validate'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
-// import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import ERC20_ABI from '@/constants/abis/erc20.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
-import { MAX_UINT256, waitForReceipt, sanitizeTxHash } from '@/utils'
+import { MAX_UINT256, waitForReceipt, sanitizeTxHash, TXN_Storage, retry3Times } from '@/utils'
 
 import Modal from '@/components/commons/Modal.vue'
 import WaitSpinner from './WaitSpinner.vue'
 import SuccessMsg from './SuccessMsg.vue'
 import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
-
-import { TXN_Storage, retry3Times } from '@/utils'
+import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 
 export default {
   name: 'CrossForm',
@@ -294,6 +300,7 @@ export default {
       showSuccess: false,
       showModal: false,
       error: '',
+      claimCost: null,
     }
   },
   computed: {
@@ -397,9 +404,16 @@ export default {
     },
     accountConnected() {
       this.refreshBalanceAndAllowance()
+      this.resetForm()
+      this.setClaimCost()
     },
   },
   methods: {
+    resetForm() {
+      this.selectedToken = {}
+      this.amount = ''
+      this.$refs.crossForm.resetForm()
+    },
     refreshBalanceAndAllowance() {
       const data = this
       const web3 = data.sharedState.web3
@@ -659,6 +673,14 @@ export default {
         return 'invalid address'
       }
       return true
+    },
+    setClaimCost() {
+      const { currentConfig: { isRsk } = {} } = this.sharedState
+      const web3 = isRsk ? this.sharedState.ethWeb3 : this.sharedState.rskWeb3
+      web3.eth.getGasPrice().then(gasPrice => {
+        const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
+        this.claimCost = costInWei.shiftedBy(-18).toString()
+      })
     },
   },
 }
