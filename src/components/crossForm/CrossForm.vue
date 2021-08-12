@@ -33,7 +33,7 @@
               aria-expanded="false"
             >
               <span v-if="selectedToken?.symbol">
-                <img :src="selectedToken?.icon" class="token-logo" />
+                <img :src="selectedToken?.icon" class="token-logo" alt="Token Logo" />
               </span>
               {{ selectedToken?.symbol ? selectedToken.symbol : 'Select a token' }}
             </button>
@@ -527,8 +527,8 @@ export default {
                   new Error(`Transaction status failed ${err.message} ${txExplorerLink}`),
                 )
               }
-            } catch (err) {
-              return reject(new Error(`${err} ${txExplorerLink}`))
+            } catch (error) {
+              return reject(new Error(`${error} ${txExplorerLink}`))
             }
           })
       })
@@ -600,8 +600,8 @@ export default {
                     new Error(`Transaction status failed ${err.message} ${txExplorerLink}`),
                   )
                 }
-              } catch (err) {
-                return reject(new Error(`${err} ${txExplorerLink}`))
+              } catch (error) {
+                return reject(new Error(`${error} ${txExplorerLink}`))
               }
             },
           )
@@ -630,7 +630,7 @@ export default {
           }
           // save transaction to local storage...
           TXN_Storage.addTxn(data.sharedState.accountAddress, config.localStorageName, transaction)
-          if (data.sharedState.accountAddress.toLowerCase() != receiverAddress.toLowerCase()) {
+          if (data.sharedState.accountAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
             // save transaction for receiver ...
             TXN_Storage.addTxn(
               data.receiverAddress,
@@ -668,7 +668,7 @@ export default {
       return true
     },
     validateAddress(value) {
-      if (!value) return 'destionation address is required'
+      if (!value) return 'destination address is required'
       if (!/^(0x)?[0-9a-f]{40}$/i.test(value)) {
         return 'invalid address'
       }
