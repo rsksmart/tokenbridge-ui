@@ -640,6 +640,7 @@ export default {
           }
 
           data.$emit('newTransaction', transaction)
+          data.resetForm()
         })
         .catch(err => {
           data.showSpinner = false
