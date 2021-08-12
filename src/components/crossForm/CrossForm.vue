@@ -33,7 +33,11 @@
               aria-expanded="false"
             >
               <span v-if="selectedToken?.symbol">
-                <img :src="selectedToken?.icon" class="token-logo" alt="Token Logo" />
+                <img
+                  :src="selectedToken?.icon"
+                  class="token-logo"
+                  :alt="`${selectedToken?.name} Logo`"
+                />
               </span>
               {{ selectedToken?.symbol ? selectedToken.symbol : 'Select a token' }}
             </button>
