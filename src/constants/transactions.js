@@ -1,1 +1,1 @@
-export const ESTIMATED_GAS_AVG = 135_000
+export const ESTIMATED_GAS_AVG = 250_000
