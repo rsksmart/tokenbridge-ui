@@ -1,3 +1,8 @@
+export const METHOD_TYPES = {
+  DEPOSITOR: 'DEPOSITOR',
+  RECEIVER: 'RECEIVER',
+}
+
 // --------- TOKENS --------------
 const DOC_TOKEN = {
   token: 'DOC',
@@ -73,8 +78,17 @@ const WETH_TOKEN = {
   typeId: 1,
   icon:
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
-  31: { symbol: 'rKovWETH', address: '0xd15cDD74DfF1A6A81Ca639B038839B126BC01FF9', decimals: 18 },
-  42: { symbol: 'WETH', address: '0xd0A1E359811322d97991E03f863a0C30C2cF029C', decimals: 18 },
+  31: {
+    symbol: 'rETH',
+    address: '0xd15cDD74DfF1A6A81Ca639B038839B126BC01FF9',
+    decimals: 18,
+  },
+  42: {
+    symbol: 'ETH',
+    address: '0xd0A1E359811322d97991E03f863a0C30C2cF029C',
+    decimals: 18,
+    methodType: METHOD_TYPES.DEPOSITOR,
+  },
 }
 
 const ZRX_TOKEN = {
