@@ -144,7 +144,7 @@
 
         <!-- Column 7 -->
         <div class="convertedAmount text-center col-sm-3">
-          <label class="amount-label" for="amount">Amount</label>
+          <label class="amount-label" for="receive-amount">Amount</label>
           <div class="form-group amount">
             <input
               id="receive-amount"
@@ -243,7 +243,6 @@ import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
 import ERC20_ABI from '@/constants/abis/erc20.json'
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { MAX_UINT256, waitForReceipt, sanitizeTxHash, TXN_Storage, retry3Times } from '@/utils'
 
 import Modal from '@/components/commons/Modal.vue'
@@ -252,6 +251,8 @@ import SuccessMsg from './SuccessMsg.vue'
 import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
+import { crossToken } from '@/modules/transactions/transactions.actions'
+import { METHOD_TYPES } from '@/constants/tokens'
 
 export default {
   name: 'CrossForm',
@@ -369,6 +370,7 @@ export default {
             symbol: token[this.originNetwork.networkId].symbol,
             address: token[this.originNetwork.networkId].address,
             decimals: token[this.originNetwork.networkId].decimals,
+            methodType: token[this.originNetwork.networkId].methodType || METHOD_TYPES.RECEIVER,
             receiveToken: {
               icon: token.icon,
               ...token[this.destinationNetwork.networkId],
@@ -427,22 +429,33 @@ export default {
         return
       }
       const decimals = token.decimals
-      const tokenContract = new web3.eth.Contract(ERC20_ABI, token.address)
-
-      retry3Times(tokenContract.methods.balanceOf(data.sharedState.accountAddress).call).then(
-        balance => {
-          data.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
+      if (token.methodType === METHOD_TYPES.DEPOSITOR) {
+        web3.eth.getBalance(data.sharedState.accountAddress).then(ethBalance => {
+          data.selectedTokenBalance = new BigNumber(ethBalance).shiftedBy(-decimals)
           if (new BigNumber(data.amount).isGreaterThan(data.selectedTokenBalance)) {
             data.amount = data.selectedTokenBalance.toFixed(decimals)
           }
-        },
-      )
-      retry3Times(
-        tokenContract.methods.allowance(data.sharedState.accountAddress, config.bridge).call,
-      ).then(allowance => {
-        // as we set the allowance to the highest uint256 it should always be bigger than selectedTokenMaxLimit
-        data.hasAllowance = new BigNumber(allowance).shiftedBy(-18).gte(data.selectedTokenMaxLimit)
-      })
+        })
+        data.hasAllowance = true
+      } else {
+        const tokenContract = new web3.eth.Contract(ERC20_ABI, token.address)
+        retry3Times(tokenContract.methods.balanceOf(data.sharedState.accountAddress).call).then(
+          balance => {
+            data.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
+            if (new BigNumber(data.amount).isGreaterThan(data.selectedTokenBalance)) {
+              data.amount = data.selectedTokenBalance.toFixed(decimals)
+            }
+          },
+        )
+        retry3Times(
+          tokenContract.methods.allowance(data.sharedState.accountAddress, config.bridge).call,
+        ).then(allowance => {
+          // as we set the allowance to the highest uint256 it should always be bigger than selectedTokenMaxLimit
+          data.hasAllowance = new BigNumber(allowance)
+            .shiftedBy(-18)
+            .gte(data.selectedTokenMaxLimit)
+        })
+      }
     },
     async selectToken(token, event) {
       const data = this
@@ -547,7 +560,7 @@ export default {
           data.error = `Couldn't approve. ${err.message}`
         })
     },
-    async onSubmit() {
+    onSubmit: async function() {
       const data = this
       data.error = ''
       data.showSuccess = false
@@ -577,38 +590,14 @@ export default {
         data.error = 'Complete the Amount field'
         return
       }
-      const decimals = token.decimals
-      const amountWithDecimals = new BigNumber(data.amount).shiftedBy(decimals).toFixed(0)
-
       data.showSpinner = true
-      const gasPrice = await store.getGasPriceHex()
 
       data.showModal = true
-      const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
-      return new Promise((resolve, reject) => {
-        bridgeContract.methods
-          .receiveTokensTo(tokenAddress, receiverAddress, amountWithDecimals)
-          .send(
-            { from: data.sharedState.accountAddress, gasPrice: gasPrice, gas: 250_000 },
-            async (err, txHash) => {
-              const txExplorerLink = data.txExplorerLink(txHash)
-              if (err) {
-                return reject(new Error(`Execution failed ${err.message} ${txExplorerLink}`))
-              }
-              try {
-                const receipt = await waitForReceipt(txHash, web3)
-                if (receipt.status) {
-                  return resolve(receipt)
-                } else {
-                  return reject(
-                    new Error(`Transaction status failed ${err.message} ${txExplorerLink}`),
-                  )
-                }
-              } catch (error) {
-                return reject(new Error(`${error} ${txExplorerLink}`))
-              }
-            },
-          )
+
+      return crossToken(web3, config)(data.amount, token, store, {
+        txExplorerLink: data.txExplorerLink,
+        accountAddress: data.sharedState.accountAddress,
+        receiverAddress,
       })
         .then(async receipt => {
           data.showSpinner = false
