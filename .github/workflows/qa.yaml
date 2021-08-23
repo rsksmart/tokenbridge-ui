@@ -2,7 +2,7 @@ name: "UI deploy QA"
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   deploy-qa:
     name: Deploy to QA site
