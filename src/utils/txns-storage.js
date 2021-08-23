@@ -68,6 +68,10 @@ export class TXN_Storage {
     return returnObj
   }
 
+  static crateStorageKey(accountAddress, networkName) {
+    return `${accountAddress}-${networkName.replace(' ', '-')}`
+  }
+
   static serializeTxns(key, transactions = []) {
     this.Storage.setItem(key.toLowerCase(), JSON.stringify(transactions))
   }
