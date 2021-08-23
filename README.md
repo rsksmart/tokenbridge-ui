@@ -6,6 +6,11 @@ Thats why we created a Dapp to improve the user experience when using the token 
 
 
 ## Project setup
+
+### Pre requisites
+This project needs [node](https://nodejs.org/en/) 12 or higher and [yarn](https://yarnpkg.com/getting-started/install) installed
+
+### Install dependencies
 ```
 yarn install
 ```
