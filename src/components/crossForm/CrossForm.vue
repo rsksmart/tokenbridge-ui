@@ -243,7 +243,7 @@ import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
 import ERC20_ABI from '@/constants/abis/erc20.json'
-import { MAX_UINT256, waitForReceipt, sanitizeTxHash, TXN_Storage, retry3Times } from '@/utils'
+import { MAX_UINT256, waitForReceipt, sanitizeTxHash, retry3Times } from '@/utils'
 
 import Modal from '@/components/commons/Modal.vue'
 import WaitSpinner from './WaitSpinner.vue'
@@ -265,6 +265,7 @@ export default {
     Field,
     ErrorMessage,
   },
+  inject: ['$services'],
   props: {
     typesLimits: {
       type: Array,
@@ -359,10 +360,12 @@ export default {
       return !this.sharedState.isConnected || this.showSpinner
     },
     currentNetworkTokens() {
-      const result = []
-      for (const token of this.sharedState.tokens) {
-        if (token[this.originNetwork.networkId]) {
-          result.push({
+      const { tokens = [] } = this.sharedState
+      return (
+        tokens
+          // eslint-disable-next-line no-prototype-builtins
+          .filter(token => token.hasOwnProperty(this.originNetwork.networkId))
+          .map(token => ({
             token: token.token,
             name: token.name,
             typeId: token.typeId,
@@ -375,10 +378,8 @@ export default {
               icon: token.icon,
               ...token[this.destinationNetwork.networkId],
             },
-          })
-        }
-      }
-      return result
+          }))
+      )
     },
     senderAddress() {
       return this.sharedState.accountAddress || '0x00...00'
@@ -603,12 +604,6 @@ export default {
           data.showSpinner = false
           data.showSuccess = true
 
-          if (TXN_Storage.isStorageAvailable('localStorage')) {
-            console.log(`Local Storage Available!`)
-          } else {
-            console.log(`Local Storage Unavailable!`)
-          }
-
           const transaction = {
             type: 'Cross',
             networkId: config.networkId,
@@ -622,14 +617,16 @@ export default {
             ...receipt,
           }
           // save transaction to local storage...
-          TXN_Storage.addTxn(data.sharedState.accountAddress, config.localStorageName, transaction)
+          await this.$services.TransactionService.saveTransaction({
+            ...transaction,
+            accountAddress: data.sharedState.accountAddress,
+          })
           if (data.sharedState.accountAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
             // save transaction for receiver ...
-            TXN_Storage.addTxn(
-              data.receiverAddress,
-              config.crossToNetwork.localStorageName,
-              transaction,
-            )
+            await this.$services.TransactionService.saveTransaction({
+              ...transaction,
+              accountAddress: data.receiverAddress,
+            })
           }
 
           data.$emit('newTransaction', transaction)
