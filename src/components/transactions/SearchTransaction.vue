@@ -112,8 +112,6 @@ import { store } from '@/store.js'
 import TransactionRow from './TransactionRow.vue'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 
-import { TXN_Storage } from '@/utils'
-
 export default {
   name: 'TransactionList',
   components: {
@@ -122,6 +120,7 @@ export default {
     Field,
     ErrorMessage,
   },
+  inject: ['$services'],
   props: {
     typesLimits: {
       type: Array,
@@ -160,13 +159,6 @@ export default {
       searchedTransaction: false,
       isSearching: false,
       transaction: null,
-    }
-  },
-  created() {
-    if (TXN_Storage.isStorageAvailable('localStorage')) {
-      console.log(`Local Storage Available!`)
-    } else {
-      console.log(`Local Storage Unavailable!`)
     }
   },
   methods: {
@@ -213,10 +205,10 @@ export default {
 
       const token = data.sharedState.tokens.find(x => {
         return (
-          x[data.selectedNetwork.networkId].address.toLowerCase() ==
+          x[data.selectedNetwork.networkId].address.toLowerCase() ===
             decodedEvent._tokenAddress.toLowerCase() ||
           // When crossing back uses the original token address
-          x[data.selectedNetwork.crossToNetwork.networkId].address.toLowerCase() ==
+          x[data.selectedNetwork.crossToNetwork.networkId].address.toLowerCase() ===
             decodedEvent._tokenAddress.toLowerCase()
         )
       })
@@ -237,24 +229,22 @@ export default {
         ...receipt,
       }
 
-      if (data.sharedState.accountAddress?.toLowerCase() == decodedEvent._from.toLowerCase()) {
+      if (data.sharedState.accountAddress?.toLowerCase() === decodedEvent._from.toLowerCase()) {
         // save transaction for sender ...
-        TXN_Storage.addOrUpdateTxn(
-          decodedEvent._from,
-          data.selectedNetwork.localStorageName,
-          transaction,
-        )
+        await this.$services.TransactionService.saveTransaction({
+          ...transaction,
+          accountAddress: decodedEvent._from,
+        })
       }
       if (
-        decodedEvent._from.toLowerCase() != decodedEvent._to.toLowerCase() &&
-        data.sharedState.accountAddress?.toLowerCase() == decodedEvent._to.toLowerCase()
+        decodedEvent._from.toLowerCase() !== decodedEvent._to.toLowerCase() &&
+        data.sharedState.accountAddress?.toLowerCase() === decodedEvent._to.toLowerCase()
       ) {
         // save transaction for receiver ...
-        TXN_Storage.addOrUpdateTxn(
-          decodedEvent._to,
-          data.selectedNetwork.crossToNetwork.localStorageName,
-          transaction,
-        )
+        await this.$services.TransactionService.saveTransaction({
+          ...transaction,
+          accountAddress: decodedEvent._to,
+        })
       }
       data.transaction = transaction
       data.searchedTransaction = true

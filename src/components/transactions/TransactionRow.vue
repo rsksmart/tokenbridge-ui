@@ -21,17 +21,17 @@
       </a>
     </td>
     <td>
-      <div v-if="currentStep == steps.Pending">
+      <div v-if="currentStep === steps.Pending">
         <span class="pending">
           Pending {{ currentConfirmations }}/{{ neededConfirmations }} blocks
           <br />
           ~ {{ estimatedTime }}
         </span>
       </div>
-      <div v-else-if="currentStep == steps.Voting">
+      <div v-else-if="currentStep === steps.Voting">
         <span class="pending"> Voting ~ {{ estimatedTime }} </span>
       </div>
-      <div v-else-if="currentStep == steps.ToClaim">
+      <div v-else-if="currentStep === steps.ToClaim">
         <div v-if="!loading" class="to-claim">
           <button class="btn btn-primary claim" @click="claimClick">Claim</button>
         </div>
@@ -40,7 +40,7 @@
           <span class="sr-only">Loading...</span>
         </div>
       </div>
-      <div v-else-if="currentStep == steps.Claimed">
+      <div v-else-if="currentStep === steps.Claimed">
         <span class="confirmed claimed">Claimed</span>
       </div>
     </td>
@@ -101,7 +101,6 @@ import {
   sanitizeTxHash,
   retry3Times,
   NULL_HASH,
-  TXN_Storage,
 } from '@/utils'
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
@@ -112,6 +111,7 @@ export default {
   components: {
     Modal,
   },
+  inject: ['$services'],
   props: {
     transaction: {
       type: Object,
@@ -142,13 +142,6 @@ export default {
       required: true,
     },
   },
-  setup() {
-    if (TXN_Storage.isStorageAvailable('localStorage')) {
-      console.log(`Local Storage Available!`)
-    } else {
-      console.log(`Local Storage Unavailable!`)
-    }
-  },
   data() {
     return {
       sharedState: store.state,
@@ -169,7 +162,7 @@ export default {
   },
   computed: {
     fromNetwork() {
-      return this.transaction.networkId == this.sharedState.rskConfig.networkId
+      return this.transaction.networkId === this.sharedState.rskConfig.networkId
         ? this.sharedState.rskConfig
         : this.sharedState.ethConfig
     },
@@ -184,20 +177,20 @@ export default {
       return `${this.fromNetwork.explorer}/tx/${this.transaction.transactionHash}`
     },
     isSenderNetwork() {
-      return this.fromNetwork.networkId == this.sharedState.currentConfig?.networkId
+      return this.fromNetwork.networkId === this.sharedState.currentConfig?.networkId
     },
     isReceiverNetwork() {
-      return this.toNetwork.networkId == this.sharedState.currentConfig?.networkId
+      return this.toNetwork.networkId === this.sharedState.currentConfig?.networkId
     },
     isSenderAddress() {
       return (
-        this.transaction.senderAddress?.toLowerCase() ==
+        this.transaction.senderAddress?.toLowerCase() ===
           this.sharedState.accountAddress?.toLowerCase() && this.isSenderNetwork
       )
     },
     isReceiverAddress() {
       return (
-        this.transaction.receiverAddress?.toLowerCase() ==
+        this.transaction.receiverAddress?.toLowerCase() ===
           this.sharedState.accountAddress?.toLowerCase() && this.isReceiverNetwork
       )
     },
@@ -223,10 +216,13 @@ export default {
     },
     token() {
       return this.sharedState.tokens.find(
-        x => x[this.transaction.networkId].symbol == this.transaction.tokenFrom,
+        x => x[this.transaction.networkId].symbol === this.transaction.tokenFrom,
       )
     },
     neededConfirmations() {
+      if (!this.token) {
+        return false
+      }
       const limits = this.typesLimits[this.token.typeId]
       const confirmations = this.fromNetwork.isRsk ? this.rskConfirmations : this.ethConfirmations
       let amount = this.transaction.amount
@@ -268,7 +264,7 @@ export default {
     async refreshStep() {
       const data = this
       if (data.currentStep >= data.steps.ToClaim) return
-      if (data.currentStep == data.steps.Pending) {
+      if (data.currentStep === data.steps.Pending) {
         const currentConfirmations = data.latestBlock - data.transaction.blockNumber
         const blockDiff = data.neededConfirmations - currentConfirmations
         if (blockDiff > 0) {
@@ -311,24 +307,16 @@ export default {
         data.txDataHash = await retry3Times(
           bridgeContract.methods.transactionsDataHashes(data.transaction.transactionHash).call,
         )
-        if (data.txDataHash != NULL_HASH) {
+        if (data.txDataHash !== NULL_HASH) {
           data.estimatedTime = ''
           const claimed = await retry3Times(bridgeContract.methods.claimed(data.txDataHash).call)
           if (claimed) {
             data.currentStep = data.steps.Claimed
-            if (data.isSenderAddress) {
-              TXN_Storage.addOrUpdateTxn(
-                data.sharedState.accountAddress,
-                data.fromNetwork.localStorageName,
-                { currentStep: data.currentStep, ...data.transaction },
-              )
-            } else if (data.isReceiverAddress) {
-              TXN_Storage.addOrUpdateTxn(
-                data.sharedState.accountAddress,
-                data.toNetwork.localStorageName,
-                { currentStep: data.currentStep, ...data.transaction },
-              )
-            }
+            await this.$services.TransactionService.saveTransaction({
+              accountAddress: data.sharedState.accountAddress,
+              currentStep: data.currentStep,
+              ...data.transaction,
+            })
           } else {
             data.currentStep = data.steps.ToClaim
           }
@@ -406,13 +394,13 @@ export default {
         data.showConnectionProblemModal = true
         return
       }
-      if (sharedState.currentConfig.networkId != this.toNetwork.networkId) {
+      if (sharedState.currentConfig.networkId !== this.toNetwork.networkId) {
         data.connectionProblem = `Wrong network. To claim this tokens you need to connect your wallet to ${data.toNetwork.name}`
         data.showConnectionProblemModal = true
         return
       }
       if (
-        sharedState.accountAddress.toLowerCase() == data.transaction.receiverAddress.toLowerCase()
+        sharedState.accountAddress.toLowerCase() === data.transaction.receiverAddress.toLowerCase()
       ) {
         await this.claim()
       } else {
