@@ -28,7 +28,7 @@ import { store } from '@/store.js'
 import TransactionList from './TransactionList.vue'
 import SearchTransaction from './SearchTransaction.vue'
 
-import { TXN_Storage, retry3Times } from '@/utils'
+import { retry3Times } from '@/utils'
 
 export default {
   name: 'Transactions',
@@ -36,6 +36,7 @@ export default {
     SearchTransaction,
     TransactionList,
   },
+  inject: ['$services'],
   props: {
     typesLimits: {
       type: Array,
@@ -86,11 +87,6 @@ export default {
     },
   },
   created() {
-    if (TXN_Storage.isStorageAvailable('localStorage')) {
-      console.log(`Local Storage Available!`)
-    } else {
-      console.log(`Local Storage Unavailable!`)
-    }
     this.refreshBlockNumber()
 
     this.pollingBlockNumber = setInterval(
@@ -119,33 +115,28 @@ export default {
         })
       }
     },
-    refreshTransactions() {
+    async refreshTransactions() {
       if (!this.sharedState.accountAddress) {
         this.transactions = []
         return
       }
-      // Bring transactions from version 1
-      // we will remove this after some time running version 2
-      let activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(
+      /**
+       * Synchronize transactions from localstorage
+       * TODO: consider removing for later versions
+       */
+      await this.$services.TransactionService.synchronizeTransactions(
         this.sharedState.accountAddress,
         this.sharedState.rskConfig.localStorageName,
       )
-      activeAddressRsk2EthTxns = activeAddressRsk2EthTxns.map(x => {
-        x.senderAddress = x.senderAddress ? x.senderAddress : x.from
-        x.receiverAddress = x.receiverAddress ? x.receiverAddress : this.sharedState.accountAddress
-        return x
-      })
-      let activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(
+      await this.$services.TransactionService.synchronizeTransactions(
         this.sharedState.accountAddress,
         this.sharedState.ethConfig.localStorageName,
       )
-      activeAddressEth2RskTxns = activeAddressEth2RskTxns.map(x => {
-        x.senderAddress = x.senderAddress ? x.senderAddress : x.from
-        x.receiverAddress = x.receiverAddress ? x.receiverAddress : this.sharedState.accountAddress
-        return x
-      })
-      const allTransactions = activeAddressRsk2EthTxns.concat(activeAddressEth2RskTxns)
-      this.transactions = allTransactions.sort(x => x.timestamp).reverse() // sort decsending
+      /* Synchronization end */
+
+      this.transactions = await this.$services.TransactionService.getTransactions(
+        this.sharedState.accountAddress,
+      )
     },
   },
 }
