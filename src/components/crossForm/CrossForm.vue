@@ -629,7 +629,10 @@ export default {
             })
           }
 
-          data.$emit('newTransaction', transaction)
+          data.$emit('newTransaction', {
+            ...transaction,
+            accountAddress: data.sharedState.accountAddress,
+          })
           data.resetForm()
         })
         .catch(err => {

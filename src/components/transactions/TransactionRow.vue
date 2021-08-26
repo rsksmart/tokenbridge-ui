@@ -11,6 +11,9 @@
       <a :href="transactionHashExplorerUrl" target="_blank">
         {{ formattedTransactionHash }}
       </a>
+      <a href="#" class="ml-2" @click="copyTransactionHash">
+        <small>{{ copyMessage }}</small>
+      </a>
     </td>
     <td>{{ transaction.blockNumber }}</td>
     <td>{{ amountAndSymbol }}</td>
@@ -97,18 +100,13 @@
 import BigNumber from 'bignumber.js'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
-import {
-  wrappedFormat,
-  blocksToTime,
-  waitForReceipt,
-  sanitizeTxHash,
-  retry3Times,
-  NULL_HASH,
-} from '@/utils'
+import { wrappedFormat, blocksToTime, sanitizeTxHash, retry3Times, NULL_HASH } from '@/utils'
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { CROSSING_STEPS } from '@/constants/enums.js'
 import VotingInfo from './VotingInfo.vue'
+import { claim } from '@/modules/transactions/transactions.actions'
+import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 
 export default {
   name: 'TransactionRow',
@@ -167,6 +165,7 @@ export default {
       showConnectionProblemModal: false,
       connectionProblem: '',
       showMismatchAddressModal: false,
+      copyMessage: 'Copy',
     }
   },
   computed: {
@@ -228,7 +227,7 @@ export default {
     },
     token() {
       return this.sharedState.tokens.find(
-        x => x[this.transaction.networkId].symbol === this.transaction.tokenFrom,
+        x => x[this.transaction.networkId]?.symbol === this.transaction.tokenFrom,
       )
     },
     neededConfirmations() {
@@ -280,6 +279,20 @@ export default {
     this.refreshStep()
   },
   methods: {
+    async copyTransactionHash(event) {
+      event.preventDefault()
+      await navigator.clipboard.writeText(this.transaction.transactionHash)
+      this.copyMessage = 'Copied'
+      setTimeout(() => {
+        this.copyMessage = 'Copy'
+      }, 1000)
+    },
+    txExplorerLinkTag(txHash) {
+      const sanitizedTxHash = sanitizeTxHash(txHash)
+      return txHash
+        ? `<a target="_blank" href="${this.sharedState.currentConfig.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
+        : ''
+    },
     async refreshStep() {
       const data = this
       if (data.currentStep >= data.steps.ToClaim) return
@@ -304,7 +317,7 @@ export default {
         data.currentStep = data.steps.Claimed
         data.estimatedTime = ''
         return
-      } else if (data.currentStep == data.steps.Voting && data.txDataHash == NULL_HASH) {
+      } else if (data.currentStep === data.steps.Voting && data.txDataHash === NULL_HASH) {
         // V2 Protocol
         data.txDataHash = await retry3Times(
           bridgeContract.methods.transactionsDataHashes(data.transaction.transactionHash).call,
@@ -323,6 +336,12 @@ export default {
             data.currentStep = data.steps.ToClaim
           }
         }
+      }
+      if (data.currentStep !== data.transaction.currentStep) {
+        await this.$services.TransactionService.saveTransaction({
+          ...data.transaction,
+          currentStep: data.currentStep,
+        })
       }
     },
     async claim() {
@@ -344,49 +363,36 @@ export default {
         event.topics,
       )
       const gasPrice = await store.getGasPriceHex()
-      const bridgeContract = new sharedState.web3.eth.Contract(BRIDGE_ABI, data.toNetwork.bridge)
 
-      return new Promise((resolve, reject) => {
-        bridgeContract.methods
-          .claim({
+      try {
+        const receiptResponse = await claim(
+          { config: data.toNetwork, web3: sharedState.web3 },
+          {
             to: decodedEvent._to,
             amount: decodedEvent._amount,
             blockHash: event.blockHash,
             transactionHash: event.transactionHash,
             logIndex: event.logIndex,
-          })
-          .send(
-            { from: sharedState.accountAddress, gasPrice: gasPrice, gas: 250_000 },
-            async (err, txHash) => {
-              data.claimTxHash = txHash
-              if (err) {
-                return reject(new Error(`Execution failed ${err.message}`))
-              }
-              try {
-                const receipt = await waitForReceipt(txHash, data.web3)
-                if (receipt.status) {
-                  return resolve(receipt)
-                } else {
-                  return reject(new Error(`Transaction status failed ${err.message}`))
-                }
-              } catch (error) {
-                return reject(new Error(`Unexpected error ${err.message}`))
-              }
-            },
-          )
-      })
-        .then(() => {
+            txExplorerLink: data.txExplorerLinkTag,
+          },
+          { from: sharedState.accountAddress, gasPrice: gasPrice, gas: ESTIMATED_GAS_AVG },
+        )
+        if (receiptResponse) {
           data.currentStep = data.steps.Claimed
           data.loading = false
           data.error = ''
           data.showResultModal = true
-        })
-        .catch(err => {
-          data.loading = false
-          data.error = err.message
-          data.showResultModal = true
-          console.error(err)
-        })
+          await this.$services.TransactionService.saveTransaction({
+            ...data.transaction,
+            currentStep: data.currentStep,
+          })
+        }
+      } catch (error) {
+        data.loading = false
+        data.error = error.message
+        data.showResultModal = true
+        console.error(error)
+      }
     },
     async claimClick() {
       const data = this
