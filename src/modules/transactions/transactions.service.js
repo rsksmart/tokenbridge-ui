@@ -23,8 +23,9 @@ export class TransactionService {
     if (!transaction.transactionHash) {
       return {}
     }
+    const fixedTransactionStructure = JSON.parse(JSON.stringify(transaction))
     try {
-      const transactionSaved = await dbInstance.transactions.put(transaction)
+      const transactionSaved = await dbInstance.transactions.put(fixedTransactionStructure)
       if (!transactionSaved || !transactionSaved.transactionHash) {
         return {}
       }
@@ -36,10 +37,23 @@ export class TransactionService {
     }
   }
 
-  getTransactions(accountAddress) {
-    return dbInstance.transactions
+  async getTransactions(accountAddress, { limit, offset }) {
+    const totalTransactions = await dbInstance.transactions.where({ accountAddress }).count()
+    const data = await dbInstance.transactions
       .where({ accountAddress })
+      .filter(transaction => transaction.senderAddress && transaction.receiverAddress)
+      .offset(offset)
+      .limit(limit)
       .reverse()
       .sortBy('timestamp')
+
+    return {
+      info: {
+        total: totalTransactions,
+        limit,
+        offset,
+      },
+      data,
+    }
   }
 }

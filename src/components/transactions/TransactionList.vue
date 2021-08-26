@@ -8,11 +8,29 @@
     <div v-if="!sharedState.isConnected">
       <h5 class="subtitle">No active account, please connect your wallet</h5>
     </div>
-    <div v-else-if="transactions.length == 0">
+    <div v-else-if="transactions.length === 0">
       <h5 class="subtitle">No transactions found for the active account</h5>
     </div>
     <div v-else>
       <table class="table">
+        <caption>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>
+              Page {{ currentPage }} of {{ totalPages }} | Showing {{ recordsOnPage }} of
+              {{ totalTransactions }} records
+            </span>
+            <select
+              v-model="limitSelect"
+              class="form-select px-4 py-2 border rounded-2 bg-light fw-bold"
+              aria-label="Number of records on page"
+              @change="changeLimit($event)"
+            >
+              <option :value="10" selected>10</option>
+              <option :value="20">20</option>
+              <option :value="30">30</option>
+            </select>
+          </div>
+        </caption>
         <thead>
           <tr>
             <th scope="col">Action</th>
@@ -42,11 +60,25 @@
         </tbody>
       </table>
       <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-          <button id="txn-previous" type="button" class="btn btn-secondary">
+        <div class="btn-group mr-2 btn-group-sm" role="group" aria-label="First group">
+          <button
+            id="txn-previous"
+            type="button"
+            class="btn btn-outline-primary"
+            :disabled="currentPage === 1"
+            @click="previousPage"
+          >
             &lt; previous
           </button>
-          <button id="txn-next" type="button" class="btn btn-secondary">next ></button>
+          <button
+            id="txn-next"
+            type="button"
+            class="btn btn-outline-primary"
+            :disabled="currentPage === totalPages"
+            @click="nextPage"
+          >
+            next >
+          </button>
         </div>
       </div>
     </div>
@@ -99,11 +131,52 @@ export default {
       type: Number,
       required: true,
     },
+    limit: {
+      type: Number,
+      default: 10,
+    },
+    totalTransactions: {
+      type: Number,
+      default: 0,
+    },
   },
+  emits: ['changePagination', 'changeLimit'],
   data() {
     return {
       sharedState: store.state,
+      offset: 0,
+      limitSelect: 10,
     }
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.totalTransactions / this.limit)
+    },
+    currentPage() {
+      return Math.round(this.offset / this.limit) + 1
+    },
+    recordsOnPage() {
+      return this.transactions.length
+    },
+  },
+  methods: {
+    changeLimit(event) {
+      this.$emit('changeLimit', parseInt(event.target.value, 10))
+    },
+    nextPage() {
+      this.offset += this.limit
+      if (this.offset > this.totalTransactions) {
+        this.offset -= this.limit
+      }
+      this.$emit('changePagination', { limit: this.limit, offset: this.offset })
+    },
+    previousPage() {
+      this.offset -= this.limit
+      if (this.offset <= 0) {
+        this.offset = 0
+      }
+      this.$emit('changePagination', { limit: this.limit, offset: this.offset })
+    },
   },
 }
 </script>
