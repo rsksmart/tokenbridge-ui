@@ -60,7 +60,7 @@ const transactionCallback = (web3, txExplorerLink, { resolve, reject }) => async
  * @param {TransactionObject} transactionObject
  * @returns {Promise<unknown>}
  */
-const receiveTokensTo = (
+export const receiveTokensTo = (
   { config, web3 },
   { address, receiverAddress, amountWithDecimals, txExplorerLink },
   transactionObject,
@@ -72,7 +72,11 @@ const receiveTokensTo = (
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 
-const depositTo = ({ config, web3 }, { receiverAddress, txExplorerLink }, transactionObject) =>
+export const depositTo = (
+  { config, web3 },
+  { receiverAddress, txExplorerLink },
+  transactionObject,
+) =>
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
     bridgeContract.methods
@@ -80,6 +84,17 @@ const depositTo = ({ config, web3 }, { receiverAddress, txExplorerLink }, transa
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 
+export const claim = (
+  { config, web3 },
+  { to, amount, blockHash, transactionHash, logIndex, txExplorerLink },
+  transactionObject,
+) =>
+  new Promise((resolve, reject) => {
+    const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
+    bridgeContract.methods
+      .claim({ to, amount, blockHash, transactionHash, logIndex })
+      .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
+  })
 /**
  * CrossToken Call
  * @param {Web3} web3
