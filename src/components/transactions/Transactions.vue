@@ -19,6 +19,10 @@
       :transactions="transactions"
       :rsk-block-number="rskBlockNumber"
       :eth-block-number="ethBlockNumber"
+      :limit="limit"
+      :total-transactions="totalTransactions"
+      @changePagination="changePagination"
+      @changeLimit="changeLimit"
     />
   </div>
 </template>
@@ -70,6 +74,8 @@ export default {
       rskBlockNumber: 0,
       ethBlockNumber: 0,
       pollingBlockNumber: null,
+      limit: 10,
+      totalTransactions: 0,
     }
   },
   computed: {
@@ -79,11 +85,11 @@ export default {
   },
   watch: {
     accountConnected() {
-      this.refreshTransactions()
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
     newTransaction() {
       if (!this.newTransaction) return
-      this.transactions.unshift(this.newTransaction)
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
   },
   created() {
@@ -115,7 +121,14 @@ export default {
         })
       }
     },
-    async refreshTransactions() {
+    changePagination({ limit, offset }) {
+      this.refreshTransactions({ limit, offset })
+    },
+    changeLimit(selectedLimit) {
+      this.limit = selectedLimit
+      this.refreshTransactions({ limit: selectedLimit, offset: 0 })
+    },
+    async refreshTransactions({ limit, offset }) {
       if (!this.sharedState.accountAddress) {
         this.transactions = []
         return
@@ -134,9 +147,15 @@ export default {
       )
       /* Synchronization end */
 
-      this.transactions = await this.$services.TransactionService.getTransactions(
-        this.sharedState.accountAddress,
-      )
+      const {
+        info: { total },
+        data,
+      } = await this.$services.TransactionService.getTransactions(this.sharedState.accountAddress, {
+        limit,
+        offset,
+      })
+      this.transactions = data
+      this.totalTransactions = total
     },
   },
 }
