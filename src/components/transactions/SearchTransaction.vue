@@ -111,7 +111,7 @@ import BigNumber from 'bignumber.js'
 
 import { store } from '@/store.js'
 import TransactionRow from './TransactionRow.vue'
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import { decodeCrossEvent } from '@/utils/decodeEvents'
 
 import { TXN_Storage } from '@/utils'
 
@@ -196,9 +196,8 @@ export default {
         data.isSearching = false
         return
       }
-      const block = await originWeb3.eth.getBlock(receipt.blockNumber)
-      const eventJsonInterface = BRIDGE_ABI.find(x => x.name === 'Cross' && x.type === 'event')
-      if (!eventJsonInterface) {
+      const { event, decodedEvent } = decodeCrossEvent(originWeb3, receipt)
+      if (!event) {
         data.isCrossTransaction = false
         data.searchedTransaction = true
         data.transaction = null
@@ -207,14 +206,6 @@ export default {
       } else {
         data.isCrossTransaction = true
       }
-      const eventSignature = originWeb3.eth.abi.encodeEventSignature(eventJsonInterface)
-      const event = receipt.logs.find(x => x.topics[0] === eventSignature)
-      event.topics.shift()
-      const decodedEvent = originWeb3.eth.abi.decodeLog(
-        eventJsonInterface.inputs,
-        event.data,
-        event.topics,
-      )
 
       const token = data.sharedState.tokens.find(x => {
         return (
@@ -227,6 +218,7 @@ export default {
       })
       const tokenFromNetwork = token[data.selectedNetwork.networkId]
       const tokenToNetwork = token[data.selectedNetwork.crossToNetwork.networkId]
+      const block = await originWeb3.eth.getBlock(receipt.blockNumber)
 
       const transaction = {
         type: 'Cross',

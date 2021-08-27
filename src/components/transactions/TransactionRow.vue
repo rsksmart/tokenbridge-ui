@@ -31,12 +31,7 @@
       <div v-else-if="currentStep == steps.Voting">
         <span class="pending">
           Voting ~ {{ estimatedTime }}
-          <VotingInfo
-            :fed-members="fedMembers"
-            :tx-data-hash="txDataHash"
-            :federation-address="toNetwork.federation"
-            :web3="web3"
-          />
+          <VotingInfo :fed-members="fedMembers" :transaction="transaction" />
         </span>
       </div>
       <div v-else-if="currentStep == steps.ToClaim">
