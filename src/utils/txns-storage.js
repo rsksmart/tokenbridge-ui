@@ -1,3 +1,7 @@
+/**
+ * It's used only for migration, considered delete on next version
+ * @deprecated
+ */
 export class TXN_Storage {
   static Storage
 
@@ -69,7 +73,7 @@ export class TXN_Storage {
   }
 
   static crateStorageKey(accountAddress, networkName) {
-    return `${accountAddress}-${networkName.replace(' ', '-')}`
+    return `${accountAddress}-${networkName.replace(' ', '-')}`.toLowerCase()
   }
 
   static serializeTxns(key, transactions = []) {
