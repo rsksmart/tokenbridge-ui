@@ -29,7 +29,15 @@
         </span>
       </div>
       <div v-else-if="currentStep == steps.Voting">
-        <span class="pending"> Voting ~ {{ estimatedTime }} </span>
+        <span class="pending">
+          Voting ~ {{ estimatedTime }}
+          <VotingInfo
+            :fed-members="fedMembers"
+            :tx-data-hash="txDataHash"
+            :federation-address="toNetwork.federation"
+            :web3="web3"
+          />
+        </span>
       </div>
       <div v-else-if="currentStep == steps.ToClaim">
         <div v-if="!loading" class="to-claim">
@@ -106,11 +114,13 @@ import {
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { CROSSING_STEPS } from '@/constants/enums.js'
+import VotingInfo from './VotingInfo.vue'
 
 export default {
   name: 'TransactionRow',
   components: {
     Modal,
+    VotingInfo,
   },
   props: {
     transaction: {
@@ -137,8 +147,12 @@ export default {
       type: Number,
       required: true,
     },
-    fedMembersLen: {
-      type: Number,
+    rskFedMembers: {
+      type: Array,
+      required: true,
+    },
+    ethFedMembers: {
+      type: Array,
       required: true,
     },
   },
@@ -221,6 +235,9 @@ export default {
     latestBlock() {
       return this.fromNetwork.isRsk ? this.rskBlockNumber : this.ethBlockNumber
     },
+    fedMembers() {
+      return this.fromNetwork.isRsk ? this.rskFedMembers : this.ethFedMembers
+    },
     token() {
       return this.sharedState.tokens.find(
         x => x[this.transaction.networkId].symbol == this.transaction.tokenFrom,
@@ -291,23 +308,6 @@ export default {
         return
       } else if (data.currentStep == data.steps.Voting && data.txDataHash == NULL_HASH) {
         // V2 Protocol
-
-        // TODO get the votation count and show it to the user
-        // if (data.currentStep == data.steps.Voting) {
-        //   const federationContract = new data.web3.eth.Contract(
-        //     FEDERATION_ABI,
-        //     data.toNetwork.federation,
-        //   )
-        //   data.votesCount = await federationContract.methods.getTransactionCount(hash).call()
-        //   if (data.votesCount < data.fedMembersLen) {
-        //     data.currentStep = data.steps.Voting
-        //     data.estimatedTime = '2 minutes'
-        //   } else {
-        //     data.currentStep = data.steps.ToClaim
-        //     data.estimatedTime = ''
-        //   }
-        // }
-
         data.txDataHash = await retry3Times(
           bridgeContract.methods.transactionsDataHashes(data.transaction.transactionHash).call,
         )

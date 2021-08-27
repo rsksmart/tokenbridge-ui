@@ -96,7 +96,8 @@
             :eth-confirmations="ethConfirmations"
             :rsk-block-number="rskBlockNumber"
             :eth-block-number="ethBlockNumber"
-            :fed-members-len="fedMembersLen"
+            :rsk-fed-members="rskFedMembers"
+            :eth-fed-members="ethFedMembers"
           />
         </tbody>
       </table>
@@ -135,8 +136,12 @@ export default {
       type: Object,
       required: true,
     },
-    fedMembersLen: {
-      type: Number,
+    rskFedMembers: {
+      type: Array,
+      required: true,
+    },
+    ethFedMembers: {
+      type: Array,
       required: true,
     },
     newTransaction: {

@@ -17,7 +17,8 @@
           :types-limits="typesLimits"
           :rsk-confirmations="rskConfirmations"
           :eth-confirmations="ethConfirmations"
-          :fed-members-len="rskFedMembers.length"
+          :rsk-fed-members="rskFedMembers"
+          :eth-fed-members="ethFedMembers"
           :new-transaction="newTransaction"
         />
 
