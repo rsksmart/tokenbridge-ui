@@ -189,7 +189,7 @@
       <div class="col-sm-12 col-md-5 border note-container px-4 py-2 bg-light text-center">
         <strong class="fw-bold d-block">Important!</strong>
         <span>
-          You'll need <strong>{{ claimCost }} ETH</strong> to claim the tokens
+          You'll need <strong>{{ claimCost }}</strong> to claim the tokens
         </span>
       </div>
     </div>
@@ -673,7 +673,7 @@ export default {
       const web3 = isRsk ? this.sharedState.ethWeb3 : this.sharedState.rskWeb3
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
-        this.claimCost = costInWei.shiftedBy(-18).toString()
+        this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${isRsk ? 'ETH' : 'RBTC'}`
       })
     },
   },
