@@ -37,10 +37,15 @@ export class TransactionService {
     }
   }
 
-  async getTransactions(accountAddress, { limit, offset }) {
-    const totalTransactions = await dbInstance.transactions.where({ accountAddress }).count()
+  async getTransactions(accountAddress, networkIds, { limit, offset }) {
+    const addressNetworksCombination = networkIds.map(networkId => [accountAddress, networkId])
+    const totalTransactions = await dbInstance.transactions
+      .where(['accountAddress', 'networkId'])
+      .anyOf(addressNetworksCombination)
+      .count()
     const data = await dbInstance.transactions
-      .where({ accountAddress })
+      .where(['accountAddress', 'networkId'])
+      .anyOf(addressNetworksCombination)
       .filter(transaction => transaction.senderAddress && transaction.receiverAddress)
       .offset(offset)
       .limit(limit)
