@@ -34,14 +34,14 @@
         <thead>
           <tr>
             <th scope="col">Action</th>
-            <th scope="col">From</th>
+            <th scope="col" width="12%">From</th>
             <th scope="col">Sender</th>
             <th scope="col">Txn hash</th>
             <th scope="col">Block number</th>
-            <th scope="col">Amount</th>
-            <th scope="col">To</th>
+            <th scope="col" width="13%">Amount</th>
+            <th scope="col" width="12%">To</th>
             <th scope="col">Receiver</th>
-            <th scope="col">Status | Estimated time</th>
+            <th scope="col" width="15%">Status</th>
           </tr>
         </thead>
         <tbody id="eth-rsk-tbody">
