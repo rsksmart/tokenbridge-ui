@@ -12,7 +12,7 @@
         {{ formattedTransactionHash }}
       </a>
       <a href="#" class="ml-2" @click="copyTransactionHash">
-        <small>{{ copyMessage }}</small>
+        <i :class="copyIcon"></i>
       </a>
     </td>
     <td>{{ transaction.blockNumber }}</td>
@@ -107,6 +107,7 @@ import { CROSSING_STEPS } from '@/constants/enums.js'
 import VotingInfo from './VotingInfo.vue'
 import { claim } from '@/modules/transactions/transactions.actions'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
+const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
 export default {
   name: 'TransactionRow',
@@ -165,7 +166,7 @@ export default {
       showConnectionProblemModal: false,
       connectionProblem: '',
       showMismatchAddressModal: false,
-      copyMessage: 'Copy',
+      copyIcon: DEFAULT_COPY_ICON,
     }
   },
   computed: {
@@ -282,9 +283,9 @@ export default {
     async copyTransactionHash(event) {
       event.preventDefault()
       await navigator.clipboard.writeText(this.transaction.transactionHash)
-      this.copyMessage = 'Copied'
+      this.copyIcon = 'fas fa-clipboard-check'
       setTimeout(() => {
-        this.copyMessage = 'Copy'
+        this.copyIcon = DEFAULT_COPY_ICON
       }, 1000)
     },
     txExplorerLinkTag(txHash) {
