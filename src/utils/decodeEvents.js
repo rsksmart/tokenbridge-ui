@@ -1,10 +1,20 @@
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import BRIDGE_ABI_V2 from '@/constants/abis/bridge.json'
+import BRIDGE_ABI_V1 from '@/constants/abis/bridge_v1.json'
+import BRIDGE_ABI_V0 from '@/constants/abis/bridge_v0.json'
 
 export function decodeCrossEvent(web3, receipt) {
-  const eventJsonInterface = BRIDGE_ABI.find(x => x.name === 'Cross' && x.type === 'event')
+  let result = getEventForAbi(web3, receipt, BRIDGE_ABI_V2, 'Cross')
+  if (result) return result
+  result = getEventForAbi(web3, receipt, BRIDGE_ABI_V1, 'Cross')
+  if (result) return result
+  result = getEventForAbi(web3, receipt, BRIDGE_ABI_V0, 'Cross')
+  return result
+}
+
+export function getEventForAbi(web3, receipt, abi, eventName) {
+  let eventJsonInterface = abi.find(x => x.name === eventName && x.type === 'event')
   if (!eventJsonInterface) {
-    // Older version event
-    return null
+    return null // can't fin the event
   }
 
   const eventSignature = web3.eth.abi.encodeEventSignature(eventJsonInterface)

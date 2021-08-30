@@ -196,17 +196,19 @@ export default {
         data.isSearching = false
         return
       }
-      const { event, decodedEvent } = decodeCrossEvent(originWeb3, receipt)
-      if (!event) {
+      const result = decodeCrossEvent(originWeb3, receipt)
+      if (!result) {
         data.isCrossTransaction = false
         data.searchedTransaction = true
-        data.transaction = null
+        data.transaction = receipt
         data.isSearching = false
         return
       } else {
         data.isCrossTransaction = true
       }
-
+      const decodedEvent = result.decodedEvent
+      // decodedEvent._from did not existed on events of previous versions
+      decodedEvent._from = decodedEvent._from ?? decodedEvent._to
       const token = data.sharedState.tokens.find(x => {
         return (
           x[data.selectedNetwork.networkId].address.toLowerCase() ==
