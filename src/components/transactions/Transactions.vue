@@ -129,7 +129,10 @@ export default {
       this.refreshTransactions({ limit: selectedLimit, offset: 0 })
     },
     async refreshTransactions({ limit, offset }) {
-      if (!this.sharedState.accountAddress) {
+      const accountAddress = this.sharedState.accountAddress
+      const rskConfig = this.sharedState.rskConfig
+      const ethConfig = this.sharedState.ethConfig
+      if (!accountAddress) {
         this.transactions = []
         return
       }
@@ -138,22 +141,26 @@ export default {
        * TODO: consider removing for later versions
        */
       await this.$services.TransactionService.synchronizeTransactions(
-        this.sharedState.accountAddress,
-        this.sharedState.rskConfig.localStorageName,
+        accountAddress,
+        rskConfig.localStorageName,
       )
       await this.$services.TransactionService.synchronizeTransactions(
-        this.sharedState.accountAddress,
-        this.sharedState.ethConfig.localStorageName,
+        accountAddress,
+        ethConfig.localStorageName,
       )
       /* Synchronization end */
 
       const {
         info: { total },
         data,
-      } = await this.$services.TransactionService.getTransactions(this.sharedState.accountAddress, {
-        limit,
-        offset,
-      })
+      } = await this.$services.TransactionService.getTransactions(
+        accountAddress,
+        [rskConfig.networkId, ethConfig.networkId],
+        {
+          limit,
+          offset,
+        },
+      )
       this.transactions = data
       this.totalTransactions = total
     },
