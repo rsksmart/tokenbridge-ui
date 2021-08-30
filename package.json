@@ -14,6 +14,7 @@
     "prettier:autofix": "yarn prettier --write"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "@rsksmart/rlogin": "^1.0.9",
     "@walletconnect/web3-provider": "^1.4.1",
     "bignumber.js": "^9.0.1",
@@ -44,5 +45,8 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "engines": {
+    "node": "14"
+  }
 }
