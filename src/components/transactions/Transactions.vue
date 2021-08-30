@@ -4,7 +4,8 @@
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
       :eth-confirmations="ethConfirmations"
-      :fed-members-len="fedMembersLen"
+      :rsk-fed-members="rskFedMembers"
+      :eth-fed-members="ethFedMembers"
       :rsk-block-number="rskBlockNumber"
       :eth-block-number="ethBlockNumber"
     />
@@ -12,7 +13,8 @@
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
       :eth-confirmations="ethConfirmations"
-      :fed-members-len="fedMembersLen"
+      :rsk-fed-members="rskFedMembers"
+      :eth-fed-members="ethFedMembers"
       :new-transaction="newTransaction"
       :transactions="transactions"
       :rsk-block-number="rskBlockNumber"
@@ -47,8 +49,12 @@ export default {
       type: Object,
       required: true,
     },
-    fedMembersLen: {
-      type: Number,
+    rskFedMembers: {
+      type: Array,
+      required: true,
+    },
+    ethFedMembers: {
+      type: Array,
       required: true,
     },
     newTransaction: {
