@@ -62,7 +62,7 @@ export const RSK_MAINNET_CONFIG = {
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
   rpc: 'https://public-node.rsk.co',
-  v2UpdateBlock: 3642292,
+  v2UpdateBlock: 3540341,
   feePercentageDivider: 10_000,
   crossToNetwork: ETH_CONFIG,
   isRsk: true,

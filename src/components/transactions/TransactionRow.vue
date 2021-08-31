@@ -272,6 +272,13 @@ export default {
       if (!this.fromNetwork.isEth) return
       this.refreshStep()
     },
+    transaction() {
+      this.currentStep = this.transaction.currentStep || 0
+      this.txDataHash = NULL_HASH
+      this.loading = false
+      this.error = ''
+      this.refreshStep()
+    },
   },
   created() {
     this.refreshStep()
