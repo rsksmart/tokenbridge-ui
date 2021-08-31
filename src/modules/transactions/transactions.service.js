@@ -42,6 +42,7 @@ export class TransactionService {
     const totalTransactions = await dbInstance.transactions
       .where(['accountAddress', 'networkId'])
       .anyOf(addressNetworksCombination)
+      .filter(transaction => transaction.senderAddress && transaction.receiverAddress)
       .count()
     const data = await dbInstance.transactions
       .where(['accountAddress', 'networkId'])
