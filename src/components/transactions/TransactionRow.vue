@@ -311,7 +311,6 @@ export default {
           data.votesCount = 0
         }
       }
-
       const bridgeContract = new data.web3.eth.Contract(BRIDGE_ABI, data.toNetwork.bridge)
       if (data.transaction.blockNumber < data.fromNetwork.v2UpdateBlock) {
         // V1 Protocol
