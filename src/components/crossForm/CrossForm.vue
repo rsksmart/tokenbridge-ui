@@ -184,6 +184,14 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="offset-md-2 col-md-8 col-12">
+          <p v-if="destinationNetwork.isRsk" class="alert alert-warning" role="alert">
+            Binance is not taking deposits sent by a smart contract for RSK network, they only
+            accept deposits from an account
+          </p>
+        </div>
+      </div>
     </div>
     <div v-if="claimCost" class="row justify-content-center mb-4">
       <div class="col-sm-12 col-md-5 border note-container px-4 py-2 bg-light text-center">
@@ -597,8 +605,8 @@ export default {
 
       return crossToken(web3, config)(data.amount, token, store, {
         txExplorerLink: data.txExplorerLink,
-        accountAddress: data.sharedState.accountAddress,
-        receiverAddress,
+        accountAddress: data.sharedState.accountAddress.toLowerCase(),
+        receiverAddress: receiverAddress.toLowerCase(),
       })
         .then(async receipt => {
           data.showSpinner = false
@@ -616,23 +624,18 @@ export default {
             timestamp: Date.now(),
             ...receipt,
           }
-          // save transaction to local storage...
-          await this.$services.TransactionService.saveTransaction({
-            ...transaction,
-            accountAddress: data.sharedState.accountAddress,
-          })
+          const accountsAddresses = [data.sharedState.accountAddress.toLowerCase()]
           if (data.sharedState.accountAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
-            // save transaction for receiver ...
-            await this.$services.TransactionService.saveTransaction({
-              ...transaction,
-              accountAddress: data.receiverAddress,
-            })
+            accountsAddresses.push(receiverAddress.toLowerCase())
           }
-
-          data.$emit('newTransaction', {
+          // save transaction to local storage...
+          const newTransaction = {
             ...transaction,
-            accountAddress: data.sharedState.accountAddress,
-          })
+            accountsAddresses,
+          }
+          await this.$services.TransactionService.saveTransaction(newTransaction)
+
+          data.$emit('newTransaction', newTransaction)
           data.resetForm()
         })
         .catch(err => {
@@ -679,3 +682,10 @@ export default {
   },
 }
 </script>
+<style scoped>
+.alert {
+  font-size: 12px;
+  line-height: 14px;
+  margin-bottom: 0;
+}
+</style>
