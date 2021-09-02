@@ -90,8 +90,6 @@ export default {
   methods: {
     async copyTransactionHash(event, address, dataParam) {
       event.preventDefault()
-      console.log('address',address)
-      console.log('dataParam',dataParam)
       await navigator.clipboard.writeText(address)
       this[dataParam] = 'fas fa-clipboard-check'
       setTimeout(() => {

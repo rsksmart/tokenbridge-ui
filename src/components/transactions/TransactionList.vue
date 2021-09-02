@@ -115,10 +115,6 @@ export default {
       type: Array,
       required: true,
     },
-    newTransaction: {
-      type: Object,
-      default: null,
-    },
     transactions: {
       type: Array,
       required: true,
