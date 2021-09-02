@@ -77,6 +77,10 @@
           The receiver address {{ transaction.receiverAddress }} is not your currently connected
           account {{ sharedState.accountAddress }}
         </p>
+        <p v-if="toNetwork.isRsk" class="alert alert-warning" role="alert">
+          Binance is not taking deposits sent by a smart contract for RSK network, they only accept
+          deposits from an account
+        </p>
         <p class="font-weight-bold">
           Are you sure you want to claim the funds to {{ transaction.receiverAddress }} anyway?
         </p>
