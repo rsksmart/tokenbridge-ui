@@ -15,7 +15,6 @@
       :eth-confirmations="ethConfirmations"
       :rsk-fed-members="rskFedMembers"
       :eth-fed-members="ethFedMembers"
-      :new-transaction="newTransaction"
       :transactions="transactions"
       :rsk-block-number="rskBlockNumber"
       :eth-block-number="ethBlockNumber"
