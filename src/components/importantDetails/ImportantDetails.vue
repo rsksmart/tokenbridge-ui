@@ -24,33 +24,33 @@
           <th scope="row">Confirmations needed for small amounts</th>
           <td>
             {{ rskConfirmations?.smallAmount }} blocks (~ {{ rskConfirmations?.smallAmountTime }}) +
-            2 minutes voting
+            {{ votingTime }}
           </td>
           <td>
             {{ ethConfirmations?.smallAmount }} blocks (~ {{ ethConfirmations?.smallAmountTime }}) +
-            2 minutes voting
+            {{ votingTime }}
           </td>
         </tr>
         <tr>
           <th scope="row">Confirmations needed for medium amounts</th>
           <td>
             {{ rskConfirmations?.mediumAmount }} blocks (~ {{ rskConfirmations?.mediumAmountTime }})
-            + 2 minutes voting
+            + {{ votingTime }}
           </td>
           <td>
             {{ ethConfirmations?.mediumAmount }} blocks (~ {{ ethConfirmations?.mediumAmountTime }})
-            + 2 minutes voting
+            + {{ votingTime }}
           </td>
         </tr>
         <tr>
           <th scope="row">Confirmations needed for large amounts</th>
           <td>
             {{ rskConfirmations?.largeAmount }} blocks (~ {{ rskConfirmations?.largeAmountTime }}) +
-            2 minutes voting
+            {{ votingTime }}
           </td>
           <td>
             {{ ethConfirmations?.largeAmount }} blocks (~ {{ ethConfirmations?.largeAmountTime }}) +
-            2 minutes voting
+            {{ votingTime }}
           </td>
         </tr>
         <tr>
@@ -100,6 +100,9 @@ export default {
     }
   },
   computed: {
+    votingTime() {
+      return '3 minutes voting'
+    },
     rskFeeFormated() {
       return this.rskFee * 100 + '%'
     },
