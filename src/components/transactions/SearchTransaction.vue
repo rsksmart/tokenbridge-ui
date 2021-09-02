@@ -143,10 +143,6 @@ export default {
       type: Array,
       required: true,
     },
-    newTransaction: {
-      type: Object,
-      default: null,
-    },
     rskBlockNumber: {
       type: Number,
       required: true,
@@ -228,23 +224,17 @@ export default {
         ...receipt,
       }
 
-      if (data.sharedState.accountAddress?.toLowerCase() === decodedEvent._from.toLowerCase()) {
-        // save transaction for sender ...
-        await this.$services.TransactionService.saveTransaction({
-          ...transaction,
-          accountAddress: decodedEvent._from,
-        })
+      // save transaction ...
+      const accountsAddresses = [decodedEvent._from.toLowerCase()]
+      if (decodedEvent._from.toLowerCase() !== decodedEvent._to.toLowerCase()) {
+        accountsAddresses.push(decodedEvent._to.toLowerCase())
       }
-      if (
-        decodedEvent._from.toLowerCase() !== decodedEvent._to.toLowerCase() &&
-        data.sharedState.accountAddress?.toLowerCase() === decodedEvent._to.toLowerCase()
-      ) {
-        // save transaction for receiver ...
-        await this.$services.TransactionService.saveTransaction({
-          ...transaction,
-          accountAddress: decodedEvent._to,
-        })
+      // save transaction to local storage...
+      const newTransaction = {
+        ...transaction,
+        accountsAddresses,
       }
+      await this.$services.TransactionService.saveTransaction(newTransaction)
       data.transaction = transaction
       data.searchedTransaction = true
       data.isSearching = false
