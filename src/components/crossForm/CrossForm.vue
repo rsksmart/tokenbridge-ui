@@ -184,12 +184,20 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="offset-md-2 col-md-8 col-12">
+          <p v-if="destinationNetwork.isRsk" class="alert alert-warning" role="alert">
+            Binance is not taking deposits sent by a smart contract for RSK network, they only
+            accept deposits from an account
+          </p>
+        </div>
+      </div>
     </div>
     <div v-if="claimCost" class="row justify-content-center mb-4">
       <div class="col-sm-12 col-md-5 border note-container px-4 py-2 bg-light text-center">
         <strong class="fw-bold d-block">Important!</strong>
         <span>
-          You'll need <strong>{{ claimCost }} ETH</strong> to claim the tokens
+          You'll need <strong>{{ claimCost }}</strong> to claim the tokens
         </span>
       </div>
     </div>
@@ -243,7 +251,7 @@ import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
 import ERC20_ABI from '@/constants/abis/erc20.json'
-import { MAX_UINT256, waitForReceipt, sanitizeTxHash, TXN_Storage, retry3Times } from '@/utils'
+import { MAX_UINT256, waitForReceipt, sanitizeTxHash, retry3Times } from '@/utils'
 
 import Modal from '@/components/commons/Modal.vue'
 import WaitSpinner from './WaitSpinner.vue'
@@ -265,6 +273,7 @@ export default {
     Field,
     ErrorMessage,
   },
+  inject: ['$services'],
   props: {
     typesLimits: {
       type: Array,
@@ -359,10 +368,12 @@ export default {
       return !this.sharedState.isConnected || this.showSpinner
     },
     currentNetworkTokens() {
-      const result = []
-      for (const token of this.sharedState.tokens) {
-        if (token[this.originNetwork.networkId]) {
-          result.push({
+      const { tokens = [] } = this.sharedState
+      return (
+        tokens
+          // eslint-disable-next-line no-prototype-builtins
+          .filter(token => token.hasOwnProperty(this.originNetwork.networkId))
+          .map(token => ({
             token: token.token,
             name: token.name,
             typeId: token.typeId,
@@ -375,10 +386,8 @@ export default {
               icon: token.icon,
               ...token[this.destinationNetwork.networkId],
             },
-          })
-        }
-      }
-      return result
+          }))
+      )
     },
     senderAddress() {
       return this.sharedState.accountAddress || '0x00...00'
@@ -596,18 +605,12 @@ export default {
 
       return crossToken(web3, config)(data.amount, token, store, {
         txExplorerLink: data.txExplorerLink,
-        accountAddress: data.sharedState.accountAddress,
-        receiverAddress,
+        accountAddress: data.sharedState.accountAddress.toLowerCase(),
+        receiverAddress: receiverAddress.toLowerCase(),
       })
         .then(async receipt => {
           data.showSpinner = false
           data.showSuccess = true
-
-          if (TXN_Storage.isStorageAvailable('localStorage')) {
-            console.log(`Local Storage Available!`)
-          } else {
-            console.log(`Local Storage Unavailable!`)
-          }
 
           const transaction = {
             type: 'Cross',
@@ -621,18 +624,18 @@ export default {
             timestamp: Date.now(),
             ...receipt,
           }
-          // save transaction to local storage...
-          TXN_Storage.addTxn(data.sharedState.accountAddress, config.localStorageName, transaction)
+          const accountsAddresses = [data.sharedState.accountAddress.toLowerCase()]
           if (data.sharedState.accountAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
-            // save transaction for receiver ...
-            TXN_Storage.addTxn(
-              data.receiverAddress,
-              config.crossToNetwork.localStorageName,
-              transaction,
-            )
+            accountsAddresses.push(receiverAddress.toLowerCase())
           }
+          // save transaction to local storage...
+          const newTransaction = {
+            ...transaction,
+            accountsAddresses,
+          }
+          await this.$services.TransactionService.saveTransaction(newTransaction)
 
-          data.$emit('newTransaction', transaction)
+          data.$emit('newTransaction', newTransaction)
           data.resetForm()
         })
         .catch(err => {
@@ -673,9 +676,16 @@ export default {
       const web3 = isRsk ? this.sharedState.ethWeb3 : this.sharedState.rskWeb3
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
-        this.claimCost = costInWei.shiftedBy(-18).toString()
+        this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${isRsk ? 'ETH' : 'RBTC'}`
       })
     },
   },
 }
 </script>
+<style scoped>
+.alert {
+  font-size: 12px;
+  line-height: 14px;
+  margin-bottom: 0;
+}
+</style>

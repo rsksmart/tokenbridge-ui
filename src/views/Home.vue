@@ -46,7 +46,6 @@ import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import FEDERATION_ABI from '@/constants/abis/federation.json'
 
-import $ from 'jquery'
 import 'popper.js'
 import 'bootstrap'
 

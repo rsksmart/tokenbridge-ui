@@ -11,6 +11,9 @@
       <a :href="transactionHashExplorerUrl" target="_blank">
         {{ formattedTransactionHash }}
       </a>
+      <a href="#" class="ml-2" @click="copyTransactionHash">
+        <i :class="copyIcon"></i>
+      </a>
     </td>
     <td>{{ transaction.blockNumber }}</td>
     <td>{{ amountAndSymbol }}</td>
@@ -21,20 +24,20 @@
       </a>
     </td>
     <td>
-      <div v-if="currentStep == steps.Pending">
+      <div v-if="currentStep === steps.Pending">
         <span class="pending">
           Pending {{ currentConfirmations }}/{{ neededConfirmations }} blocks
           <br />
           ~ {{ estimatedTime }}
         </span>
       </div>
-      <div v-else-if="currentStep == steps.Voting">
+      <div v-else-if="currentStep === steps.Voting">
         <span class="pending">
           Voting ~ {{ estimatedTime }}
           <VotingInfo :fed-members="fedMembers" :transaction="transaction" />
         </span>
       </div>
-      <div v-else-if="currentStep == steps.ToClaim">
+      <div v-else-if="currentStep === steps.ToClaim">
         <div v-if="!loading" class="to-claim">
           <button class="btn btn-primary claim" @click="claimClick">Claim</button>
         </div>
@@ -43,7 +46,7 @@
           <span class="sr-only">Loading...</span>
         </div>
       </div>
-      <div v-else-if="currentStep == steps.Claimed">
+      <div v-else-if="currentStep === steps.Claimed">
         <span class="confirmed claimed">Claimed</span>
       </div>
     </td>
@@ -74,6 +77,10 @@
           The receiver address {{ transaction.receiverAddress }} is not your currently connected
           account {{ sharedState.accountAddress }}
         </p>
+        <p v-if="toNetwork.isRsk" class="alert alert-warning" role="alert">
+          Binance is not taking deposits sent by a smart contract for RSK network, they only accept
+          deposits from an account
+        </p>
         <p class="font-weight-bold">
           Are you sure you want to claim the funds to {{ transaction.receiverAddress }} anyway?
         </p>
@@ -97,19 +104,14 @@
 import BigNumber from 'bignumber.js'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
-import {
-  wrappedFormat,
-  blocksToTime,
-  waitForReceipt,
-  sanitizeTxHash,
-  retry3Times,
-  NULL_HASH,
-  TXN_Storage,
-} from '@/utils'
+import { wrappedFormat, blocksToTime, sanitizeTxHash, retry3Times, NULL_HASH } from '@/utils'
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { CROSSING_STEPS } from '@/constants/enums.js'
 import VotingInfo from './VotingInfo.vue'
+import { claim } from '@/modules/transactions/transactions.actions'
+import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
+const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
 export default {
   name: 'TransactionRow',
@@ -117,6 +119,7 @@ export default {
     Modal,
     VotingInfo,
   },
+  inject: ['$services'],
   props: {
     transaction: {
       type: Object,
@@ -151,13 +154,6 @@ export default {
       required: true,
     },
   },
-  setup() {
-    if (TXN_Storage.isStorageAvailable('localStorage')) {
-      console.log(`Local Storage Available!`)
-    } else {
-      console.log(`Local Storage Unavailable!`)
-    }
-  },
   data() {
     return {
       sharedState: store.state,
@@ -174,11 +170,12 @@ export default {
       showConnectionProblemModal: false,
       connectionProblem: '',
       showMismatchAddressModal: false,
+      copyIcon: DEFAULT_COPY_ICON,
     }
   },
   computed: {
     fromNetwork() {
-      return this.transaction.networkId == this.sharedState.rskConfig.networkId
+      return this.transaction.networkId === this.sharedState.rskConfig.networkId
         ? this.sharedState.rskConfig
         : this.sharedState.ethConfig
     },
@@ -193,20 +190,20 @@ export default {
       return `${this.fromNetwork.explorer}/tx/${this.transaction.transactionHash}`
     },
     isSenderNetwork() {
-      return this.fromNetwork.networkId == this.sharedState.currentConfig?.networkId
+      return this.fromNetwork.networkId === this.sharedState.currentConfig?.networkId
     },
     isReceiverNetwork() {
-      return this.toNetwork.networkId == this.sharedState.currentConfig?.networkId
+      return this.toNetwork.networkId === this.sharedState.currentConfig?.networkId
     },
     isSenderAddress() {
       return (
-        this.transaction.senderAddress?.toLowerCase() ==
+        this.transaction.senderAddress?.toLowerCase() ===
           this.sharedState.accountAddress?.toLowerCase() && this.isSenderNetwork
       )
     },
     isReceiverAddress() {
       return (
-        this.transaction.receiverAddress?.toLowerCase() ==
+        this.transaction.receiverAddress?.toLowerCase() ===
           this.sharedState.accountAddress?.toLowerCase() && this.isReceiverNetwork
       )
     },
@@ -235,10 +232,13 @@ export default {
     },
     token() {
       return this.sharedState.tokens.find(
-        x => x[this.transaction.networkId].symbol == this.transaction.tokenFrom,
+        x => x[this.transaction.networkId]?.symbol === this.transaction.tokenFrom,
       )
     },
     neededConfirmations() {
+      if (!this.token) {
+        return false
+      }
       const limits = this.typesLimits[this.token.typeId]
       const confirmations = this.fromNetwork.isRsk ? this.rskConfirmations : this.ethConfirmations
       let amount = this.transaction.amount
@@ -284,10 +284,24 @@ export default {
     this.refreshStep()
   },
   methods: {
+    async copyTransactionHash(event) {
+      event.preventDefault()
+      await navigator.clipboard.writeText(this.transaction.transactionHash)
+      this.copyIcon = 'fas fa-clipboard-check'
+      setTimeout(() => {
+        this.copyIcon = DEFAULT_COPY_ICON
+      }, 1000)
+    },
+    txExplorerLinkTag(txHash) {
+      const sanitizedTxHash = sanitizeTxHash(txHash)
+      return txHash
+        ? `<a target="_blank" href="${this.sharedState.currentConfig.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
+        : ''
+    },
     async refreshStep() {
       const data = this
       if (data.currentStep >= data.steps.ToClaim) return
-      if (data.currentStep == data.steps.Pending) {
+      if (data.currentStep === data.steps.Pending) {
         const currentConfirmations = data.latestBlock - data.transaction.blockNumber
         const blockDiff = data.neededConfirmations - currentConfirmations
         if (blockDiff > 0) {
@@ -301,40 +315,37 @@ export default {
           data.votesCount = 0
         }
       }
-
       const bridgeContract = new data.web3.eth.Contract(BRIDGE_ABI, data.toNetwork.bridge)
       if (data.transaction.blockNumber < data.fromNetwork.v2UpdateBlock) {
         // V1 Protocol
         data.currentStep = data.steps.Claimed
         data.estimatedTime = ''
         return
-      } else if (data.currentStep == data.steps.Voting && data.txDataHash == NULL_HASH) {
+      } else if (data.currentStep === data.steps.Voting && data.txDataHash === NULL_HASH) {
         // V2 Protocol
         data.txDataHash = await retry3Times(
           bridgeContract.methods.transactionsDataHashes(data.transaction.transactionHash).call,
         )
-        if (data.txDataHash != NULL_HASH) {
+        if (data.txDataHash !== NULL_HASH) {
           data.estimatedTime = ''
           const claimed = await retry3Times(bridgeContract.methods.claimed(data.txDataHash).call)
           if (claimed) {
             data.currentStep = data.steps.Claimed
-            if (data.isSenderAddress) {
-              TXN_Storage.addOrUpdateTxn(
-                data.sharedState.accountAddress,
-                data.fromNetwork.localStorageName,
-                { currentStep: data.currentStep, ...data.transaction },
-              )
-            } else if (data.isReceiverAddress) {
-              TXN_Storage.addOrUpdateTxn(
-                data.sharedState.accountAddress,
-                data.toNetwork.localStorageName,
-                { currentStep: data.currentStep, ...data.transaction },
-              )
-            }
+            await this.$services.TransactionService.saveTransaction({
+              accountAddress: data.sharedState.accountAddress,
+              currentStep: data.currentStep,
+              ...data.transaction,
+            })
           } else {
             data.currentStep = data.steps.ToClaim
           }
         }
+      }
+      if (data.currentStep !== data.transaction.currentStep) {
+        await this.$services.TransactionService.saveTransaction({
+          ...data.transaction,
+          currentStep: data.currentStep,
+        })
       }
     },
     async claim() {
@@ -356,49 +367,36 @@ export default {
         event.topics,
       )
       const gasPrice = await store.getGasPriceHex()
-      const bridgeContract = new sharedState.web3.eth.Contract(BRIDGE_ABI, data.toNetwork.bridge)
 
-      return new Promise((resolve, reject) => {
-        bridgeContract.methods
-          .claim({
+      try {
+        const receiptResponse = await claim(
+          { config: data.toNetwork, web3: sharedState.web3 },
+          {
             to: decodedEvent._to,
             amount: decodedEvent._amount,
             blockHash: event.blockHash,
             transactionHash: event.transactionHash,
             logIndex: event.logIndex,
-          })
-          .send(
-            { from: sharedState.accountAddress, gasPrice: gasPrice, gas: 250_000 },
-            async (err, txHash) => {
-              data.claimTxHash = txHash
-              if (err) {
-                return reject(new Error(`Execution failed ${err.message}`))
-              }
-              try {
-                const receipt = await waitForReceipt(txHash, data.web3)
-                if (receipt.status) {
-                  return resolve(receipt)
-                } else {
-                  return reject(new Error(`Transaction status failed ${err.message}`))
-                }
-              } catch (error) {
-                return reject(new Error(`Unexpected error ${err.message}`))
-              }
-            },
-          )
-      })
-        .then(() => {
+            txExplorerLink: data.txExplorerLinkTag,
+          },
+          { from: sharedState.accountAddress, gasPrice: gasPrice, gas: ESTIMATED_GAS_AVG },
+        )
+        if (receiptResponse) {
           data.currentStep = data.steps.Claimed
           data.loading = false
           data.error = ''
           data.showResultModal = true
-        })
-        .catch(err => {
-          data.loading = false
-          data.error = err.message
-          data.showResultModal = true
-          console.error(err)
-        })
+          await this.$services.TransactionService.saveTransaction({
+            ...data.transaction,
+            currentStep: data.currentStep,
+          })
+        }
+      } catch (error) {
+        data.loading = false
+        data.error = error.message
+        data.showResultModal = true
+        console.error(error)
+      }
     },
     async claimClick() {
       const data = this
@@ -408,13 +406,13 @@ export default {
         data.showConnectionProblemModal = true
         return
       }
-      if (sharedState.currentConfig.networkId != this.toNetwork.networkId) {
+      if (sharedState.currentConfig.networkId !== this.toNetwork.networkId) {
         data.connectionProblem = `Wrong network. To claim this tokens you need to connect your wallet to ${data.toNetwork.name}`
         data.showConnectionProblemModal = true
         return
       }
       if (
-        sharedState.accountAddress.toLowerCase() == data.transaction.receiverAddress.toLowerCase()
+        sharedState.accountAddress.toLowerCase() === data.transaction.receiverAddress.toLowerCase()
       ) {
         await this.claim()
       } else {
