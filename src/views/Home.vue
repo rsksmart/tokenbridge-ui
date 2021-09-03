@@ -3,8 +3,7 @@
     <section id="home">
       <div class="container">
         <Title :is-testnet="isTestnet" />
-
-        <CrossForm
+        <FormWrapper
           :types-limits="typesLimits"
           :rsk-fee="rskFee"
           :eth-fee="ethFee"
@@ -46,7 +45,6 @@ import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import FEDERATION_ABI from '@/constants/abis/federation.json'
 
-import $ from 'jquery'
 import 'popper.js'
 import 'bootstrap'
 
@@ -59,15 +57,19 @@ import Transactions from '@/components/transactions/Transactions.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
 import TokenList from '@/components/tokenList/TokenList.vue'
 import { store } from '@/store.js'
+import NFTWrapper from '@/components/nftForm/NFTWrapper'
+import FormWrapper from '@/components/formWrapper/FormWrapper'
 
 export default {
   name: 'Home',
   components: {
+    FormWrapper,
     Title,
     CrossForm,
     ImportantDetails,
     TokenList,
     Transactions,
+    NFTWrapper,
   },
   data() {
     return {
