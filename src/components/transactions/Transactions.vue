@@ -15,10 +15,13 @@
       :eth-confirmations="ethConfirmations"
       :rsk-fed-members="rskFedMembers"
       :eth-fed-members="ethFedMembers"
-      :new-transaction="newTransaction"
       :transactions="transactions"
       :rsk-block-number="rskBlockNumber"
       :eth-block-number="ethBlockNumber"
+      :limit="limit"
+      :total-transactions="totalTransactions"
+      @changePagination="changePagination"
+      @changeLimit="changeLimit"
     />
   </div>
 </template>
@@ -28,7 +31,7 @@ import { store } from '@/store.js'
 import TransactionList from './TransactionList.vue'
 import SearchTransaction from './SearchTransaction.vue'
 
-import { TXN_Storage, retry3Times } from '@/utils'
+import { retry3Times } from '@/utils'
 
 export default {
   name: 'Transactions',
@@ -36,6 +39,7 @@ export default {
     SearchTransaction,
     TransactionList,
   },
+  inject: ['$services'],
   props: {
     typesLimits: {
       type: Array,
@@ -69,6 +73,8 @@ export default {
       rskBlockNumber: 0,
       ethBlockNumber: 0,
       pollingBlockNumber: null,
+      limit: 10,
+      totalTransactions: 0,
     }
   },
   computed: {
@@ -78,19 +84,14 @@ export default {
   },
   watch: {
     accountConnected() {
-      this.refreshTransactions()
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
     newTransaction() {
       if (!this.newTransaction) return
-      this.transactions.unshift(this.newTransaction)
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
   },
   created() {
-    if (TXN_Storage.isStorageAvailable('localStorage')) {
-      console.log(`Local Storage Available!`)
-    } else {
-      console.log(`Local Storage Unavailable!`)
-    }
     this.refreshBlockNumber()
 
     this.pollingBlockNumber = setInterval(
@@ -119,33 +120,48 @@ export default {
         })
       }
     },
-    refreshTransactions() {
-      if (!this.sharedState.accountAddress) {
+    changePagination({ limit, offset }) {
+      this.refreshTransactions({ limit, offset })
+    },
+    changeLimit(selectedLimit) {
+      this.limit = selectedLimit
+      this.refreshTransactions({ limit: selectedLimit, offset: 0 })
+    },
+    async refreshTransactions({ limit, offset }) {
+      const accountAddress = this.sharedState.accountAddress
+      const rskConfig = this.sharedState.rskConfig
+      const ethConfig = this.sharedState.ethConfig
+      if (!accountAddress) {
         this.transactions = []
         return
       }
-      // Bring transactions from version 1
-      // we will remove this after some time running version 2
-      let activeAddressRsk2EthTxns = TXN_Storage.getAllTxns4Address(
-        this.sharedState.accountAddress,
-        this.sharedState.rskConfig.localStorageName,
+      /**
+       * Synchronize transactions from localstorage
+       * TODO: consider removing for later versions
+       */
+      await this.$services.TransactionService.synchronizeTransactions(
+        accountAddress,
+        rskConfig.localStorageName,
       )
-      activeAddressRsk2EthTxns = activeAddressRsk2EthTxns.map(x => {
-        x.senderAddress = x.senderAddress ? x.senderAddress : x.from
-        x.receiverAddress = x.receiverAddress ? x.receiverAddress : this.sharedState.accountAddress
-        return x
-      })
-      let activeAddressEth2RskTxns = TXN_Storage.getAllTxns4Address(
-        this.sharedState.accountAddress,
-        this.sharedState.ethConfig.localStorageName,
+      await this.$services.TransactionService.synchronizeTransactions(
+        accountAddress,
+        ethConfig.localStorageName,
       )
-      activeAddressEth2RskTxns = activeAddressEth2RskTxns.map(x => {
-        x.senderAddress = x.senderAddress ? x.senderAddress : x.from
-        x.receiverAddress = x.receiverAddress ? x.receiverAddress : this.sharedState.accountAddress
-        return x
-      })
-      const allTransactions = activeAddressRsk2EthTxns.concat(activeAddressEth2RskTxns)
-      this.transactions = allTransactions.sort(x => x.timestamp).reverse() // sort decsending
+      /* Synchronization end */
+
+      const {
+        info: { total },
+        data,
+      } = await this.$services.TransactionService.getTransactions(
+        accountAddress,
+        [rskConfig.networkId, ethConfig.networkId],
+        {
+          limit,
+          offset,
+        },
+      )
+      this.transactions = data
+      this.totalTransactions = total
     },
   },
 }
