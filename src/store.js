@@ -14,24 +14,24 @@ import {
 
 import { TOKENS } from '@/constants/tokens.js'
 
-const infuraKey = process.env.VUE_APP_INFURA_KEY
-const rskMainnetUri = 'https://public-node.rsk.co'
-const ethMainnetUri = `https://mainnet.infura.io/v3/${infuraKey}`
+const rskMainnetUri = RSK_MAINNET_CONFIG.rpc
+const ethMainnetUri = ETH_CONFIG.rpc
 
 const rpcMainnet = {
   1: ethMainnetUri,
   30: rskMainnetUri,
 }
-const supportedChainsMainnet = [1, 30]
+const supportedChainsMainnet = [1, 30, 56]
 
-const rskTestnetUri = 'https://public-node.testnet.rsk.co'
-const kovanUri = `https://kovan.infura.io/v3/${infuraKey}`
+const rskTestnetUri = RSK_TESTNET_CONFIG.rpc
+const kovanUri = KOVAN_CONFIG.rpc
 
 const rpcTestnet = {
+  [KOVAN_CONFIG.networkId]: kovanUri,
   42: kovanUri,
   31: rskTestnetUri,
 }
-const supportedChainsTestnet = [42, 31]
+const supportedChainsTestnet = [42, 31, KOVAN_CONFIG.networkId]
 
 const isTestnet = !(process.env.VUE_APP_IS_MAINNET == 'true')
 const rskConfig = isTestnet ? RSK_TESTNET_CONFIG : RSK_MAINNET_CONFIG
