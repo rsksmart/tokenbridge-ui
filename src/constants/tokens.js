@@ -22,9 +22,10 @@ const DAI_TOKEN = {
   icon:
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
   30: { symbol: 'rDAI', address: '0x6b1a73d547f4009a26b8485b63d7015d248ad406', decimals: 18 },
-  31: { symbol: 'rKovDAI', address: '0x7b846216a194c69bb1ea52ea8faa92d314866451', decimals: 18 },
+  31: { symbol: 'bDAI', address: '0x41925B151b4668b0d1dbda5dBB89bB09756601D7', decimals: 18 },
   1: { symbol: 'DAI', address: '0x6b175474e89094c44da98b954eedeac495271d0f', decimals: 18 },
   42: { symbol: 'DAI', address: '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', decimals: 18 },
+  97: { symbol: 'DAI', address: '0x13878644c0f2c9c5c8a85da43ebc3bb74bbc05a9', decimals: 18 },
 }
 
 const SAI_TOKEN = {
@@ -60,6 +61,7 @@ const RIF_TOKEN = {
   31: { symbol: 'tRIF', address: '0x19f64674d8a5b4e652319f5e239efd3bc969a1fe', decimals: 18 },
   1: { symbol: 'eRIF', address: '0x73c08467e23f7dcb7ddbbc8d05041b74467a498a', decimals: 18 },
   42: { symbol: 'etRIF', address: '0x69f6d4d4813f8e2e618dae7572e04b6d5329e207', decimals: 18 },
+  97: { symbol: 'btRIF', address: '0xbC59e0CAB442f05F6eE8718C248C466Fbe39D292', decimals: 18 },
 }
 
 const TUSD_TOKEN = {
@@ -120,9 +122,10 @@ const USDT_TOKEN = {
   icon:
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png',
   30: { symbol: 'rUSDT', address: '0xef213441a85df4d7acbdae0cf78004e1e486bb96', decimals: 18 },
-  31: { symbol: 'rKovUSDT', address: '0x4cfE225cE54c6609a525768b13F7d87432358C57', decimals: 18 },
+  31: { symbol: 'bUSDT', address: '0x6F0afFe4c1106DFD91352C8C99c88394ED4eABc0', decimals: 18 },
   1: { symbol: 'USDT', address: '0xdac17f958d2ee523a2206206994597c13d831ec7', decimals: 6 },
   42: { symbol: 'USDT', address: '0x13512979ade267ab5100878e2e0f485b568328a4', decimals: 6 },
+  97: { symbol: 'USDT', address: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd', decimals: 18 },
 }
 
 const USDC_TOKEN = {
