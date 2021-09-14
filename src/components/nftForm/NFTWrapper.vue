@@ -43,7 +43,8 @@ import NFTForm from '@/components/nftForm/NFTForm'
 import { store } from '@/store'
 import NFTDestinationForm from '@/components/nftForm/NFTDestinationForm'
 import SIDE_NFT_TOKEN from '@/constants/abis/side_nft_token.json'
-import { waitForReceipt } from "@/utils";
+import { waitForReceipt } from '@/utils'
+import { txExplorerLink } from '@/utils/text-helpers'
 
 export default {
   name: 'NFTWrapper',
@@ -93,8 +94,9 @@ export default {
       await this.$refs.destinationForm.handleSubmitExternal()
     },
     async handleApprove() {
+      const currentConfig = this.sharedState.currentConfig
       // TODO: Check Correct address
-      const bridgeAddress = this.sharedState.currentConfig.bridge
+      const bridgeAddress = currentConfig.bridge
       const web3 = this.sharedState.web3
       const accountAddress = this.sharedState.accountAddress
       try {
@@ -105,9 +107,9 @@ export default {
           tokenContract.methods
             .setApprovalForAll(bridgeAddress, false)
             .send({ from: accountAddress, gasPrice, gas: 70_000 }, async (err, txHash) => {
-              const txExplorerLink = this.txExplorerLink(txHash)
+              const txExplorerLinkRes = txExplorerLink(txHash, currentConfig.explorer)
               if (err) {
-                throw new Error(`Execution failed ${err.message} ${txExplorerLink}`)
+                throw new Error(`Execution failed ${err.message} ${txExplorerLinkRes}`)
               }
               try {
                 const receipt = await waitForReceipt(txHash, web3)
@@ -115,11 +117,11 @@ export default {
                   return resolve(receipt)
                 } else {
                   return reject(
-                    new Error(`Transaction status failed ${err.message} ${txExplorerLink}`),
+                    new Error(`Transaction status failed ${err.message} ${txExplorerLinkRes}`),
                   )
                 }
               } catch (error) {
-                return reject(new Error(`${error} ${txExplorerLink}`))
+                return reject(new Error(`${error} ${txExplorerLinkRes}`))
               }
             })
         })
