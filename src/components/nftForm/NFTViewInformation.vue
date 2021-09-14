@@ -1,15 +1,12 @@
 <template>
   <div>
-    <h3 class="text-primary">
-      Destination <strong>{{ destinationNetwork.name }}</strong>
-    </h3>
     <div class="card mb-3 p-3">
       <div class="row no-gutters">
         <div class="col-md-3 p-1 text-center">
-          <img v-if="!metadata.image" :src="metadata.image" alt="information" />
+          <img v-if="metadata.image" :src="metadata.image" alt="information" />
           <div
             v-else
-            class="w-100 h-50 bg-light rounded-sm d-flex align-items-center justify-content-center"
+            class="default-img w-100 bg-light rounded-sm d-flex align-items-center justify-content-center"
           >
             <span class="fa fa-image display-2 text-muted"></span>
           </div>
@@ -57,10 +54,6 @@
 export default {
   name: 'NFTViewInformation',
   props: {
-    destinationNetwork: {
-      type: Object,
-      required: true,
-    },
     metadata: {
       type: Object,
       required: true,
@@ -71,7 +64,7 @@ export default {
   },
   computed: {
     showReadModeButton() {
-      return this.metadata.description.length > 200
+      return this.metadata?.description?.length > 200
     },
   },
   methods: {
@@ -83,6 +76,9 @@ export default {
 </script>
 
 <style scoped>
+.default-img {
+  min-height: 200px;
+}
 .read-more {
   height: 3rem;
   overflow: hidden;

@@ -50,14 +50,12 @@ import 'bootstrap'
 
 import { retry3Times, blocksToTime } from '@/utils'
 
-import CrossForm from '@/components/crossForm/CrossForm.vue'
 import Title from '@/components/title/Title.vue'
 // import SearchTransaction from '@/components/transactions/SearchTransaction.vue'
 import Transactions from '@/components/transactions/Transactions.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
 import TokenList from '@/components/tokenList/TokenList.vue'
 import { store } from '@/store.js'
-import NFTWrapper from '@/components/nftForm/NFTWrapper'
 import FormWrapper from '@/components/formWrapper/FormWrapper'
 
 export default {
@@ -65,11 +63,9 @@ export default {
   components: {
     FormWrapper,
     Title,
-    CrossForm,
     ImportantDetails,
     TokenList,
     Transactions,
-    NFTWrapper,
   },
   data() {
     return {
