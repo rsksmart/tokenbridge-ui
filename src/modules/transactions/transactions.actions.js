@@ -3,7 +3,7 @@ import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { waitForReceipt } from '@/utils'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import Web3 from 'web3'
-import { METHOD_TYPES } from '@/constants/tokens'
+import * as methodType from '@/constants/methodType'
 /**
  * Global types
  * -
@@ -109,7 +109,7 @@ export const crossToken = (web3, config) => {
 
     const gasPrice = await getGasPriceHex()
 
-    if (token.methodType === METHOD_TYPES.DEPOSITOR) {
+    if (token.methodType === methodType.DEPOSITOR) {
       return depositTo(
         { config, web3 },
         { receiverAddress, txExplorerLink },
