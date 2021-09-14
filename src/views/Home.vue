@@ -56,7 +56,6 @@ import Transactions from '@/components/transactions/Transactions.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
 import TokenList from '@/components/tokenList/TokenList.vue'
 import { store } from '@/store.js'
-import NFTWrapper from '@/components/nftForm/NFTWrapper'
 import FormWrapper from '@/components/formWrapper/FormWrapper'
 
 export default {
@@ -67,7 +66,6 @@ export default {
     ImportantDetails,
     TokenList,
     Transactions,
-    NFTWrapper,
   },
   data() {
     return {
