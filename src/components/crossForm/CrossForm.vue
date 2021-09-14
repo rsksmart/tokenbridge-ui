@@ -260,7 +260,7 @@ import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import { crossToken } from '@/modules/transactions/transactions.actions'
-import { METHOD_TYPES } from '@/constants/tokens'
+import { METHOD_TYPES } from '@/constants/methodType'
 
 export default {
   name: 'CrossForm',
