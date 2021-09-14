@@ -6,37 +6,50 @@ import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 
 import {
-  RINKEBY_CONFIG,
-  RSK_TESTNET_CONFIG,
-  ETH_CONFIG,
-  RSK_MAINNET_CONFIG,
+  TEST_NET_KOVAN_CONFIG,
+  TEST_NET_BINANCE_CONFIG,
+  TEST_NET_RSK_CROSS_KOVAN_CONFIG,
+  MAIN_NET_ETH_CONFIG,
+  MAIN_NET_RSK_CONFIG,
 } from '@/constants/networks.js'
 
 import { TOKENS } from '@/constants/tokens.js'
+import * as chainId from './constants/chainId'
 
-const rskMainnetUri = RSK_MAINNET_CONFIG.rpc
-const ethMainnetUri = ETH_CONFIG.rpc
+const rskMainnetUri = MAIN_NET_RSK_CONFIG.rpc
+const ethMainnetUri = MAIN_NET_ETH_CONFIG.rpc
 
 const rpcMainnet = {
-  1: ethMainnetUri,
-  30: rskMainnetUri,
+  [chainId.MAIN_NET_ETHEREUM]: ethMainnetUri,
+  [chainId.MAIN_NET_RSK]: rskMainnetUri,
 }
-const supportedChainsMainnet = [1, 30, 56]
 
-const rskTestnetUri = 'https://public-node.testnet.rsk.co'
-const kovanUri = `https://rinkeby.infura.io/v3/${infuraKey}`
+const supportedChainsMainnet = [
+  chainId.MAIN_NET_ETHEREUM,
+  chainId.MAIN_NET_RSK,
+  chainId.MAIN_NET_BINANCE_SMART_CHAIN,
+]
+
+const TEST_NET_RSK_RPC = TEST_NET_RSK_CROSS_KOVAN_CONFIG.rpc
+const TEST_NET_RSK_CROSS_CHAIN_RPC = TEST_NET_KOVAN_CONFIG.rpc
 
 const rpcTestnet = {
-  4: kovanUri,
-  31: rskTestnetUri,
+  [chainId.TEST_NET_BINANCE]: TEST_NET_BINANCE_CONFIG.rpc,
+  [chainId.TEST_NET_KOVAN]: TEST_NET_KOVAN_CONFIG.rpc,
+  [chainId.TEST_NET_RSK]: TEST_NET_RSK_RPC,
 }
-const supportedChainsTestnet = [31, 4]
+
+const supportedChainsTestnet = [
+  chainId.TEST_NET_KOVAN,
+  chainId.TEST_NET_RSK,
+  chainId.TEST_NET_BINANCE,
+]
 
 const isTestnet = !(process.env.VUE_APP_IS_MAINNET == 'true')
-const rskConfig = isTestnet ? RSK_TESTNET_CONFIG : RSK_MAINNET_CONFIG
-const ethConfig = isTestnet ? RINKEBY_CONFIG : ETH_CONFIG
+const rskConfig = isTestnet ? TEST_NET_RSK_CROSS_KOVAN_CONFIG : MAIN_NET_RSK_CONFIG
+const sideChainConfig = isTestnet ? TEST_NET_KOVAN_CONFIG : MAIN_NET_ETH_CONFIG
 const tokens = TOKENS.filter(x => {
-  return x[rskConfig.networkId] && x[ethConfig.networkId]
+  return x[rskConfig.networkId] && x[sideChainConfig.networkId]
 }).sort((first, second) => first.typeId - second.typeId)
 
 const rLogin = new RLogin({
@@ -64,10 +77,10 @@ export const store = {
     accountAddress: '',
     currentConfig: null,
     chainId: null,
-    rskWeb3: isTestnet ? new Web3(rskTestnetUri) : new Web3(rskMainnetUri),
-    ethWeb3: isTestnet ? new Web3(kovanUri) : new Web3(ethMainnetUri),
+    rskWeb3: isTestnet ? new Web3(TEST_NET_RSK_RPC) : new Web3(rskMainnetUri),
+    ethWeb3: isTestnet ? new Web3(TEST_NET_RSK_CROSS_CHAIN_RPC) : new Web3(ethMainnetUri),
     rskConfig: rskConfig,
-    ethConfig: ethConfig,
+    ethConfig: sideChainConfig,
     tokens: tokens,
     connectionError: '',
   }),
@@ -83,11 +96,11 @@ export const store = {
     state.chainId = parseInt(chainId)
     if (rskConfig.networkId == chainId) {
       state.currentConfig = state.rskConfig
-    } else if (ethConfig.networkId == chainId) {
+    } else if (sideChainConfig.networkId == chainId) {
       state.currentConfig = state.ethConfig
     } else {
       state.isConnected = false
-      state.connectionError = `Unknown network, should be ${rskConfig.name} or ${ethConfig.name} networks`
+      state.connectionError = `Unknown network, should be ${rskConfig.name} or ${sideChainConfig.name} networks`
       return
     }
     if (state.web3) {
