@@ -12,6 +12,10 @@ Object.keys(rules).forEach(rule => {
   defineRule(rule, rules[rule])
 })
 
+Object.keys(rules).forEach(rule => {
+  defineRule(rule, rules[rule])
+})
+
 createApp(App)
   .use(router)
   .use(ServicesPlugin, { TransactionService })
