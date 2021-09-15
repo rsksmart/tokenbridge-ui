@@ -11,7 +11,7 @@ export const TEST_NET_RSK_CROSS_BINANCE_TOKENS = [
   },
   {
     ...tokensInfo.TOKEN_WBNB_INFO,
-    symbol: 'bBNB',
+    symbol: 'bWBNB',
     address: '0x50f2cD4E18428E1c8C73b7638D5DA32975663e16',
     decimals: 18,
     methodType: methodType.RECEIVER,
