@@ -6,7 +6,7 @@ const nftAvailable = process.env.VUE_APP_NFT_AVAILABLE == 'true'
 
 const formWrapperTabs = [
   {
-    label: 'Token',
+    label: 'ERC20 Tokens',
     component: CrossForm,
   },
 ]

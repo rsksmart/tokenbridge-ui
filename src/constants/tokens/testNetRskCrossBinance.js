@@ -10,6 +10,13 @@ export const TEST_NET_RSK_CROSS_BINANCE_TOKENS = [
     methodType: methodType.RECEIVER,
   },
   {
+    ...tokensInfo.TOKEN_WBNB_INFO,
+    symbol: 'bBNB',
+    address: '0x50f2cD4E18428E1c8C73b7638D5DA32975663e16',
+    decimals: 18,
+    methodType: methodType.RECEIVER,
+  },
+  {
     ...tokensInfo.TOKEN_USDT_INFO,
     symbol: 'bUSDT',
     address: '0x6F0afFe4c1106DFD91352C8C99c88394ED4eABc0',
