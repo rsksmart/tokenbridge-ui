@@ -10,7 +10,7 @@
         <tr>
           <th scope="col">#</th>
           <th scope="col">{{ sharedState.rskConfig.name }}</th>
-          <th scope="col">{{ sharedState.ethConfig.name }}</th>
+          <th scope="col">{{ sharedState.sideConfig.name }}</th>
           <th scope="col">minimum</th>
           <th scope="col">maximum</th>
           <th scope="col">daily</th>

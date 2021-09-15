@@ -6,7 +6,7 @@
         <tr>
           <th scope="col"></th>
           <th scope="col">{{ sharedState.rskConfig.name }}</th>
-          <th scope="col">{{ sharedState.ethConfig.name }}</th>
+          <th scope="col">{{ sharedState.sideConfig.name }}</th>
         </tr>
       </thead>
       <tbody>
@@ -18,7 +18,7 @@
         <tr>
           <th scope="row">Avarage seconds per block</th>
           <td>~ {{ sharedState.rskConfig.secondsPerBlock }} seconds</td>
-          <td>~ {{ sharedState.ethConfig.secondsPerBlock }} seconds</td>
+          <td>~ {{ sharedState.sideConfig.secondsPerBlock }} seconds</td>
         </tr>
         <tr>
           <th scope="row">Confirmations needed for small amounts</th>
