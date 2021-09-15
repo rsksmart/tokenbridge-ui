@@ -7,8 +7,14 @@ import { TEST_NET_RSK_CROSS_BINANCE_TOKENS } from './tokens/testNetRskCrossBinan
 import { TEST_NET_RSK_CROSS_KOVAN_TOKENS } from './tokens/testNetRskCrossKovan'
 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
-const mainChainId = process.env.MAIN_CHAIN_ID
-const sideChainId = process.env.SIDE_CHAIN_ID
+const sideChainIdStr = process.env.VUE_APP_SIDE_CHAIN_ID
+
+let sideChainId
+if (!sideChainIdStr) {
+  sideChainId = chainId.MAIN_NET_ETHEREUM
+} else {
+  sideChainId = parseInt(sideChainIdStr, 10)
+}
 
 // --------- CONFIGS ----------
 export const TEST_NET_BINANCE_CONFIG = {
@@ -149,29 +155,19 @@ function getTokensWithReceiveToken(mainTokens, sideTokens) {
 }
 
 export function getMainNetworkConf() {
-  if (!mainChainId) {
-    return MAIN_NET_RSK_CONFIG
-  }
-  if (!sideChainId) {
-    return TEST_NET_RSK_CROSS_KOVAN_CONFIG
-  }
-  if (mainChainId != chainId.TEST_NET_RSK) {
-    return TEST_NET_RSK_CROSS_KOVAN_CONFIG
-  }
-
   // if it has the side chain set, depends on the side chain
   switch (sideChainId) {
     case chainId.TEST_NET_BINANCE:
       return TEST_NET_RSK_CROSS_BINANCE_CONFIG
+    case chainId.TEST_NET_KOVAN:
+      return TEST_NET_RSK_CROSS_KOVAN_CONFIG
     // here we can put another conf like for rinkeby
   }
+
+  return MAIN_NET_RSK_CONFIG
 }
 
 export function getSideNetworkConf() {
-  if (!sideChainId) {
-    return MAIN_NET_ETH_CONFIG
-  }
-
   switch (sideChainId) {
     case chainId.TEST_NET_BINANCE:
       return TEST_NET_BINANCE_CONFIG
