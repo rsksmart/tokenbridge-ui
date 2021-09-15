@@ -5,7 +5,10 @@ import { TEST_NET_BINANCE_TOKENS } from './tokens/testNetBinance'
 import { TEST_NET_KOVAN_TOKENS } from './tokens/testNetKovan'
 import { TEST_NET_RSK_CROSS_BINANCE_TOKENS } from './tokens/testNetRskCrossBinance'
 import { TEST_NET_RSK_CROSS_KOVAN_TOKENS } from './tokens/testNetRskCrossKovan'
+
 const infuraKey = process.env.VUE_APP_INFURA_KEY
+const mainChainId = process.env.MAIN_CHAIN_ID
+const sideChainId = process.env.SIDE_CHAIN_ID
 
 // --------- CONFIGS ----------
 export const TEST_NET_BINANCE_CONFIG = {
@@ -23,7 +26,7 @@ export const TEST_NET_BINANCE_CONFIG = {
   feePercentageDivider: 10_000,
   isRsk: false,
   isEth: true,
-  tokens: TEST_NET_BINANCE_TOKENS.sort((first, second) => first.typeId - second.typeId),
+  tokens: getTokensWithReceiveToken(TEST_NET_BINANCE_TOKENS, TEST_NET_RSK_CROSS_BINANCE_TOKENS),
 }
 
 export const TEST_NET_KOVAN_CONFIG = {
@@ -41,7 +44,7 @@ export const TEST_NET_KOVAN_CONFIG = {
   feePercentageDivider: 10_000,
   isRsk: false,
   isEth: true,
-  tokens: TEST_NET_KOVAN_TOKENS.sort((first, second) => first.typeId - second.typeId),
+  tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
 }
 
 export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
@@ -60,7 +63,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   crossToNetwork: TEST_NET_KOVAN_CONFIG,
   isRsk: true,
   isEth: false,
-  tokens: TEST_NET_RSK_CROSS_KOVAN_TOKENS.sort((first, second) => first.typeId - second.typeId),
+  tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_KOVAN_TOKENS),
 }
 TEST_NET_KOVAN_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_KOVAN_CONFIG
 
@@ -80,7 +83,7 @@ export const TEST_NET_RSK_CROSS_BINANCE_CONFIG = {
   crossToNetwork: TEST_NET_BINANCE_CONFIG,
   isRsk: true,
   isEth: false,
-  tokens: TEST_NET_RSK_CROSS_BINANCE_TOKENS.sort((first, second) => first.typeId - second.typeId),
+  tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_BINANCE_TOKENS),
 }
 TEST_NET_BINANCE_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_BINANCE_CONFIG
 
@@ -99,7 +102,7 @@ export const MAIN_NET_ETH_CONFIG = {
   feePercentageDivider: 10_000,
   isRsk: false,
   isEth: true,
-  tokens: MAIN_NET_ETHEREUM_TOKENS.sort((first, second) => first.typeId - second.typeId),
+  tokens: getTokensWithReceiveToken(MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS),
 }
 
 export const MAIN_NET_RSK_CONFIG = {
@@ -118,7 +121,7 @@ export const MAIN_NET_RSK_CONFIG = {
   crossToNetwork: MAIN_NET_ETH_CONFIG,
   isRsk: true,
   isEth: false,
-  tokens: MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS.sort((first, second) => first.typeId - second.typeId),
+  tokens: getTokensWithReceiveToken(MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_TOKENS),
 }
 MAIN_NET_ETH_CONFIG.crossToNetwork = MAIN_NET_RSK_CONFIG
 
@@ -127,4 +130,54 @@ export const NETWORKS = {
   30: MAIN_NET_RSK_CONFIG,
   42: TEST_NET_BINANCE_CONFIG,
   1: MAIN_NET_ETH_CONFIG,
+}
+
+function getReceiveToken(mainToken, sideTokens) {
+  const receiveTokens = sideTokens.filter(token => token.token == mainToken.token)
+  if (receiveTokens.length == 0) {
+    return {}
+  }
+  return receiveTokens[0]
+}
+
+function getTokensWithReceiveToken(mainTokens, sideTokens) {
+  const mainTokensSort = mainTokens.sort((first, second) => first.typeId - second.typeId)
+  return mainTokensSort.map(token => ({
+    ...token,
+    receiveToken: getReceiveToken(token, sideTokens),
+  }))
+}
+
+export function getMainNetworkConf() {
+  if (!mainChainId) {
+    return MAIN_NET_RSK_CONFIG
+  }
+  if (!sideChainId) {
+    return TEST_NET_RSK_CROSS_KOVAN_CONFIG
+  }
+  if (mainChainId != chainId.TEST_NET_RSK) {
+    return TEST_NET_RSK_CROSS_KOVAN_CONFIG
+  }
+
+  // if it has the side chain set, depends on the side chain
+  switch (sideChainId) {
+    case chainId.TEST_NET_BINANCE:
+      return TEST_NET_RSK_CROSS_BINANCE_CONFIG
+    // here we can put another conf like for rinkeby
+  }
+}
+
+export function getSideNetworkConf() {
+  if (!sideChainId) {
+    return MAIN_NET_ETH_CONFIG
+  }
+
+  switch (sideChainId) {
+    case chainId.TEST_NET_BINANCE:
+      return TEST_NET_BINANCE_CONFIG
+    case chainId.TEST_NET_KOVAN:
+      return TEST_NET_KOVAN_CONFIG
+  }
+
+  return MAIN_NET_ETH_CONFIG
 }

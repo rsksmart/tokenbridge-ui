@@ -177,13 +177,13 @@ export default {
     fromNetwork() {
       return this.transaction.networkId === this.sharedState.rskConfig.networkId
         ? this.sharedState.rskConfig
-        : this.sharedState.ethConfig
+        : this.sharedState.sideConfig
     },
     toNetwork() {
       return this.fromNetwork.crossToNetwork
     },
     web3() {
-      return this.toNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.ethWeb3
+      return this.toNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.sideWeb3
     },
     transactionHashExplorerUrl() {
       if (!this.transaction.transactionHash) return ''
@@ -353,7 +353,7 @@ export default {
       const sharedState = data.sharedState
       data.showMismatchAddressModal = false
       data.loading = true
-      const originWeb3 = data.fromNetwork.isRsk ? sharedState.rskWeb3 : sharedState.ethWeb3
+      const originWeb3 = data.fromNetwork.isRsk ? sharedState.rskWeb3 : sharedState.sideWeb3
       // Always retrieve transaction block hash as data.transaction.blockHash
       // may not be the final block hash in RSK
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transaction.transactionHash)

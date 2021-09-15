@@ -57,16 +57,16 @@ export default {
       return this.token[this.sharedState.rskConfig.networkId].address.toLowerCase()
     },
     ethExplorerUrl() {
-      return `${this.sharedState.ethConfig.explorer}/address/${this.ethTokenAddress}`
+      return `${this.sharedState.sideConfig.explorer}/address/${this.ethTokenAddress}`
     },
     ethTokenAddress() {
-      return this.token[this.sharedState.ethConfig.networkId].address.toLowerCase()
+      return this.token[this.sharedState.sideConfig.networkId].address.toLowerCase()
     },
     rskNetworkId() {
       return this.sharedState.rskConfig.networkId
     },
     ethNetworkId() {
-      return this.sharedState.ethConfig.networkId
+      return this.sharedState.sideConfig.networkId
     },
     limits() {
       return this.typesLimits[this.token.typeId]
