@@ -55,6 +55,13 @@ export const TOKEN_WETH_INFO = {
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
 }
 
+export const TOKEN_WBNB_INFO = {
+  token: 'WBNB',
+  name: 'Wrapped BNB',
+  typeId: 1,
+  icon: 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png?v=013',
+}
+
 export const TOKEN_ZRX_INFO = {
   token: 'ZRX',
   name: '0x Protocol',
