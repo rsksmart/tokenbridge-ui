@@ -108,14 +108,14 @@ export default {
     refreshBlockNumber() {
       const data = this
       const rskWeb3 = this.sharedState.rskWeb3
-      const ethWeb3 = this.sharedState.ethWeb3
+      const sideWeb3 = this.sharedState.sideWeb3
       if (rskWeb3) {
         retry3Times(rskWeb3.eth.getBlockNumber).then(blockNumber => {
           data.rskBlockNumber = blockNumber
         })
       }
-      if (ethWeb3) {
-        retry3Times(ethWeb3.eth.getBlockNumber).then(blockNumber => {
+      if (sideWeb3) {
+        retry3Times(sideWeb3.eth.getBlockNumber).then(blockNumber => {
           data.ethBlockNumber = blockNumber
         })
       }
@@ -130,7 +130,7 @@ export default {
     async refreshTransactions({ limit, offset }) {
       const accountAddress = this.sharedState.accountAddress
       const rskConfig = this.sharedState.rskConfig
-      const ethConfig = this.sharedState.ethConfig
+      const sideConfig = this.sharedState.sideConfig
       if (!accountAddress) {
         this.transactions = []
         return
@@ -145,7 +145,7 @@ export default {
       )
       await this.$services.TransactionService.synchronizeTransactions(
         accountAddress,
-        ethConfig.localStorageName,
+        sideConfig.localStorageName,
       )
       /* Synchronization end */
 
@@ -154,7 +154,7 @@ export default {
         data,
       } = await this.$services.TransactionService.getTransactions(
         accountAddress,
-        [rskConfig.networkId, ethConfig.networkId],
+        [rskConfig.networkId, sideConfig.networkId],
         {
           limit,
           offset,

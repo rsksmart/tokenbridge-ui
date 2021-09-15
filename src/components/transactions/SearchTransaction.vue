@@ -31,10 +31,10 @@
             class="form-check-input"
             type="radio"
             name="selectedNetwork"
-            :value="sharedState.ethConfig"
+            :value="sharedState.sideConfig"
           />
           <label class="form-check-label" for="inlineRadio2">{{
-            sharedState.ethConfig.name
+            sharedState.sideConfig.name
           }}</label>
         </div>
       </div>
@@ -175,7 +175,7 @@ export default {
       data.isSearching = true
       const originWeb3 = data.selectedNetwork.isRsk
         ? data.sharedState.rskWeb3
-        : data.sharedState.ethWeb3
+        : data.sharedState.sideWeb3
 
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transactionHash)
       if (!receipt) {

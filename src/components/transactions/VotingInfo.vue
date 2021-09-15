@@ -62,16 +62,16 @@ export default {
     fromNetwork() {
       return this.transaction.networkId == this.sharedState.rskConfig.networkId
         ? this.sharedState.rskConfig
-        : this.sharedState.ethConfig
+        : this.sharedState.sideConfig
     },
     toNetwork() {
       return this.fromNetwork.crossToNetwork
     },
     destinationWeb3() {
-      return this.toNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.ethWeb3
+      return this.toNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.sideWeb3
     },
     originWeb3() {
-      return this.fromNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.ethWeb3
+      return this.fromNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.sideWeb3
     },
     federationAddress() {
       return this.toNetwork.federation

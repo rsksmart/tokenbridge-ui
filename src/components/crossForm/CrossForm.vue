@@ -368,26 +368,7 @@ export default {
       return !this.sharedState.isConnected || this.showSpinner
     },
     currentNetworkTokens() {
-      const { tokens = [] } = this.sharedState
-      return (
-        tokens
-          // eslint-disable-next-line no-prototype-builtins
-          .filter(token => token.hasOwnProperty(this.originNetwork.networkId))
-          .map(token => ({
-            token: token.token,
-            name: token.name,
-            typeId: token.typeId,
-            icon: token.icon,
-            symbol: token[this.originNetwork.networkId].symbol,
-            address: token[this.originNetwork.networkId].address,
-            decimals: token[this.originNetwork.networkId].decimals,
-            methodType: token[this.originNetwork.networkId].methodType || METHOD_TYPES.RECEIVER,
-            receiveToken: {
-              icon: token.icon,
-              ...token[this.destinationNetwork.networkId],
-            },
-          }))
-      )
+      return this.originNetwork.tokens
     },
     senderAddress() {
       return this.sharedState.accountAddress || '0x00...00'
@@ -396,7 +377,7 @@ export default {
       return this.sharedState.currentConfig || this.sharedState.rskConfig
     },
     destinationNetwork() {
-      return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.ethConfig
+      return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.sideConfig
     },
     willReceiveToken() {
       return this.selectedToken?.receiveToken
@@ -673,7 +654,7 @@ export default {
     },
     setClaimCost() {
       const { currentConfig: { isRsk } = {} } = this.sharedState
-      const web3 = isRsk ? this.sharedState.ethWeb3 : this.sharedState.rskWeb3
+      const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
         this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${isRsk ? 'ETH' : 'RBTC'}`

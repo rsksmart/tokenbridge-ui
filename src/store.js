@@ -5,52 +5,13 @@ import Web3 from 'web3'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 
-import {
-  TEST_NET_KOVAN_CONFIG,
-  TEST_NET_BINANCE_CONFIG,
-  TEST_NET_RSK_CROSS_KOVAN_CONFIG,
-  MAIN_NET_ETH_CONFIG,
-  MAIN_NET_RSK_CONFIG,
-} from '@/constants/networks.js'
+import { getMainNetworkConf, getSideNetworkConf } from '@/constants/networks.js'
 
-import { TOKENS } from '@/constants/tokens.js'
+import { ALL_RPC } from '@/constants/rpc.js'
 import * as chainId from './constants/chainId'
 
-const rskMainnetUri = MAIN_NET_RSK_CONFIG.rpc
-const ethMainnetUri = MAIN_NET_ETH_CONFIG.rpc
-
-const rpcMainnet = {
-  [chainId.MAIN_NET_ETHEREUM]: ethMainnetUri,
-  [chainId.MAIN_NET_RSK]: rskMainnetUri,
-}
-
-const supportedChainsMainnet = [
-  chainId.MAIN_NET_ETHEREUM,
-  chainId.MAIN_NET_RSK,
-  chainId.MAIN_NET_BINANCE_SMART_CHAIN,
-]
-
-const TEST_NET_RSK_RPC = TEST_NET_RSK_CROSS_KOVAN_CONFIG.rpc
-const TEST_NET_RSK_CROSS_CHAIN_RPC = TEST_NET_KOVAN_CONFIG.rpc
-
-const rpcTestnet = {
-  [chainId.TEST_NET_BINANCE]: TEST_NET_BINANCE_CONFIG.rpc,
-  [chainId.TEST_NET_KOVAN]: TEST_NET_KOVAN_CONFIG.rpc,
-  [chainId.TEST_NET_RSK]: TEST_NET_RSK_RPC,
-}
-
-const supportedChainsTestnet = [
-  chainId.TEST_NET_KOVAN,
-  chainId.TEST_NET_RSK,
-  chainId.TEST_NET_BINANCE,
-]
-
-const isTestnet = !(process.env.VUE_APP_IS_MAINNET == 'true')
-const rskConfig = isTestnet ? TEST_NET_RSK_CROSS_KOVAN_CONFIG : MAIN_NET_RSK_CONFIG
-const sideChainConfig = isTestnet ? TEST_NET_KOVAN_CONFIG : MAIN_NET_ETH_CONFIG
-const tokens = TOKENS.filter(x => {
-  return x[rskConfig.networkId] && x[sideChainConfig.networkId]
-}).sort((first, second) => first.typeId - second.typeId)
+const rskConfig = getMainNetworkConf()
+const sideChainConfig = getSideNetworkConf()
 
 const rLogin = new RLogin({
   cachedProvider: false,
@@ -58,11 +19,11 @@ const rLogin = new RLogin({
     walletconnect: {
       package: WalletConnectProvider,
       options: {
-        rpc: isTestnet ? rpcTestnet : rpcMainnet,
+        rpc: ALL_RPC,
       },
     },
   },
-  supportedChains: isTestnet ? supportedChainsTestnet : supportedChainsMainnet,
+  supportedChains: chainId.ALL_CHAINS,
 })
 
 export const store = {
@@ -71,17 +32,15 @@ export const store = {
     provider: null,
     dataVault: null,
     disconnect: null,
-    isTestnet: isTestnet,
     rLogin: rLogin,
     isConnected: false,
     accountAddress: '',
     currentConfig: null,
     chainId: null,
-    rskWeb3: isTestnet ? new Web3(TEST_NET_RSK_RPC) : new Web3(rskMainnetUri),
-    ethWeb3: isTestnet ? new Web3(TEST_NET_RSK_CROSS_CHAIN_RPC) : new Web3(ethMainnetUri),
+    rskWeb3: new Web3(rskConfig.rpc),
+    sideWeb3: new Web3(sideChainConfig.rpc),
     rskConfig: rskConfig,
-    ethConfig: sideChainConfig,
-    tokens: tokens,
+    sideConfig: sideChainConfig,
     connectionError: '',
   }),
   accountsChanged(accounts) {
@@ -97,7 +56,7 @@ export const store = {
     if (rskConfig.networkId == chainId) {
       state.currentConfig = state.rskConfig
     } else if (sideChainConfig.networkId == chainId) {
-      state.currentConfig = state.ethConfig
+      state.currentConfig = state.sideConfig
     } else {
       state.isConnected = false
       state.connectionError = `Unknown network, should be ${rskConfig.name} or ${sideChainConfig.name} networks`
