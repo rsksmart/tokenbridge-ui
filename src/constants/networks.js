@@ -1,12 +1,12 @@
 // --------- CONFIGS ----------
 export const KOVAN_CONFIG = {
-  networkId: 42,
+  networkId: 4,
   name: 'Kovan',
   localStorageName: 'ethereum-kovan',
-  bridge: '0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d',
-  allowTokens: '0x92BF86334583909B60F9b798A9Dd7Debd899fEc4',
-  federation: '0xa347438BC288f56Cb6083A79133e70DD2d1f6c2d',
-  explorer: 'https://kovan.etherscan.io',
+  bridge: '0xB9b8d1e30F0EBEC0C8F4CF0B1717566d84FC4080',
+  allowTokens: '0xAE3852306015df037D458a65173BBc7527F4680b',
+  federation: '0xBC383764ceBc13b66c04E1abeb36804a0Caaa5C6',
+  explorer: 'https://rinkeby.etherscan.io',
   explorerTokenTab: '#tokentxns',
   secondsPerBlock: 5,
   rpc: `https://kovan.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
@@ -19,9 +19,9 @@ export const RSK_TESTNET_CONFIG = {
   networkId: 31,
   name: 'RSK Testnet',
   localStorageName: 'rsk-testnet',
-  bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
-  allowTokens: '0xc65bf0ae75dc1a5fc9e6f4215125692a548c773a',
-  federation: '0x5d663981d930e8ec108280b9d80885658148ab0f',
+  bridge: '0xD28f2EEB1a242462149542BDF90C4CC99271fa70',
+  allowTokens: '0x71f228664e2A118dEcD19B68C5151014769757a0',
+  federation: '0xBC7a3f163b2fe1d6810a942417922F09F1fe82eD',
   explorer: 'https://explorer.testnet.rsk.co',
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
@@ -73,6 +73,6 @@ ETH_CONFIG.crossToNetwork = RSK_MAINNET_CONFIG
 export const NETWORKS = {
   31: RSK_TESTNET_CONFIG,
   30: RSK_MAINNET_CONFIG,
-  42: KOVAN_CONFIG,
+  4: KOVAN_CONFIG,
   1: ETH_CONFIG,
 }
