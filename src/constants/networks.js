@@ -51,8 +51,8 @@ export const TEST_NET_KOVAN_CONFIG = {
   isSide: true,
   tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
 }
-export const RINKEBY_CONFIG = {
-  networkId: 4,
+export const TEST_NET_RINKEBY_CONFIG = {
+  networkId: chainId.TEST_NET_RINKEBY,
   name: 'Rinkeby',
   localStorageName: 'ethereum-rinkevy',
   bridge: '0x7E339118346364d7D86AB67cb0775CBB808E65F7',
@@ -65,8 +65,10 @@ export const RINKEBY_CONFIG = {
   rpc: `https://rinkeby.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
   v2UpdateBlock: 25547922,
   feePercentageDivider: 10_000,
+  mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
-  isEth: true,
+  isSide: true,
+  tokens: [],
 }
 
 export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
@@ -112,8 +114,8 @@ export const TEST_NET_RSK_CROSS_BINANCE_CONFIG = {
   tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_BINANCE_TOKENS),
 }
 
-export const RSK_TESTNET_CONFIG = {
-  networkId: 31,
+export const TEST_NET_RSK_CROSS_RINKEBY_CONFIG = {
+  networkId: chainId.TEST_NET_RSK,
   name: 'RSK Testnet',
   localStorageName: 'rsk-testnet',
   bridge: '0x8c8a34fe13400169a8da50908dffde4985237d19',
@@ -126,12 +128,14 @@ export const RSK_TESTNET_CONFIG = {
   rpc: 'https://public-node.testnet.rsk.co',
   v2UpdateBlock: 1945524,
   feePercentageDivider: 10_000,
-  crossToNetwork: RINKEBY_CONFIG,
+  crossToNetwork: TEST_NET_RINKEBY_CONFIG,
+  tokenPrefix: 'b',
+  mainToken: TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
   isRsk: true,
-  isEth: false,
+  isSide: false,
+  tokens: [],
 }
-RINKEBY_CONFIG.crossToNetwork = RSK_TESTNET_CONFIG
-TEST_NET_BINANCE_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_BINANCE_CONFIG
+TEST_NET_RINKEBY_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_RINKEBY_CONFIG
 
 export const MAIN_NET_ETH_CONFIG = {
   networkId: chainId.MAIN_NET_ETHEREUM,
@@ -198,6 +202,8 @@ export function getRskNetworkConf() {
       return TEST_NET_RSK_CROSS_BINANCE_CONFIG
     case chainId.TEST_NET_KOVAN:
       return TEST_NET_RSK_CROSS_KOVAN_CONFIG
+    case chainId.TEST_NET_RINKEBY:
+      return TEST_NET_RSK_CROSS_RINKEBY_CONFIG
     // here we can put another conf like for rinkeby
   }
 
@@ -210,6 +216,8 @@ export function getSideNetworkConf() {
       return TEST_NET_BINANCE_CONFIG
     case chainId.TEST_NET_KOVAN:
       return TEST_NET_KOVAN_CONFIG
+    case chainId.TEST_NET_RINKEBY:
+      return TEST_NET_RINKEBY_CONFIG
   }
 
   return MAIN_NET_ETH_CONFIG

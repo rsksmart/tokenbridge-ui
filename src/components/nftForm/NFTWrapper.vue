@@ -96,7 +96,7 @@ export default {
       return this.sharedState.currentConfig || this.sharedState.rskConfig
     },
     destinationNetwork() {
-      return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.ethConfig
+      return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.sideConfig
     },
   },
   methods: {
@@ -161,6 +161,7 @@ export default {
           )
         })
         this.isLoadingApprove = false
+        this.isApproved = true
       } catch (approvalError) {
         this.isLoadingApprove = false
         this.$modal.value.showModal({

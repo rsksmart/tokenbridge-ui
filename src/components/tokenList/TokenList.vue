@@ -28,10 +28,12 @@
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody
+        v-if="sharedState.rskConfig.tokens.length > 0 && sharedState.sideConfig.tokens.length > 0"
+      >
         <TokenRow
           v-for="token in sharedState.rskConfig.tokens.concat(sharedState.sideConfig.tokens)"
-          :key="token.token"
+          :key="token"
           :token="token"
           :types-limits="typesLimits"
         />
