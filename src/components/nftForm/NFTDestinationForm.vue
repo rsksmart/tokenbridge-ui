@@ -5,7 +5,11 @@
     </h3>
     <div class="form-row">
       <div class="form-group col-md-6">
-        <label for="nftReceiverAddress" class="form-label">NFT Address</label>
+        <label for="nftReceiverAddress" class="form-label">
+          <a id="same-address" class="same-address" @click="useSameAddress">
+            NFT address
+          </a>
+        </label>
         <Field
           id="nftReceiverAddress"
           v-model="nftReceiverAddress"
@@ -42,12 +46,14 @@
 import { ErrorMessage, Field, Form } from 'vee-validate'
 import { store } from '@/store'
 import NFT_BRIDGE from '@/constants/abis/nft-bridge.json'
-import { asyncTryCatch } from '@/utils/try-catch'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
+import { txExplorerLink } from '@/utils/text-helpers'
+import { waitForReceipt } from '@/utils'
 
 export default {
   name: 'NFTDestinationForm',
   components: { Form, Field, ErrorMessage },
+  inject: ['$modal'],
   props: {
     destinationNetwork: {
       type: Object,
@@ -76,31 +82,77 @@ export default {
   },
   async created() {
     const web3 = this.sharedState.web3
-    this.nftBridgeContract = new web3.eth.Contract(NFT_BRIDGE, this.nftContractAddress)
+    this.nftBridgeContract = new web3.eth.Contract(NFT_BRIDGE, this.sharedState.ethConfig.nftBridge)
     try {
       const fee = await this.nftBridgeContract.methods.getFixedFee().call()
       this.feePrice = fee
     } catch (feeError) {
-      console.error(feeError)
+      this.$modal.value.showModal({
+        type: 'error',
+        options: { modalProps: { title: 'Getting Fee', message: feeError.message } },
+      })
     }
   },
   methods: {
     async onSubmit() {
-      const gasPrice = await store.getGasPriceHex()
-      this.nftBridgeContract.methods
-        .receiveTokensTo(this.nftContractAddress, this.nftReceiverAddress, this.tokenId)
-        .send({
-          from: this.nftContractAddress,
-          gasPrice: gasPrice,
-          gas: ESTIMATED_GAS_AVG,
+      const currentConfig = this.sharedState.currentConfig
+      const web3 = this.sharedState.web3
+      try {
+        const gasPrice = await store.getGasPriceHex()
+        const transaction = await new Promise((resolve, reject) => {
+          this.nftBridgeContract.methods
+            .receiveTokensTo(this.nftContractAddress, this.nftReceiverAddress, this.tokenId)
+            .send(
+              {
+                from: this.sharedState.accountAddress,
+                gasPrice: gasPrice,
+                gas: ESTIMATED_GAS_AVG,
+              },
+              async (err, txHash) => {
+                const txExplorerLinkRes = txExplorerLink(txHash, currentConfig.explorer)
+                if (err) {
+                  reject(new Error(`Execution failed ${err.message} ${txExplorerLinkRes}`))
+                }
+                try {
+                  const receipt = await waitForReceipt(txHash, web3)
+                  if (receipt.status) {
+                    resolve(receipt)
+                  } else {
+                    reject(
+                      new Error(`Transaction status failed ${err?.message || ''} ${txExplorerLinkRes}`),
+                    )
+                  }
+                } catch (error) {
+                  reject(new Error(`${error} ${txExplorerLinkRes}`))
+                }
+              },
+            )
         })
+        return {
+          success: true,
+          data: transaction,
+        }
+      } catch (error) {
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { title: 'Error Crossing NFT', message: error.message } },
+        })
+        return {
+          success: false,
+          data: { message: error.message },
+        }
+      }
     },
     async handleSubmitExternal() {
       const { valid } = await this.$refs.nftForm.validate()
       if (!valid) {
         return
       }
-      await this.$refs.nftForm.onSubmit()
+      return await this.$refs.nftForm.onSubmit()
+    },
+    useSameAddress(event) {
+      if (event) event.preventDefault()
+      this.nftReceiverAddress = this.sharedState.accountAddress
     },
   },
 }
