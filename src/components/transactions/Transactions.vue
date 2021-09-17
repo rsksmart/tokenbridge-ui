@@ -3,21 +3,21 @@
     <SearchTransaction
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
-      :eth-confirmations="ethConfirmations"
+      :side-confirmations="sideConfirmations"
       :rsk-fed-members="rskFedMembers"
-      :eth-fed-members="ethFedMembers"
+      :side-fed-members="sideFedMembers"
       :rsk-block-number="rskBlockNumber"
-      :eth-block-number="ethBlockNumber"
+      :side-block-number="sideBlockNumber"
     />
     <TransactionList
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
-      :eth-confirmations="ethConfirmations"
+      :side-confirmations="sideConfirmations"
       :rsk-fed-members="rskFedMembers"
-      :eth-fed-members="ethFedMembers"
+      :side-fed-members="sideFedMembers"
       :transactions="transactions"
       :rsk-block-number="rskBlockNumber"
-      :eth-block-number="ethBlockNumber"
+      :side-block-number="sideBlockNumber"
       :limit="limit"
       :total-transactions="totalTransactions"
       @changePagination="changePagination"
@@ -49,7 +49,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -57,7 +57,7 @@ export default {
       type: Array,
       required: true,
     },
-    ethFedMembers: {
+    sideFedMembers: {
       type: Array,
       required: true,
     },
@@ -71,7 +71,7 @@ export default {
       sharedState: store.state,
       transactions: [],
       rskBlockNumber: 0,
-      ethBlockNumber: 0,
+      sideBlockNumber: 0,
       pollingBlockNumber: null,
       limit: 10,
       totalTransactions: 0,
@@ -116,7 +116,7 @@ export default {
       }
       if (sideWeb3) {
         retry3Times(sideWeb3.eth.getBlockNumber).then(blockNumber => {
-          data.ethBlockNumber = blockNumber
+          data.sideBlockNumber = blockNumber
         })
       }
     },

@@ -2,7 +2,7 @@
   <div>
     <div class="nft-wrapper container p-5 mt-5">
       <div class="row">
-        <h2 class="text-primary">NFT's bridge coming soon...</h2>
+        <h2 class="text-primary">NFTs bridge coming soon...</h2>
       </div>
     </div>
   </div>

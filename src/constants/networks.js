@@ -9,12 +9,7 @@ import { TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN } 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
 const sideChainIdStr = process.env.VUE_APP_SIDE_CHAIN_ID
 
-let sideChainId
-if (!sideChainIdStr) {
-  sideChainId = chainId.MAIN_NET_ETHEREUM
-} else {
-  sideChainId = parseInt(sideChainIdStr, 10)
-}
+const sideChainId = sideChainIdStr ? parseInt(sideChainIdStr, 10) : chainId.MAIN_NET_ETHEREUM
 
 // --------- CONFIGS ----------
 export const TEST_NET_BINANCE_CONFIG = {

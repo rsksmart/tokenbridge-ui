@@ -31,7 +31,7 @@ export class TransactionService {
       this.saveTransaction(newTransaction)
     })
     await Promise.all(migratedTransactions)
-    const storageKey = TXN_Storage.crateStorageKey(accountAddress, networkName)
+    const storageKey = TXN_Storage.createStorageKey(accountAddress, networkName)
     const itemsToSave = TXN_Storage.Storage.getItem(storageKey)
     if (itemsToSave) {
       TXN_Storage.Storage.setItem(`${storageKey}_deprecated`, itemsToSave)
