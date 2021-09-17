@@ -283,7 +283,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethFee: {
+    sideFee: {
       type: Number,
       required: true,
     },
@@ -291,7 +291,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -327,7 +327,7 @@ export default {
       )
         return {}
       const config = this.sharedState.currentConfig
-      const confirmations = config.isRsk ? this.rskConfirmations : this.ethConfirmations
+      const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations
       // convert amount to wei to compare against limits
       const amount = new BigNumber(this.amount).shiftedBy(18)
       const limit = this.typesLimits[this.selectedToken?.typeId]
@@ -362,7 +362,7 @@ export default {
     },
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
-      return this.sharedState.currentConfig.isRsk ? this.rskFee : this.ethFee
+      return this.sharedState.currentConfig.isRsk ? this.rskFee : this.sideFee
     },
     disabled() {
       return !this.sharedState.isConnected || this.showSpinner
