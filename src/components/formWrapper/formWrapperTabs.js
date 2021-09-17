@@ -18,7 +18,7 @@ if (nftAvailable) {
   })
 } else {
   formWrapperTabs.push({
-    label: 'NFT - Soon',
+    label: 'NFT',
     component: NFTWrapperCommingSoon,
   })
 }
