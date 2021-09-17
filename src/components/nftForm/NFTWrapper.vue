@@ -121,6 +121,10 @@ export default {
         }
         this.isLoadingCross = false
       } catch (error) {
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { message: error.message } },
+        })
         this.isLoadingCross = false
       }
     },
