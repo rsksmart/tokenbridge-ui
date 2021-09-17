@@ -7,8 +7,11 @@ import {
   MAIN_NET_RSK_CONFIG,
 } from './networks'
 
-const mainChainId = process.env.MAIN_CHAIN_ID
-const sideChainId = process.env.SIDE_CHAIN_ID
+const sideChainIdStr = process.env.VUE_APP_SIDE_CHAIN_ID
+const mainChainIdStr = process.env.VUE_APP_MAIN_CHAIN_ID
+
+const sideChainId = sideChainIdStr ? parseInt(sideChainIdStr, 10) : chainId.MAIN_NET_ETHEREUM
+const mainChainId = mainChainIdStr ? parseInt(mainChainIdStr, 10) : chainId.MAIN_NET_RSK
 
 // --------- CONFIGS ----------
 export const TEST_NET_RPC = {

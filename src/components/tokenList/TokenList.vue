@@ -2,8 +2,8 @@
   <div class="token-list mt-5 mb-5">
     <h2 id="token-list" class="subtitle">Token list</h2>
     <p class="text-center">
-      Ethereum native tokens will transform into r(tokenName). RSK native tokens will transform into
-      e(tokenName)
+      {{ sharedState.sideConfig.name }} native tokens will transform into {{ sharedState.rskConfig.tokenPrefix }}(tokenName). {{ sharedState.rskConfig.name }} native tokens will transform into
+      {{ sharedState.sideConfig.tokenPrefix }}(tokenName)
     </p>
     <table class="table">
       <thead>

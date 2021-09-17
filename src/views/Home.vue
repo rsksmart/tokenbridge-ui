@@ -102,7 +102,7 @@ export default {
     retry3Times(ethBridge.methods.getFeePercentage().call).then(fee => {
       data.sideFee = fee / sideConfig.feePercentageDivider
     })
-    // We have the premice that the limits will be equal in ETH and in RSK
+    // We have the premice that the limits will be equal in Side and in RSK
     // And the tokens wil have the same type on both networks
     const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
     retry3Times(rskAllowTokens.methods.getTypesLimits().call).then(limits => {
@@ -125,8 +125,8 @@ export default {
       members => (data.rskFedMembers = members),
     )
 
-    const ethAllowTokens = new sideWeb3.eth.Contract(ALLOW_TOKENS_ABI, sideConfig.allowTokens)
-    retry3Times(ethAllowTokens.methods.getConfirmations().call).then(confirmations => {
+    const sideAllowTokens = new sideWeb3.eth.Contract(ALLOW_TOKENS_ABI, sideConfig.allowTokens)
+    retry3Times(sideAllowTokens.methods.getConfirmations().call).then(confirmations => {
       data.sideConfirmations = {
         smallAmount: confirmations.smallAmount,
         smallAmountTime: blocksToTime(confirmations.smallAmount, sideConfig.secondsPerBlock),
@@ -137,8 +137,8 @@ export default {
       }
     })
 
-    const ethFederation = new sideWeb3.eth.Contract(FEDERATION_ABI, sideConfig.federation)
-    retry3Times(ethFederation.methods.getMembers().call).then(
+    const sideFederation = new sideWeb3.eth.Contract(FEDERATION_ABI, sideConfig.federation)
+    retry3Times(sideFederation.methods.getMembers().call).then(
       members => (data.sideFedMembers = members),
     )
   },

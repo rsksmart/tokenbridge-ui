@@ -269,7 +269,7 @@ export default {
       this.refreshStep()
     },
     sideBlockNumber() {
-      if (!this.fromNetwork.isEth) return
+      if (!this.fromNetwork.isSide) return
       this.refreshStep()
     },
     transaction() {

@@ -5,11 +5,11 @@ import Web3 from 'web3'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 
-import { getMainNetworkConf, getSideNetworkConf } from '@/constants/networks.js'
+import { getRskNetworkConf, getSideNetworkConf } from '@/constants/networks.js'
 
 import { ALL_RPC } from '@/constants/rpc.js'
 
-const rskConfig = getMainNetworkConf()
+const rskConfig = getRskNetworkConf()
 const sideChainConfig = getSideNetworkConf()
 
 const rLogin = new RLogin({
