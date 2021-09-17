@@ -1,12 +1,12 @@
 // Store pattern https://v3.vuejs.org/guide/state-management.html#simple-state-management-from-scratch
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 
 import Web3 from 'web3'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 
 import {
-  KOVAN_CONFIG,
+  RINKEBY_CONFIG,
   RSK_TESTNET_CONFIG,
   ETH_CONFIG,
   RSK_MAINNET_CONFIG,
@@ -25,17 +25,17 @@ const rpcMainnet = {
 const supportedChainsMainnet = [1, 30]
 
 const rskTestnetUri = 'https://public-node.testnet.rsk.co'
-const kovanUri = `https://kovan.infura.io/v3/${infuraKey}`
+const kovanUri = `https://rinkeby.infura.io/v3/${infuraKey}`
 
 const rpcTestnet = {
-  42: kovanUri,
+  4: kovanUri,
   31: rskTestnetUri,
 }
-const supportedChainsTestnet = [42, 31]
+const supportedChainsTestnet = [31, 4]
 
 const isTestnet = !(process.env.VUE_APP_IS_MAINNET == 'true')
 const rskConfig = isTestnet ? RSK_TESTNET_CONFIG : RSK_MAINNET_CONFIG
-const ethConfig = isTestnet ? KOVAN_CONFIG : ETH_CONFIG
+const ethConfig = isTestnet ? RINKEBY_CONFIG : ETH_CONFIG
 const tokens = TOKENS.filter(x => {
   return x[rskConfig.networkId] && x[ethConfig.networkId]
 }).sort((first, second) => first.typeId - second.typeId)

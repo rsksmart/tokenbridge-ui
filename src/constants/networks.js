@@ -15,7 +15,26 @@ export const KOVAN_CONFIG = {
   isRsk: false,
   isEth: true,
 }
-export const RSK_TESTNET_CONFIG = {
+
+export const RINKEBY_CONFIG = {
+  networkId: 4,
+  name: 'Rinkeby',
+  localStorageName: 'ethereum-rinkevy',
+  bridge: '0x7E339118346364d7D86AB67cb0775CBB808E65F7',
+  allowTokens: '0xAE3852306015df037D458a65173BBc7527F4680b',
+  federation: '0xBC383764ceBc13b66c04E1abeb36804a0Caaa5C6',
+  nftBridge: '0xB9b8d1e30F0EBEC0C8F4CF0B1717566d84FC4080',
+  explorer: 'https://rinkeby.etherscan.io',
+  explorerTokenTab: '#tokentxns',
+  secondsPerBlock: 5,
+  rpc: `https://rinkeby.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
+  v2UpdateBlock: 25547922,
+  feePercentageDivider: 10_000,
+  isRsk: false,
+  isEth: true,
+}
+
+export const RSK_TESTNET_KOVAN_CONFIG = {
   networkId: 31,
   name: 'RSK Testnet',
   localStorageName: 'rsk-testnet',
@@ -32,7 +51,26 @@ export const RSK_TESTNET_CONFIG = {
   isRsk: true,
   isEth: false,
 }
-KOVAN_CONFIG.crossToNetwork = RSK_TESTNET_CONFIG
+
+export const RSK_TESTNET_CONFIG = {
+  networkId: 31,
+  name: 'RSK Testnet',
+  localStorageName: 'rsk-testnet',
+  bridge: '0x8c8a34fe13400169a8da50908dffde4985237d19',
+  allowTokens: '0x71f228664e2a118decd19b68c5151014769757a0',
+  federation: '0xbc7a3f163b2fe1d6810a942417922f09f1fe82ed',
+  nftBridge: '0xd28f2eeb1a242462149542bdf90c4cc99271fa70',
+  explorer: 'https://explorer.testnet.rsk.co',
+  explorerTokenTab: '?__tab=tokens%20transfers',
+  secondsPerBlock: 30,
+  rpc: 'https://public-node.testnet.rsk.co',
+  v2UpdateBlock: 1945524,
+  feePercentageDivider: 10_000,
+  crossToNetwork: RINKEBY_CONFIG,
+  isRsk: true,
+  isEth: false,
+}
+RINKEBY_CONFIG.crossToNetwork = RSK_TESTNET_CONFIG
 
 // Replace with proper values contracts exist in mainnet
 export const ETH_CONFIG = {
@@ -73,6 +111,6 @@ ETH_CONFIG.crossToNetwork = RSK_MAINNET_CONFIG
 export const NETWORKS = {
   31: RSK_TESTNET_CONFIG,
   30: RSK_MAINNET_CONFIG,
-  42: KOVAN_CONFIG,
+  4: RINKEBY_CONFIG,
   1: ETH_CONFIG,
 }
