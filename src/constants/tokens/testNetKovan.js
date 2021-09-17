@@ -1,7 +1,16 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
+export const TEST_NET_KOVAN_MAIN_TOKEN = {
+  ...tokensInfo.TOKEN_WETH_INFO,
+  symbol: 'ETH',
+  address: '0xd0A1E359811322d97991E03f863a0C30C2cF029C',
+  decimals: 18,
+  methodType: methodType.DEPOSITOR,
+}
+
 export const TEST_NET_KOVAN_TOKENS = [
+  TEST_NET_KOVAN_MAIN_TOKEN,
   {
     ...tokensInfo.TOKEN_DOC_INFO,
     symbol: 'eDOC',
@@ -43,13 +52,6 @@ export const TEST_NET_KOVAN_TOKENS = [
     address: '0x0000000000085d4780B73119b644AE5ecd22b376',
     decimals: 18,
     methodType: methodType.RECEIVER,
-  },
-  {
-    ...tokensInfo.TOKEN_WETH_INFO,
-    symbol: 'ETH',
-    address: '0xd0A1E359811322d97991E03f863a0C30C2cF029C',
-    decimals: 18,
-    methodType: methodType.DEPOSITOR,
   },
   {
     ...tokensInfo.TOKEN_ZRX_INFO,

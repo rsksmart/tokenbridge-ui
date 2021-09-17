@@ -1,7 +1,16 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
+export const TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN = {
+  ...tokensInfo.TOKEN_WETH_INFO,
+  symbol: 'rETH',
+  address: '0xd15cDD74DfF1A6A81Ca639B038839B126BC01FF9',
+  decimals: 18,
+  methodType: methodType.RECEIVER,
+}
+
 export const TEST_NET_RSK_CROSS_KOVAN_TOKENS = [
+  TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
   {
     ...tokensInfo.TOKEN_DOC_INFO,
     symbol: 'DOC',
@@ -41,13 +50,6 @@ export const TEST_NET_RSK_CROSS_KOVAN_TOKENS = [
     ...tokensInfo.TOKEN_TUSD_INFO,
     symbol: 'rKovTUSD',
     address: '0x0a8d098e31a60da2b9c874d97de6e6b385c28e9d',
-    decimals: 18,
-    methodType: methodType.RECEIVER,
-  },
-  {
-    ...tokensInfo.TOKEN_WETH_INFO,
-    symbol: 'rETH',
-    address: '0xd15cDD74DfF1A6A81Ca639B038839B126BC01FF9',
     decimals: 18,
     methodType: methodType.RECEIVER,
   },

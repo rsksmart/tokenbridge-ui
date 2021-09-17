@@ -2,13 +2,13 @@
   <tr class="token-row">
     <th scope="row"><img :src="token.icon" class="token-logo" /></th>
     <td>
-      <a :href="rskExplorerUrl" target="_blank">{{ token[rskNetworkId].symbol }}</a>
+      <a :href="rskExplorerUrl" target="_blank">{{ token.symbol }}</a>
       <a class="float-right mr-3" href="#" @click="copyRskTransactionHash">
         <i :class="copyRskIcon"></i>
       </a>
     </td>
     <td>
-      <a :href="ethExplorerUrl" target="_blank">{{ token[ethNetworkId].symbol }}</a>
+      <a :href="ethExplorerUrl" target="_blank">{{ token.receiveToken.symbol }}</a>
       <a class="float-right mr-3" href="#" @click="copyEthTransactionHash">
         <i :class="copyEthIcon"></i>
       </a>
@@ -54,13 +54,13 @@ export default {
       return `${this.sharedState.rskConfig.explorer}/address/${this.rskTokenAddress}`
     },
     rskTokenAddress() {
-      return this.token[this.sharedState.rskConfig.networkId].address.toLowerCase()
+      return this.token.address.toLowerCase()
     },
     ethExplorerUrl() {
       return `${this.sharedState.sideConfig.explorer}/address/${this.ethTokenAddress}`
     },
     ethTokenAddress() {
-      return this.token[this.sharedState.sideConfig.networkId].address.toLowerCase()
+      return this.token.receiveToken.address.toLowerCase()
     },
     rskNetworkId() {
       return this.sharedState.rskConfig.networkId

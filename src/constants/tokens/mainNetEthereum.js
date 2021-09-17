@@ -1,6 +1,11 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
+export const MAIN_NET_ETHEREUM_MAIN_TOKEN = {
+  ...tokensInfo.TOKEN_WETH_INFO,
+  symbol: 'ETH',
+}
+
 export const MAIN_NET_ETHEREUM_TOKENS = [
   {
     ...tokensInfo.TOKEN_DOC_INFO,

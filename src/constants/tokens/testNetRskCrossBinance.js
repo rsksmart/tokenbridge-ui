@@ -1,7 +1,16 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
+export const TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN = {
+  ...tokensInfo.TOKEN_WBNB_INFO,
+  symbol: 'bWBNB',
+  address: '0x50f2cD4E18428E1c8C73b7638D5DA32975663e16',
+  decimals: 18,
+  methodType: methodType.RECEIVER,
+}
+
 export const TEST_NET_RSK_CROSS_BINANCE_TOKENS = [
+  TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
   {
     ...tokensInfo.TOKEN_DAI_INFO,
     symbol: 'bDAI',
