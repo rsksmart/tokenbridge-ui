@@ -9,19 +9,11 @@ const formWrapperTabs = [
     label: 'ERC20 Tokens',
     component: CrossForm,
   },
+  {
+    label: 'NFT',
+    component: nftAvailable ? NFTWrapper : NFTWrapperCommingSoon,
+  },
 ]
-
-if (nftAvailable) {
-  formWrapperTabs.push({
-    label: 'NFT',
-    component: NFTWrapper,
-  })
-} else {
-  formWrapperTabs.push({
-    label: 'NFT',
-    component: NFTWrapperCommingSoon,
-  })
-}
 
 export const tabsComponents = formWrapperTabs.reduce((acc, current) => {
   const component = current.component
