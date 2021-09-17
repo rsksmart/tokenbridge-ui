@@ -25,9 +25,10 @@ export const TEST_NET_BINANCE_CONFIG = {
   rpc: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
   v2UpdateBlock: 1,
   feePercentageDivider: 10_000,
+  tokenPrefix: 'b',
   mainToken: TEST_NET_BINANCE_MAIN_TOKEN,
   isRsk: false,
-  isEth: true,
+  isSide: true,
   tokens: getTokensWithReceiveToken(TEST_NET_BINANCE_TOKENS, TEST_NET_RSK_CROSS_BINANCE_TOKENS),
 }
 
@@ -44,9 +45,10 @@ export const TEST_NET_KOVAN_CONFIG = {
   rpc: `https://kovan.infura.io/v3/${infuraKey}`,
   v2UpdateBlock: 25547922,
   feePercentageDivider: 10_000,
+  tokenPrefix: 'e',
   mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
-  isEth: true,
+  isSide: true,
   tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
 }
 export const RINKEBY_CONFIG = {
@@ -81,9 +83,10 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   v2UpdateBlock: 1945524,
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_KOVAN_CONFIG,
+  tokenPrefix: 'r',
   mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
   isRsk: true,
-  isEth: false,
+  isSide: false,
   tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_KOVAN_TOKENS),
 }
 TEST_NET_KOVAN_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_KOVAN_CONFIG
@@ -102,9 +105,10 @@ export const TEST_NET_RSK_CROSS_BINANCE_CONFIG = {
   v2UpdateBlock: 1945524,
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_BINANCE_CONFIG,
+  tokenPrefix: 'b',
   mainToken: TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
   isRsk: true,
-  isEth: false,
+  isSide: false,
   tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_BINANCE_TOKENS),
 }
 
@@ -142,9 +146,10 @@ export const MAIN_NET_ETH_CONFIG = {
   rpc: `https://mainnet.infura.io/v3/${infuraKey}`,
   v2UpdateBlock: 12871770,
   feePercentageDivider: 10_000,
+  tokenPrefix: 'e',
   mainToken: MAIN_NET_ETHEREUM_MAIN_TOKEN,
   isRsk: false,
-  isEth: true,
+  isSide: true,
   tokens: getTokensWithReceiveToken(MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS),
 }
 
@@ -162,9 +167,10 @@ export const MAIN_NET_RSK_CONFIG = {
   v2UpdateBlock: 3540341,
   feePercentageDivider: 10_000,
   crossToNetwork: MAIN_NET_ETH_CONFIG,
+  tokenPrefix: 'r',
   mainToken: MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN,
   isRsk: true,
-  isEth: false,
+  isSide: false,
   tokens: getTokensWithReceiveToken(MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_TOKENS),
 }
 MAIN_NET_ETH_CONFIG.crossToNetwork = MAIN_NET_RSK_CONFIG
@@ -185,7 +191,7 @@ function getTokensWithReceiveToken(mainTokens, sideTokens) {
   }))
 }
 
-export function getMainNetworkConf() {
+export function getRskNetworkConf() {
   // if it has the side chain set, depends on the side chain
   switch (sideChainId) {
     case chainId.TEST_NET_BINANCE:
