@@ -42,6 +42,12 @@
           type="submit"
           :disabled="disabled"
         >
+          <span
+            v-if="isLoading"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
           Get Info
         </button>
       </div>
@@ -54,11 +60,11 @@ import { Form, Field, ErrorMessage } from 'vee-validate'
 import { store } from '@/store'
 import SIDE_NFT_TOKEN from '@/constants/abis/side_nft_token.json'
 import { asyncTryCatch } from '@/utils/try-catch'
-import { isEmptyAddress } from "@/utils/text-helpers";
 
 export default {
   name: 'NFTForm',
   components: { Form, Field, ErrorMessage },
+  inject: ['$modal'],
   props: {
     originNetwork: {
       type: Object,
@@ -88,26 +94,41 @@ export default {
   },
   methods: {
     async onSubmit() {
-      console.log('OnSubmit')
       const web3 = this.sharedState.web3
       const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
+      this.isLoading = true
 
       const [tokenURIError, uri] = await asyncTryCatch(erc721.methods.tokenURI(this.tokenId).call)
       if (tokenURIError) {
-        console.error(tokenURIError)
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { message: tokenURIError.message } },
+        })
+        this.isLoading = false
         return
       }
-      const [approvedError, addressApproved] = await asyncTryCatch(
-        erc721.methods.getApproved(this.tokenId).call,
+      const [approvedError, isApprovedForAll] = await asyncTryCatch(
+        erc721.methods.isApprovedForAll(
+          this.sharedState.accountAddress,
+          this.sharedState.currentConfig.nftBridge,
+        ).call,
       )
-      console.log('Address Approve', addressApproved)
+
       if (approvedError) {
-        console.error(approvedError)
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { message: approvedError.message } },
+        })
+        this.isLoading = false
         return
       }
       const [uriError, response] = await asyncTryCatch(fetch, uri)
       if (uriError) {
-        console.error(uriError)
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { message: uriError.message } },
+        })
+        this.isLoading = false
         return
       }
       try {
@@ -117,12 +138,17 @@ export default {
           metadata: this.metadata,
           web3Contract: erc721,
           nftContractAddress: this.nftContractAddress,
-          addressApproved,
+          isApprovedForAll,
           tokenId: this.tokenId,
-          isApproved: !isEmptyAddress(addressApproved),
+          isApproved: isApprovedForAll,
         })
+        this.isLoading = false
       } catch (jsonError) {
-        console.error(jsonError)
+        this.isLoading = false
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { message: jsonError.message } },
+        })
       }
     },
   },

@@ -23,13 +23,29 @@
       <div class="row justify-content-center">
         <button
           v-if="!isApproved"
-          class="btn btn-primary"
-          :disabled="!loadedInfo"
+          class="nft-btn btn btn-primary mr-3"
+          :disabled="!loadedInfo || isLoadingApprove"
           @click="handleApprove"
         >
+          <span
+            v-if="isLoadingApprove"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
           Approve
         </button>
-        <button class="btn btn-primary" :disabled="!loadedInfo" @click="handleCrossNFT">
+        <button
+          class="nft-btn btn btn-primary"
+          :disabled="!loadedInfo || !isApproved || isLoadingCross"
+          @click="handleCrossNFT"
+        >
+          <span
+            v-if="isLoadingCross"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
           Cross NFT
         </button>
       </div>
@@ -49,6 +65,7 @@ import { txExplorerLink } from '@/utils/text-helpers'
 export default {
   name: 'NFTWrapper',
   components: { NFTViewInformation, NFTForm, NFTDestinationForm },
+  inject: ['$modal'],
   props: {
     rskFee: {
       type: Number,
@@ -70,6 +87,8 @@ export default {
       web3Contract: null,
       nftContractAddress: '',
       isApproved: false,
+      isLoadingApprove: false,
+      isLoadingCross: false,
     }
   },
   computed: {
@@ -91,22 +110,37 @@ export default {
       this.loadedInfo = true
     },
     async handleCrossNFT() {
-      await this.$refs.destinationForm.handleSubmitExternal()
+      this.isLoadingCross = true
+      try {
+        const submitResponse = await this.$refs.destinationForm.handleSubmitExternal()
+        if (submitResponse.success) {
+          this.$modal.value.showModal({
+            type: 'success',
+            options: { modalProps: { message: 'Success Operation' } },
+          })
+        }
+        this.isLoadingCross = false
+      } catch (error) {
+        this.isLoadingCross = false
+      }
     },
     async handleApprove() {
       const currentConfig = this.sharedState.currentConfig
-      // TODO: Check Correct address
-      const bridgeAddress = currentConfig.bridge
       const web3 = this.sharedState.web3
       const accountAddress = this.sharedState.accountAddress
+      this.isLoadingApprove = true
       try {
         const tokenContract = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
         const gasPrice = await store.getGasPriceHex()
 
-        return new Promise((resolve, reject) => {
-          tokenContract.methods
-            .setApprovalForAll(bridgeAddress, false)
-            .send({ from: accountAddress, gasPrice, gas: 70_000 }, async (err, txHash) => {
+        await new Promise((resolve, reject) => {
+          tokenContract.methods.setApprovalForAll(currentConfig.nftBridge, true).send(
+            {
+              from: accountAddress,
+              gasPrice,
+              gas: 70_000,
+            },
+            async (err, txHash) => {
               const txExplorerLinkRes = txExplorerLink(txHash, currentConfig.explorer)
               if (err) {
                 throw new Error(`Execution failed ${err.message} ${txExplorerLinkRes}`)
@@ -123,10 +157,16 @@ export default {
               } catch (error) {
                 return reject(new Error(`${error} ${txExplorerLinkRes}`))
               }
-            })
+            },
+          )
         })
-
+        this.isLoadingApprove = false
       } catch (approvalError) {
+        this.isLoadingApprove = false
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { message: 'Approve failed: ' + JSON.stringify(approvalError) } },
+        })
         console.error('Approve failed: ' + JSON.stringify(approvalError))
       }
     },
@@ -138,5 +178,8 @@ export default {
 .nft-wrapper {
   border: 2px solid var(--primary);
   border-radius: 10px;
+}
+.nft-btn {
+  min-width: 10em;
 }
 </style>
