@@ -1,10 +1,10 @@
 import * as chainId from './chainId'
-import { MAIN_NET_ETHEREUM_TOKENS } from './tokens/mainNetEthereum'
-import { MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS } from './tokens/mainNetRskCrossEthereum'
-import { TEST_NET_BINANCE_TOKENS } from './tokens/testNetBinance'
-import { TEST_NET_KOVAN_TOKENS } from './tokens/testNetKovan'
-import { TEST_NET_RSK_CROSS_BINANCE_TOKENS } from './tokens/testNetRskCrossBinance'
-import { TEST_NET_RSK_CROSS_KOVAN_TOKENS } from './tokens/testNetRskCrossKovan'
+import { MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_MAIN_TOKEN } from './tokens/mainNetEthereum'
+import { MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS, MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN } from './tokens/mainNetRskCrossEthereum'
+import { TEST_NET_BINANCE_TOKENS, TEST_NET_BINANCE_MAIN_TOKEN } from './tokens/testNetBinance'
+import { TEST_NET_KOVAN_TOKENS, TEST_NET_KOVAN_MAIN_TOKEN } from './tokens/testNetKovan'
+import { TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN } from './tokens/testNetRskCrossBinance'
+import { TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN } from './tokens/testNetRskCrossKovan'
 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
 const sideChainIdStr = process.env.VUE_APP_SIDE_CHAIN_ID
@@ -30,6 +30,7 @@ export const TEST_NET_BINANCE_CONFIG = {
   rpc: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
   v2UpdateBlock: 1,
   feePercentageDivider: 10_000,
+  mainToken: TEST_NET_BINANCE_MAIN_TOKEN,
   isRsk: false,
   isEth: true,
   tokens: getTokensWithReceiveToken(TEST_NET_BINANCE_TOKENS, TEST_NET_RSK_CROSS_BINANCE_TOKENS),
@@ -48,6 +49,7 @@ export const TEST_NET_KOVAN_CONFIG = {
   rpc: `https://kovan.infura.io/v3/${infuraKey}`,
   v2UpdateBlock: 25547922,
   feePercentageDivider: 10_000,
+  mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
   isEth: true,
   tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
@@ -84,6 +86,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   v2UpdateBlock: 1945524,
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_KOVAN_CONFIG,
+  mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
   isRsk: true,
   isEth: false,
   tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_KOVAN_TOKENS),
@@ -104,6 +107,7 @@ export const TEST_NET_RSK_CROSS_BINANCE_CONFIG = {
   v2UpdateBlock: 1945524,
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_BINANCE_CONFIG,
+  mainToken: TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
   isRsk: true,
   isEth: false,
   tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_BINANCE_TOKENS),
@@ -143,6 +147,7 @@ export const MAIN_NET_ETH_CONFIG = {
   rpc: `https://mainnet.infura.io/v3/${infuraKey}`,
   v2UpdateBlock: 12871770,
   feePercentageDivider: 10_000,
+  mainToken: MAIN_NET_ETHEREUM_MAIN_TOKEN,
   isRsk: false,
   isEth: true,
   tokens: getTokensWithReceiveToken(MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS),
@@ -162,18 +167,12 @@ export const MAIN_NET_RSK_CONFIG = {
   v2UpdateBlock: 3540341,
   feePercentageDivider: 10_000,
   crossToNetwork: MAIN_NET_ETH_CONFIG,
+  mainToken: MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN,
   isRsk: true,
   isEth: false,
   tokens: getTokensWithReceiveToken(MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_TOKENS),
 }
 MAIN_NET_ETH_CONFIG.crossToNetwork = MAIN_NET_RSK_CONFIG
-
-export const NETWORKS = {
-  31: RSK_TESTNET_CONFIG,
-  30: RSK_MAINNET_CONFIG,
-  4: RINKEBY_CONFIG,
-  1: ETH_CONFIG,
-}
 
 function getReceiveToken(mainToken, sideTokens) {
   const receiveTokens = sideTokens.filter(token => token.token == mainToken.token)

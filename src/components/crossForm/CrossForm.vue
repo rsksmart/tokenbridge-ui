@@ -655,9 +655,10 @@ export default {
     setClaimCost() {
       const { currentConfig: { isRsk } = {} } = this.sharedState
       const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
+      const networkConf = isRsk ? this.sharedState.rskConfig : this.sharedState.rskWeb3
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
-        this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${isRsk ? 'ETH' : 'RBTC'}`
+        this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${networkConf?.mainToken?.symbol}`
       })
     },
   },

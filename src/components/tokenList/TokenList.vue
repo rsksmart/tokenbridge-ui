@@ -30,7 +30,7 @@
       </thead>
       <tbody>
         <TokenRow
-          v-for="token in sharedState.tokens"
+          v-for="token in sharedState.rskConfig.tokens.concat(sharedState.sideConfig.tokens)"
           :key="token.token"
           :token="token"
           :types-limits="typesLimits"
