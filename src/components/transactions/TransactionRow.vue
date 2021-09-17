@@ -133,7 +133,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -141,7 +141,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethBlockNumber: {
+    sideBlockNumber: {
       type: Number,
       required: true,
     },
@@ -149,7 +149,7 @@ export default {
       type: Array,
       required: true,
     },
-    ethFedMembers: {
+    sideFedMembers: {
       type: Array,
       required: true,
     },
@@ -225,10 +225,10 @@ export default {
       return wrappedFormat(this.transaction.receiverAddress)
     },
     latestBlock() {
-      return this.fromNetwork.isRsk ? this.rskBlockNumber : this.ethBlockNumber
+      return this.fromNetwork.isRsk ? this.rskBlockNumber : this.sideBlockNumber
     },
     fedMembers() {
-      return this.fromNetwork.isRsk ? this.rskFedMembers : this.ethFedMembers
+      return this.fromNetwork.isRsk ? this.rskFedMembers : this.sideFedMembers
     },
     token() {
       return this.sharedState.tokens.find(
@@ -240,7 +240,7 @@ export default {
         return false
       }
       const limits = this.typesLimits[this.token.typeId]
-      const confirmations = this.fromNetwork.isRsk ? this.rskConfirmations : this.ethConfirmations
+      const confirmations = this.fromNetwork.isRsk ? this.rskConfirmations : this.sideConfirmations
       let amount = this.transaction.amount
       if (!amount) {
         // add fees to receiveAmount to get the original amount
@@ -268,7 +268,7 @@ export default {
       if (!this.fromNetwork.isRsk) return
       this.refreshStep()
     },
-    ethBlockNumber() {
+    sideBlockNumber() {
       if (!this.fromNetwork.isEth) return
       this.refreshStep()
     },

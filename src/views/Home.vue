@@ -6,28 +6,28 @@
         <FormWrapper
           :types-limits="typesLimits"
           :rsk-fee="rskFee"
-          :eth-fee="ethFee"
+          :side-fee="sideFee"
           :rsk-confirmations="rskConfirmations"
-          :eth-confirmations="ethConfirmations"
+          :side-confirmations="sideConfirmations"
           @new-transaction="newTransaction = $event"
         />
 
         <Transactions
           :types-limits="typesLimits"
           :rsk-confirmations="rskConfirmations"
-          :eth-confirmations="ethConfirmations"
+          :side-confirmations="sideConfirmations"
           :rsk-fed-members="rskFedMembers"
-          :eth-fed-members="ethFedMembers"
+          :side-fed-members="sideFedMembers"
           :new-transaction="newTransaction"
         />
 
         <ImportantDetails
           :rsk-fee="rskFee"
-          :eth-fee="ethFee"
+          :side-fee="sideFee"
           :rsk-confirmations="rskConfirmations"
-          :eth-confirmations="ethConfirmations"
+          :side-confirmations="sideConfirmations"
           :rsk-fed-members="rskFedMembers"
-          :eth-fed-members="ethFedMembers"
+          :side-fed-members="sideFedMembers"
         />
 
         <TokenList :types-limits="typesLimits" />
@@ -72,11 +72,11 @@ export default {
       sharedState: store.state,
       typesLimits: [],
       rskFee: 0,
-      ethFee: 0,
+      sideFee: 0,
       rskConfirmations: {},
-      ethConfirmations: {},
+      sideConfirmations: {},
       rskFedMembers: [],
-      ethFedMembers: [],
+      sideFedMembers: [],
       newTransaction: null,
     }
   },
@@ -100,7 +100,7 @@ export default {
 
     const ethBridge = new sideWeb3.eth.Contract(BRIDGE_ABI, sideConfig.bridge)
     retry3Times(ethBridge.methods.getFeePercentage().call).then(fee => {
-      data.ethFee = fee / sideConfig.feePercentageDivider
+      data.sideFee = fee / sideConfig.feePercentageDivider
     })
     // We have the premice that the limits will be equal in ETH and in RSK
     // And the tokens wil have the same type on both networks
@@ -127,7 +127,7 @@ export default {
 
     const ethAllowTokens = new sideWeb3.eth.Contract(ALLOW_TOKENS_ABI, sideConfig.allowTokens)
     retry3Times(ethAllowTokens.methods.getConfirmations().call).then(confirmations => {
-      data.ethConfirmations = {
+      data.sideConfirmations = {
         smallAmount: confirmations.smallAmount,
         smallAmountTime: blocksToTime(confirmations.smallAmount, sideConfig.secondsPerBlock),
         mediumAmount: confirmations.mediumAmount,
@@ -139,7 +139,7 @@ export default {
 
     const ethFederation = new sideWeb3.eth.Contract(FEDERATION_ABI, sideConfig.federation)
     retry3Times(ethFederation.methods.getMembers().call).then(
-      members => (data.ethFedMembers = members),
+      members => (data.sideFedMembers = members),
     )
   },
 }

@@ -93,11 +93,11 @@
             :transaction="transaction"
             :types-limits="typesLimits"
             :rsk-confirmations="rskConfirmations"
-            :eth-confirmations="ethConfirmations"
+            :side-confirmations="sideConfirmations"
             :rsk-block-number="rskBlockNumber"
-            :eth-block-number="ethBlockNumber"
+            :side-block-number="sideBlockNumber"
             :rsk-fed-members="rskFedMembers"
-            :eth-fed-members="ethFedMembers"
+            :side-fed-members="sideFedMembers"
           />
         </tbody>
       </table>
@@ -131,7 +131,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -139,7 +139,7 @@ export default {
       type: Array,
       required: true,
     },
-    ethFedMembers: {
+    sideFedMembers: {
       type: Array,
       required: true,
     },
@@ -147,7 +147,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethBlockNumber: {
+    sideBlockNumber: {
       type: Number,
       required: true,
     },
