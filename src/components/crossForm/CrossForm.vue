@@ -260,7 +260,7 @@ import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import { crossToken } from '@/modules/transactions/transactions.actions'
-import { METHOD_TYPES } from '@/constants/tokens'
+import { METHOD_TYPES } from '@/constants/methodType'
 
 export default {
   name: 'CrossForm',
@@ -283,7 +283,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethFee: {
+    sideFee: {
       type: Number,
       required: true,
     },
@@ -291,7 +291,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -327,7 +327,7 @@ export default {
       )
         return {}
       const config = this.sharedState.currentConfig
-      const confirmations = config.isRsk ? this.rskConfirmations : this.ethConfirmations
+      const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations
       // convert amount to wei to compare against limits
       const amount = new BigNumber(this.amount).shiftedBy(18)
       const limit = this.typesLimits[this.selectedToken?.typeId]
@@ -362,32 +362,13 @@ export default {
     },
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
-      return this.sharedState.currentConfig.isRsk ? this.rskFee : this.ethFee
+      return this.sharedState.currentConfig.isRsk ? this.rskFee : this.sideFee
     },
     disabled() {
       return !this.sharedState.isConnected || this.showSpinner
     },
     currentNetworkTokens() {
-      const { tokens = [] } = this.sharedState
-      return (
-        tokens
-          // eslint-disable-next-line no-prototype-builtins
-          .filter(token => token.hasOwnProperty(this.originNetwork.networkId))
-          .map(token => ({
-            token: token.token,
-            name: token.name,
-            typeId: token.typeId,
-            icon: token.icon,
-            symbol: token[this.originNetwork.networkId].symbol,
-            address: token[this.originNetwork.networkId].address,
-            decimals: token[this.originNetwork.networkId].decimals,
-            methodType: token[this.originNetwork.networkId].methodType || METHOD_TYPES.RECEIVER,
-            receiveToken: {
-              icon: token.icon,
-              ...token[this.destinationNetwork.networkId],
-            },
-          }))
-      )
+      return this.originNetwork.tokens
     },
     senderAddress() {
       return this.sharedState.accountAddress || '0x00...00'
@@ -396,7 +377,7 @@ export default {
       return this.sharedState.currentConfig || this.sharedState.rskConfig
     },
     destinationNetwork() {
-      return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.ethConfig
+      return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.sideConfig
     },
     willReceiveToken() {
       return this.selectedToken?.receiveToken
@@ -673,10 +654,11 @@ export default {
     },
     setClaimCost() {
       const { currentConfig: { isRsk } = {} } = this.sharedState
-      const web3 = isRsk ? this.sharedState.ethWeb3 : this.sharedState.rskWeb3
+      const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
+      const networkConf = isRsk ? this.sharedState.rskConfig : this.sharedState.rskWeb3
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
-        this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${isRsk ? 'ETH' : 'RBTC'}`
+        this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${networkConf?.mainToken?.symbol}`
       })
     },
   },
