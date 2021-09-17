@@ -8,9 +8,9 @@
       </a>
     </td>
     <td>
-      <a :href="ethExplorerUrl" target="_blank">{{ token.receiveToken.symbol }}</a>
-      <a class="float-right mr-3" href="#" @click="copyEthTransactionHash">
-        <i :class="copyEthIcon"></i>
+      <a :href="sideExplorerUrl" target="_blank">{{ token.receiveToken.symbol }}</a>
+      <a class="float-right mr-3" href="#" @click="copySideTransactionHash">
+        <i :class="copySideIcon"></i>
       </a>
     </td>
     <td>{{ min }}</td>
@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      copyEthIcon: DEFAULT_COPY_ICON,
+      copySideIcon: DEFAULT_COPY_ICON,
       copyRskIcon: DEFAULT_COPY_ICON,
     }
   },
@@ -56,10 +56,10 @@ export default {
     rskTokenAddress() {
       return this.token.address.toLowerCase()
     },
-    ethExplorerUrl() {
-      return `${this.sharedState.sideConfig.explorer}/address/${this.ethTokenAddress}`
+    sideExplorerUrl() {
+      return `${this.sharedState.sideConfig.explorer}/address/${this.sideTokenAddress}`
     },
-    ethTokenAddress() {
+    sideTokenAddress() {
       return this.token.receiveToken.address.toLowerCase()
     },
     rskNetworkId() {
@@ -99,8 +99,8 @@ export default {
     async copyRskTransactionHash(event) {
       return this.copyTransactionHash(event, this.rskTokenAddress, 'copyRskIcon')
     },
-    async copyEthTransactionHash(event) {
-      return this.copyTransactionHash(event, this.ethTokenAddress, 'copyEthIcon')
+    async copySideTransactionHash(event) {
+      return this.copyTransactionHash(event, this.sideTokenAddress, 'copySideIcon')
     },
   },
 }
