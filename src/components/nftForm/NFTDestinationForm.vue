@@ -148,7 +148,7 @@ export default {
       if (!valid) {
         return
       }
-      return await this.$refs.nftForm.onSubmit()
+      return await this.onSubmit()
     },
     useSameAddress(event) {
       if (event) event.preventDefault()
