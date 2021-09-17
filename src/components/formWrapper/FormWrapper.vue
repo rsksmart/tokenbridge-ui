@@ -16,9 +16,9 @@
       :is="currentTabComponent"
       :types-limits="typesLimits"
       :rsk-fee="rskFee"
-      :eth-fee="ethFee"
+      :side-fee="sideFee"
       :rsk-confirmations="rskConfirmations"
-      :eth-confirmations="ethConfirmations"
+      :side-confirmations="sideConfirmations"
       @new-transaction="handleNewTransaction"
     ></component>
   </div>
@@ -41,7 +41,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethFee: {
+    sideFee: {
       type: Number,
       required: true,
     },
@@ -49,7 +49,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },

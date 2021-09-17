@@ -54,7 +54,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethFee: {
+    sideFee: {
       type: Number,
       required: true,
     },
