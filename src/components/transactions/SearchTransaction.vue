@@ -26,15 +26,15 @@
         </div>
         <div class="form-check form-check-inline">
           <input
-            id="selectedNetworkEth"
+            id="selectedNetworkSide"
             v-model="selectedNetwork"
             class="form-check-input"
             type="radio"
             name="selectedNetwork"
-            :value="sharedState.ethConfig"
+            :value="sharedState.sideConfig"
           />
           <label class="form-check-label" for="inlineRadio2">{{
-            sharedState.ethConfig.name
+            sharedState.sideConfig.name
           }}</label>
         </div>
       </div>
@@ -93,11 +93,11 @@
             :transaction="transaction"
             :types-limits="typesLimits"
             :rsk-confirmations="rskConfirmations"
-            :eth-confirmations="ethConfirmations"
+            :side-confirmations="sideConfirmations"
             :rsk-block-number="rskBlockNumber"
-            :eth-block-number="ethBlockNumber"
+            :side-block-number="sideBlockNumber"
             :rsk-fed-members="rskFedMembers"
-            :eth-fed-members="ethFedMembers"
+            :side-fed-members="sideFedMembers"
           />
         </tbody>
       </table>
@@ -131,7 +131,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -139,7 +139,7 @@ export default {
       type: Array,
       required: true,
     },
-    ethFedMembers: {
+    sideFedMembers: {
       type: Array,
       required: true,
     },
@@ -147,7 +147,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethBlockNumber: {
+    sideBlockNumber: {
       type: Number,
       required: true,
     },
@@ -175,7 +175,7 @@ export default {
       data.isSearching = true
       const originWeb3 = data.selectedNetwork.isRsk
         ? data.sharedState.rskWeb3
-        : data.sharedState.ethWeb3
+        : data.sharedState.sideWeb3
 
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transactionHash)
       if (!receipt) {

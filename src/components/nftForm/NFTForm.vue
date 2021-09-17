@@ -94,6 +94,7 @@ export default {
   },
   methods: {
     async onSubmit() {
+      console.log('OnSubmit')
       const web3 = this.sharedState.web3
       const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
       this.isLoading = true

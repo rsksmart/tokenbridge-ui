@@ -2,15 +2,15 @@
   <tr class="token-row">
     <th scope="row"><img :src="token.icon" class="token-logo" /></th>
     <td>
-      <a :href="rskExplorerUrl" target="_blank">{{ token[rskNetworkId].symbol }}</a>
+      <a :href="rskExplorerUrl" target="_blank">{{ token.symbol }}</a>
       <a class="float-right mr-3" href="#" @click="copyRskTransactionHash">
         <i :class="copyRskIcon"></i>
       </a>
     </td>
     <td>
-      <a :href="ethExplorerUrl" target="_blank">{{ token[ethNetworkId].symbol }}</a>
-      <a class="float-right mr-3" href="#" @click="copyEthTransactionHash">
-        <i :class="copyEthIcon"></i>
+      <a :href="sideExplorerUrl" target="_blank">{{ token.receiveToken.symbol }}</a>
+      <a class="float-right mr-3" href="#" @click="copySideTransactionHash">
+        <i :class="copySideIcon"></i>
       </a>
     </td>
     <td>{{ min }}</td>
@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      copyEthIcon: DEFAULT_COPY_ICON,
+      copySideIcon: DEFAULT_COPY_ICON,
       copyRskIcon: DEFAULT_COPY_ICON,
     }
   },
@@ -54,19 +54,19 @@ export default {
       return `${this.sharedState.rskConfig.explorer}/address/${this.rskTokenAddress}`
     },
     rskTokenAddress() {
-      return this.token[this.sharedState.rskConfig.networkId].address.toLowerCase()
+      return this.token.address.toLowerCase()
     },
-    ethExplorerUrl() {
-      return `${this.sharedState.ethConfig.explorer}/address/${this.ethTokenAddress}`
+    sideExplorerUrl() {
+      return `${this.sharedState.sideConfig.explorer}/address/${this.sideTokenAddress}`
     },
-    ethTokenAddress() {
-      return this.token[this.sharedState.ethConfig.networkId].address.toLowerCase()
+    sideTokenAddress() {
+      return this.token.receiveToken.address.toLowerCase()
     },
     rskNetworkId() {
       return this.sharedState.rskConfig.networkId
     },
     ethNetworkId() {
-      return this.sharedState.ethConfig.networkId
+      return this.sharedState.sideConfig.networkId
     },
     limits() {
       return this.typesLimits[this.token.typeId]
@@ -99,8 +99,8 @@ export default {
     async copyRskTransactionHash(event) {
       return this.copyTransactionHash(event, this.rskTokenAddress, 'copyRskIcon')
     },
-    async copyEthTransactionHash(event) {
-      return this.copyTransactionHash(event, this.ethTokenAddress, 'copyEthIcon')
+    async copySideTransactionHash(event) {
+      return this.copyTransactionHash(event, this.sideTokenAddress, 'copySideIcon')
     },
   },
 }
