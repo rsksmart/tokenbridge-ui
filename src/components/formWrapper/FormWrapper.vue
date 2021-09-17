@@ -68,7 +68,7 @@ export default {
   },
   methods: {
     handleNewTransaction($event) {
-      this.emit('newTransaction', $event)
+      this.$emit('newTransaction', $event)
     },
   },
 }
