@@ -26,7 +26,7 @@
         </div>
         <div class="form-check form-check-inline">
           <input
-            id="selectedNetworkEth"
+            id="selectedNetworkSide"
             v-model="selectedNetwork"
             class="form-check-input"
             type="radio"
