@@ -8,7 +8,6 @@ import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getMainNetworkConf, getSideNetworkConf } from '@/constants/networks.js'
 
 import { ALL_RPC } from '@/constants/rpc.js'
-import * as chainId from './constants/chainId'
 
 const rskConfig = getMainNetworkConf()
 const sideChainConfig = getSideNetworkConf()
@@ -23,7 +22,7 @@ const rLogin = new RLogin({
       },
     },
   },
-  supportedChains: chainId.ALL_CHAINS,
+  supportedChains: [rskConfig.networkId, sideChainConfig.networkId],
 })
 
 export const store = {

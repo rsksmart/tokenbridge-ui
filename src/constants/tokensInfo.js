@@ -6,6 +6,13 @@ export const TOKEN_DOC_INFO = {
   icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/doc.png',
 }
 
+export const TOKEN_RBTC_INFO = {
+  token: 'RBTC',
+  name: 'Rsk BTC',
+  typeId: 4,
+  icon: '',
+}
+
 export const TOKEN_DAI_INFO = {
   token: 'DAI',
   name: 'Dai Stablecoin',

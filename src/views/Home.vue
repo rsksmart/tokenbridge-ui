@@ -94,6 +94,9 @@ export default {
       .then(fee => {
         data.rskFee = fee / rskConfig.feePercentageDivider
       })
+      .catch(err => {
+        console.log('Error in getFeePercentage', err)
+      })
 
     const ethBridge = new sideWeb3.eth.Contract(BRIDGE_ABI, sideConfig.bridge)
     retry3Times(ethBridge.methods.getFeePercentage().call).then(fee => {
