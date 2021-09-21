@@ -231,8 +231,8 @@ export default {
       return this.fromNetwork.isRsk ? this.rskFedMembers : this.sideFedMembers
     },
     token() {
-      return this.sharedState.tokens.find(
-        x => x[this.transaction.networkId]?.symbol === this.transaction.tokenFrom,
+      return this.fromNetwork.tokens.find(
+        token => token?.symbol === this.transaction.tokenFrom
       )
     },
     neededConfirmations() {
