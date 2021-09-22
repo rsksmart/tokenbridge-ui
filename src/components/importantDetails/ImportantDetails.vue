@@ -6,19 +6,19 @@
         <tr>
           <th scope="col"></th>
           <th scope="col">{{ sharedState.rskConfig.name }}</th>
-          <th scope="col">{{ sharedState.ethConfig.name }}</th>
+          <th scope="col">{{ sharedState.sideConfig.name }}</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th scope="row">Fee</th>
           <td>{{ rskFeeFormated }}</td>
-          <td>{{ ethFeeFormated }}</td>
+          <td>{{ sideFeeFormated }}</td>
         </tr>
         <tr>
           <th scope="row">Avarage seconds per block</th>
           <td>~ {{ sharedState.rskConfig.secondsPerBlock }} seconds</td>
-          <td>~ {{ sharedState.ethConfig.secondsPerBlock }} seconds</td>
+          <td>~ {{ sharedState.sideConfig.secondsPerBlock }} seconds</td>
         </tr>
         <tr>
           <th scope="row">Confirmations needed for small amounts</th>
@@ -27,7 +27,7 @@
             {{ votingTime }}
           </td>
           <td>
-            {{ ethConfirmations?.smallAmount }} blocks (~ {{ ethConfirmations?.smallAmountTime }}) +
+            {{ sideConfirmations?.smallAmount }} blocks (~ {{ sideConfirmations?.smallAmountTime }}) +
             {{ votingTime }}
           </td>
         </tr>
@@ -38,7 +38,7 @@
             + {{ votingTime }}
           </td>
           <td>
-            {{ ethConfirmations?.mediumAmount }} blocks (~ {{ ethConfirmations?.mediumAmountTime }})
+            {{ sideConfirmations?.mediumAmount }} blocks (~ {{ sideConfirmations?.mediumAmountTime }})
             + {{ votingTime }}
           </td>
         </tr>
@@ -49,14 +49,14 @@
             {{ votingTime }}
           </td>
           <td>
-            {{ ethConfirmations?.largeAmount }} blocks (~ {{ ethConfirmations?.largeAmountTime }}) +
+            {{ sideConfirmations?.largeAmount }} blocks (~ {{ sideConfirmations?.largeAmountTime }}) +
             {{ votingTime }}
           </td>
         </tr>
         <tr>
           <th scope="row">Signatories</th>
           <td>{{ rskFedMembersLen }}</td>
-          <td>{{ ethFedMembersLen }}</td>
+          <td>{{ sideFedMembersLen }}</td>
         </tr>
       </tbody>
     </table>
@@ -73,7 +73,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethFee: {
+    sideFee: {
       type: Number,
       required: true,
     },
@@ -81,7 +81,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -89,7 +89,7 @@ export default {
       type: Array,
       required: true,
     },
-    ethFedMembers: {
+    sideFedMembers: {
       type: Array,
       required: true,
     },
@@ -106,14 +106,14 @@ export default {
     rskFeeFormated() {
       return this.rskFee * 100 + '%'
     },
-    ethFeeFormated() {
-      return this.ethFee * 100 + '%'
+    sideFeeFormated() {
+      return this.sideFee * 100 + '%'
     },
     rskFedMembersLen() {
       return this.rskFedMembers.length
     },
-    ethFedMembersLen() {
-      return this.ethFedMembers.length
+    sideFedMembersLen() {
+      return this.sideFedMembers.length
     },
   },
 }

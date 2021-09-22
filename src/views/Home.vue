@@ -2,32 +2,32 @@
   <div>
     <section id="home">
       <div class="container">
-        <Title :is-testnet="isTestnet" />
+        <Title />
         <FormWrapper
           :types-limits="typesLimits"
           :rsk-fee="rskFee"
-          :eth-fee="ethFee"
+          :side-fee="sideFee"
           :rsk-confirmations="rskConfirmations"
-          :eth-confirmations="ethConfirmations"
+          :side-confirmations="sideConfirmations"
           @new-transaction="newTransaction = $event"
         />
 
         <Transactions
           :types-limits="typesLimits"
           :rsk-confirmations="rskConfirmations"
-          :eth-confirmations="ethConfirmations"
+          :side-confirmations="sideConfirmations"
           :rsk-fed-members="rskFedMembers"
-          :eth-fed-members="ethFedMembers"
+          :side-fed-members="sideFedMembers"
           :new-transaction="newTransaction"
         />
 
         <ImportantDetails
           :rsk-fee="rskFee"
-          :eth-fee="ethFee"
+          :side-fee="sideFee"
           :rsk-confirmations="rskConfirmations"
-          :eth-confirmations="ethConfirmations"
+          :side-confirmations="sideConfirmations"
           :rsk-fed-members="rskFedMembers"
-          :eth-fed-members="ethFedMembers"
+          :side-fed-members="sideFedMembers"
         />
 
         <TokenList :types-limits="typesLimits" />
@@ -70,14 +70,13 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      isTestnet: false,
       typesLimits: [],
       rskFee: 0,
-      ethFee: 0,
+      sideFee: 0,
       rskConfirmations: {},
-      ethConfirmations: {},
+      sideConfirmations: {},
       rskFedMembers: [],
-      ethFedMembers: [],
+      sideFedMembers: [],
       newTransaction: null,
     }
   },
@@ -85,8 +84,8 @@ export default {
     const data = this
     const rskWeb3 = this.sharedState.rskWeb3
     const rskConfig = this.sharedState.rskConfig
-    const ethWeb3 = this.sharedState.ethWeb3
-    const ethConfig = this.sharedState.ethConfig
+    const sideWeb3 = this.sharedState.sideWeb3
+    const sideConfig = this.sharedState.sideConfig
 
     const rskBridge = new rskWeb3.eth.Contract(BRIDGE_ABI, rskConfig.bridge)
     rskBridge.methods
@@ -95,12 +94,15 @@ export default {
       .then(fee => {
         data.rskFee = fee / rskConfig.feePercentageDivider
       })
+      .catch(err => {
+        console.log('Error in getFeePercentage', err)
+      })
 
-    const ethBridge = new ethWeb3.eth.Contract(BRIDGE_ABI, ethConfig.bridge)
+    const ethBridge = new sideWeb3.eth.Contract(BRIDGE_ABI, sideConfig.bridge)
     retry3Times(ethBridge.methods.getFeePercentage().call).then(fee => {
-      data.ethFee = fee / ethConfig.feePercentageDivider
+      data.sideFee = fee / sideConfig.feePercentageDivider
     })
-    // We have the premice that the limits will be equal in ETH and in RSK
+    // We have the premice that the limits will be equal in Side and in RSK
     // And the tokens wil have the same type on both networks
     const rskAllowTokens = new rskWeb3.eth.Contract(ALLOW_TOKENS_ABI, rskConfig.allowTokens)
     retry3Times(rskAllowTokens.methods.getTypesLimits().call).then(limits => {
@@ -123,21 +125,21 @@ export default {
       members => (data.rskFedMembers = members),
     )
 
-    const ethAllowTokens = new ethWeb3.eth.Contract(ALLOW_TOKENS_ABI, ethConfig.allowTokens)
-    retry3Times(ethAllowTokens.methods.getConfirmations().call).then(confirmations => {
-      data.ethConfirmations = {
+    const sideAllowTokens = new sideWeb3.eth.Contract(ALLOW_TOKENS_ABI, sideConfig.allowTokens)
+    retry3Times(sideAllowTokens.methods.getConfirmations().call).then(confirmations => {
+      data.sideConfirmations = {
         smallAmount: confirmations.smallAmount,
-        smallAmountTime: blocksToTime(confirmations.smallAmount, ethConfig.secondsPerBlock),
+        smallAmountTime: blocksToTime(confirmations.smallAmount, sideConfig.secondsPerBlock),
         mediumAmount: confirmations.mediumAmount,
-        mediumAmountTime: blocksToTime(confirmations.mediumAmount, ethConfig.secondsPerBlock),
+        mediumAmountTime: blocksToTime(confirmations.mediumAmount, sideConfig.secondsPerBlock),
         largeAmount: confirmations.largeAmount,
-        largeAmountTime: blocksToTime(confirmations.largeAmount, ethConfig.secondsPerBlock),
+        largeAmountTime: blocksToTime(confirmations.largeAmount, sideConfig.secondsPerBlock),
       }
     })
 
-    const ethFederation = new ethWeb3.eth.Contract(FEDERATION_ABI, ethConfig.federation)
-    retry3Times(ethFederation.methods.getMembers().call).then(
-      members => (data.ethFedMembers = members),
+    const sideFederation = new sideWeb3.eth.Contract(FEDERATION_ABI, sideConfig.federation)
+    retry3Times(sideFederation.methods.getMembers().call).then(
+      members => (data.sideFedMembers = members),
     )
   },
 }

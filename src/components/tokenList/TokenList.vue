@@ -2,15 +2,15 @@
   <div class="token-list mt-5 mb-5">
     <h2 id="token-list" class="subtitle">Token list</h2>
     <p class="text-center">
-      Ethereum native tokens will transform into r(tokenName). RSK native tokens will transform into
-      e(tokenName)
+      {{ sharedState.sideConfig.name }} native tokens will transform into {{ sharedState.rskConfig.tokenPrefix }}(tokenName). {{ sharedState.rskConfig.name }} native tokens will transform into
+      {{ sharedState.sideConfig.tokenPrefix }}(tokenName)
     </p>
     <table class="table">
       <thead>
         <tr>
           <th scope="col">#</th>
           <th scope="col">{{ sharedState.rskConfig.name }}</th>
-          <th scope="col">{{ sharedState.ethConfig.name }}</th>
+          <th scope="col">{{ sharedState.sideConfig.name }}</th>
           <th scope="col">minimum</th>
           <th scope="col">maximum</th>
           <th scope="col">daily</th>
@@ -28,10 +28,12 @@
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody
+        v-if="sharedState.rskConfig.tokens.length > 0"
+      >
         <TokenRow
-          v-for="token in sharedState.tokens"
-          :key="token.token"
+          v-for="token in sharedState.rskConfig.tokens"
+          :key="token"
           :token="token"
           :types-limits="typesLimits"
         />
