@@ -1,0 +1,7 @@
+export const DEPOSITOR = 'DEPOSITOR'
+export const RECEIVER = 'RECEIVER'
+
+export const METHOD_TYPES = {
+  DEPOSITOR: DEPOSITOR,
+  RECEIVER: RECEIVER,
+}
