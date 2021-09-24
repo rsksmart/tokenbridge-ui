@@ -14,7 +14,7 @@ export const TEST_NET_BINANCE_TOKENS = [
   {
     ...tokensInfo.TOKEN_DAI_INFO,
     symbol: 'DAI',
-    address: '0x13878644c0f2c9c5c8a85da43ebc3bb74bbc05a9',
+    address: '0xec5dcb5dbf4b114c9d0f65bccab49ec54f6a0867',
     decimals: 18,
     methodType: methodType.RECEIVER,
   },

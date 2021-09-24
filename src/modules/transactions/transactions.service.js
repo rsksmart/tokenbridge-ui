@@ -58,15 +58,26 @@ export class TransactionService {
   }
 
   async getTransactions(accountAddress, networkIds, { limit, offset }) {
+    const transactionIncludeAddress = (transaction, accountAddress) => {
+      const addressLowerCase = accountAddress.toLowerCase()
+      if (Array.isArray(transaction.accountsAddresses)) {
+        return transaction.accountsAddresses.includes(addressLowerCase)
+      }
+  
+      return transaction.receiverAddress.toLowerCase() == addressLowerCase || 
+        transaction.senderAddress.toLowerCase() == addressLowerCase
+    }
+    
     const totalTransactions = await dbInstance.transactions
       .where('networkId')
       .anyOf(networkIds)
-      .and(transaction => transaction.accountsAddresses.includes(accountAddress.toLowerCase()))
+      .and(transaction => transactionIncludeAddress(transaction, accountAddress))
       .count()
+
     const data = await dbInstance.transactions
       .where('networkId')
       .anyOf(networkIds)
-      .and(transaction => transaction.accountsAddresses.includes(accountAddress.toLowerCase()))
+      .and(transaction => transactionIncludeAddress(transaction, accountAddress))
       .offset(offset)
       .limit(limit)
       .reverse()
