@@ -14,7 +14,7 @@ export const TEST_NET_RSK_CROSS_BINANCE_TOKENS = [
   {
     ...tokensInfo.TOKEN_DAI_INFO,
     symbol: 'bDAI',
-    address: '0x41925B151b4668b0d1dbda5dBB89bB09756601D7',
+    address: '0x51969ABE923d88CD38A7f1A4ee963E7fD58cD9ae',
     decimals: 18,
     methodType: methodType.RECEIVER,
   },

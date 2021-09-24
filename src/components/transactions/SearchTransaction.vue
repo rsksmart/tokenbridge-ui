@@ -197,17 +197,17 @@ export default {
       const decodedEvent = result.decodedEvent
       // decodedEvent._from did not existed on events of previous versions
       decodedEvent._from = decodedEvent._from ?? decodedEvent._to
-      const token = data.sharedState.tokens.find(x => {
+      const token = data.selectedNetwork.tokens.find(token => {
         return (
-          x[data.selectedNetwork.networkId].address.toLowerCase() ===
+          token.address.toLowerCase() ===
             decodedEvent._tokenAddress.toLowerCase() ||
           // When crossing back uses the original token address
-          x[data.selectedNetwork.crossToNetwork.networkId].address.toLowerCase() ===
+          token.receiveToken.address.toLowerCase() ===
             decodedEvent._tokenAddress.toLowerCase()
         )
       })
-      const tokenFromNetwork = token[data.selectedNetwork.networkId]
-      const tokenToNetwork = token[data.selectedNetwork.crossToNetwork.networkId]
+      const tokenFromNetwork = token
+      const tokenToNetwork = token.receiveToken
       const block = await originWeb3.eth.getBlock(receipt.blockNumber)
 
       const transaction = {
