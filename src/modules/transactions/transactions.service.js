@@ -65,7 +65,8 @@ export class TransactionService {
       }
   
       return transaction.receiverAddress.toLowerCase() == addressLowerCase || 
-        transaction.senderAddress.toLowerCase() == addressLowerCase
+        transaction.senderAddress.toLowerCase() == addressLowerCase ||
+        transaction.from == addressLowerCase
     }
     
     const totalTransactions = await dbInstance.transactions
@@ -78,17 +79,16 @@ export class TransactionService {
       .where('networkId')
       .anyOf(networkIds)
       .and(transaction => transactionIncludeAddress(transaction, accountAddress))
-      .offset(offset)
-      .limit(limit)
       .reverse()
       .sortBy('timestamp')
+
     return {
       info: {
         total: totalTransactions,
         limit,
         offset,
       },
-      data,
+      data: data.slice(offset, limit),
     }
   }
 }
