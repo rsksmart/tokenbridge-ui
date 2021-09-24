@@ -128,6 +128,30 @@ export default {
               },
             )
         })
+
+        // const transactionRecord = {
+        //     type: 'NFT',
+        //     networkId: currentConfig.networkId,
+        //     tokenFrom: token.symbol,
+        //     tokenTo: token.receiveToken.symbol,
+        //     amount: data.amount,
+        //     receiveAmount: data.receiveAmount,
+        //     senderAddress: data.sharedState.accountAddress,
+        //     receiverAddress,
+        //     timestamp: Date.now(),
+        //     ...receipt,
+        //   }
+        //   const accountsAddresses = [data.sharedState.accountAddress.toLowerCase()]
+        //   if (data.sharedState.accountAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
+        //     accountsAddresses.push(receiverAddress.toLowerCase())
+        //   }
+        //   // save transaction to local storage...
+        //   const newTransaction = {
+        //     ...transactionRecord,
+        //     accountsAddresses,
+        //   }
+        //   await this.$services.TransactionService.saveTransaction(newTransaction)
+
         return {
           success: true,
           data: transaction,
