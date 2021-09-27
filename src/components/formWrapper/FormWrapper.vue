@@ -70,7 +70,7 @@ export default {
   },
   mounted() {
     this.currentTab = formWrapperTabs[0]
-    this.globalStore.tokenTypeSelected = this.currentTab.id
+    this.globalStore.actualTokenType = this.currentTab.tokenType
   },
   methods: {
     handleNewTransaction($event) {
@@ -78,7 +78,7 @@ export default {
     },
     changeTab(tab) {
       this.currentTab = tab
-      this.globalStore.tokenTypeSelected = this.currentTab.id
+      this.globalStore.actualTokenType = this.currentTab.tokenType
     },
   },
 }
