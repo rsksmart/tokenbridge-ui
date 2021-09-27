@@ -82,7 +82,10 @@ export default {
   },
   async created() {
     const web3 = this.sharedState.web3
-    this.nftBridgeContract = new web3.eth.Contract(NFT_BRIDGE, this.sharedState.sideConfig.nftBridge)
+    this.nftBridgeContract = new web3.eth.Contract(
+      NFT_BRIDGE,
+      this.sharedState.sideConfig.nftBridge,
+    )
     try {
       const fee = await this.nftBridgeContract.methods.getFixedFee().call()
       this.feePrice = fee
@@ -119,7 +122,9 @@ export default {
                     resolve(receipt)
                   } else {
                     reject(
-                      new Error(`Transaction status failed ${err?.message || ''} ${txExplorerLinkRes}`),
+                      new Error(
+                        `Transaction status failed ${err?.message || ''} ${txExplorerLinkRes}`,
+                      ),
                     )
                   }
                 } catch (error) {
