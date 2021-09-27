@@ -7,7 +7,7 @@
         :class="
           `btn mx-2 ${currentTab.label === tab.label ? 'btn-primary' : 'btn-outline-primary'}`
         "
-        @click="currentTab = tab"
+        @click="changeTab(tab)"
       >
         {{ tab.label }}
       </button>
@@ -26,6 +26,7 @@
 
 <script>
 import formWrapperTabs, { tabsComponents } from '@/components/formWrapper/formWrapperTabs'
+import globalStore from '@/stores/global.store'
 
 export default {
   name: 'FormWrapper',
@@ -59,6 +60,7 @@ export default {
     return {
       tabs: formWrapperTabs,
       currentTab: formWrapperTabs[0],
+      globalStore: globalStore.state,
     }
   },
   computed: {
@@ -66,9 +68,17 @@ export default {
       return this.currentTab.component.name
     },
   },
+  mounted() {
+    this.currentTab = formWrapperTabs[0]
+    this.globalStore.tokenTypeSelected = this.currentTab.id
+  },
   methods: {
     handleNewTransaction($event) {
       this.$emit('newTransaction', $event)
+    },
+    changeTab(tab) {
+      this.currentTab = tab
+      this.globalStore.tokenTypeSelected = this.currentTab.id
     },
   },
 }
