@@ -30,7 +30,10 @@
           :side-fed-members="sideFedMembers"
         />
 
-        <TokenList :types-limits="typesLimits" />
+        <TokenList
+          v-if="globalState.actualTokenType == tokenTypeErc20"
+          :types-limits="typesLimits"
+        />
       </div>
       <!--- End Tab Content -->
     </section>
@@ -38,12 +41,13 @@
 </template>
 
 <script>
-// --------- import TOKENS and network CONFIG  --------------
+// --------- import TOKENS and network CONFIG --------------
 
 // ------ ABIS -----
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import FEDERATION_ABI from '@/constants/abis/federation.json'
+import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType.js'
 
 import 'popper.js'
 import 'bootstrap'
@@ -56,6 +60,7 @@ import Transactions from '@/components/transactions/Transactions.vue'
 import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
 import TokenList from '@/components/tokenList/TokenList.vue'
 import { store } from '@/store.js'
+import globalStore from '@/stores/global.store'
 import FormWrapper from '@/components/formWrapper/FormWrapper'
 
 export default {
@@ -78,6 +83,8 @@ export default {
       rskFedMembers: [],
       sideFedMembers: [],
       newTransaction: null,
+      globalState: globalStore.state,
+      tokenTypeErc20: TOKEN_TYPE_ERC_20,
     }
   },
   created() {
@@ -95,6 +102,7 @@ export default {
         data.rskFee = fee / rskConfig.feePercentageDivider
       })
       .catch(err => {
+        // eslint-disable-next-line no-console
         console.log('Error in getFeePercentage', err)
       })
 
