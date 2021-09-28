@@ -13,7 +13,7 @@ const formWrapperTabs = [
   },
   {
     tokenType: TOKEN_TYPE_ERC_721,
-    label: 'NFT',
+    label: 'ERC721 NFT',
     component: nftAvailable ? NFTWrapper : NFTWrapperCommingSoon,
   },
 ]
