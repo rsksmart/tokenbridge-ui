@@ -69,7 +69,7 @@
 import { store } from '@/store.js'
 
 export default {
-  name: 'ImportantDetails',
+  name: 'ImportantDetailsErc20',
   props: {
     rskFee: {
       type: Number,
