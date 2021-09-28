@@ -1,10 +1,19 @@
 import * as chainId from './chainId'
 import { MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_MAIN_TOKEN } from './tokens/mainNetEthereum'
-import { MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS, MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN } from './tokens/mainNetRskCrossEthereum'
+import {
+  MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS,
+  MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN,
+} from './tokens/mainNetRskCrossEthereum'
 import { TEST_NET_BINANCE_TOKENS, TEST_NET_BINANCE_MAIN_TOKEN } from './tokens/testNetBinance'
 import { TEST_NET_KOVAN_TOKENS, TEST_NET_KOVAN_MAIN_TOKEN } from './tokens/testNetKovan'
-import { TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN } from './tokens/testNetRskCrossBinance'
-import { TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN } from './tokens/testNetRskCrossKovan'
+import {
+  TEST_NET_RSK_CROSS_BINANCE_TOKENS,
+  TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
+} from './tokens/testNetRskCrossBinance'
+import {
+  TEST_NET_RSK_CROSS_KOVAN_TOKENS,
+  TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
+} from './tokens/testNetRskCrossKovan'
 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
 const sideChainIdStr = process.env.VUE_APP_SIDE_CHAIN_ID

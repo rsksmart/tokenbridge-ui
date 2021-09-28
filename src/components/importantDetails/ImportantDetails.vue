@@ -27,7 +27,8 @@
             {{ votingTime }}
           </td>
           <td>
-            {{ sideConfirmations?.smallAmount }} blocks (~ {{ sideConfirmations?.smallAmountTime }}) +
+            {{ sideConfirmations?.smallAmount }} blocks (~ {{ sideConfirmations?.smallAmountTime }})
+            +
             {{ votingTime }}
           </td>
         </tr>
@@ -38,8 +39,8 @@
             + {{ votingTime }}
           </td>
           <td>
-            {{ sideConfirmations?.mediumAmount }} blocks (~ {{ sideConfirmations?.mediumAmountTime }})
-            + {{ votingTime }}
+            {{ sideConfirmations?.mediumAmount }} blocks (~
+            {{ sideConfirmations?.mediumAmountTime }}) + {{ votingTime }}
           </td>
         </tr>
         <tr>
@@ -49,7 +50,8 @@
             {{ votingTime }}
           </td>
           <td>
-            {{ sideConfirmations?.largeAmount }} blocks (~ {{ sideConfirmations?.largeAmountTime }}) +
+            {{ sideConfirmations?.largeAmount }} blocks (~ {{ sideConfirmations?.largeAmountTime }})
+            +
             {{ votingTime }}
           </td>
         </tr>
