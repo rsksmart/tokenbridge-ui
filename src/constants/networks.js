@@ -140,7 +140,7 @@ export const TEST_NET_RSK_CROSS_RINKEBY_CONFIG = {
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_RINKEBY_CONFIG,
   tokenPrefix: 'b',
-  mainToken: TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
+  mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
   isRsk: true,
   isSide: false,
   tokens: [],
