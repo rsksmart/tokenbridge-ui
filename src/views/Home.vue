@@ -21,7 +21,7 @@
           :new-transaction="newTransaction"
         />
 
-        <ImportantDetails
+        <ImportantDetailsErc20
           v-if="globalState.actualTokenType == tokenTypeErc20"
           :rsk-fee="rskFee"
           :side-fee="sideFee"
@@ -58,7 +58,7 @@ import { retry3Times, blocksToTime } from '@/utils'
 import Title from '@/components/title/Title.vue'
 // import SearchTransaction from '@/components/transactions/SearchTransaction.vue'
 import Transactions from '@/components/transactions/Transactions.vue'
-import ImportantDetails from '@/components/importantDetails/ImportantDetails.vue'
+import ImportantDetailsErc20 from '@/components/importantDetails/ImportantDetailsErc20.vue'
 import TokenList from '@/components/tokenList/TokenList.vue'
 import { store } from '@/store.js'
 import globalStore from '@/stores/global.store'
@@ -69,7 +69,7 @@ export default {
   components: {
     FormWrapper,
     Title,
-    ImportantDetails,
+    ImportantDetailsErc20,
     TokenList,
     Transactions,
   },
@@ -90,16 +90,7 @@ export default {
       tokenTypeErc20: TOKEN_TYPE_ERC_20,
     }
   },
-  created() {
-    switch (this.globalState.actualTokenType) {
-      case TOKEN_TYPE_ERC_721:
-        break
 
-      default:
-        this.createdErc20()
-        break
-    }
-  },
   createdErc20() {
     const data = this
     const rskWeb3 = this.sharedState.rskWeb3
@@ -162,6 +153,16 @@ export default {
     retry3Times(sideFederation.methods.getMembers().call).then(
       members => (data.sideFedMembers = members),
     )
+  },
+    created() {
+    switch (this.globalState.actualTokenType) {
+      case TOKEN_TYPE_ERC_721:
+        break
+
+      default:
+        this.createdErc20()
+        break
+    }
   },
 }
 </script>
