@@ -31,7 +31,7 @@
         />
 
         <TokenList
-          v-if="globalState.actualTokenType == tokenTypeErc20"
+          v-if="globalState.currentTokenType == tokenTypeErc20"
           :types-limits="typesLimits"
         />
       </div>
