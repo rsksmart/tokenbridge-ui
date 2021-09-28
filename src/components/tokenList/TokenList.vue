@@ -2,8 +2,9 @@
   <div class="token-list mt-5 mb-5">
     <h2 id="token-list" class="subtitle">Token list</h2>
     <p class="text-center">
-      {{ sharedState.sideConfig.name }} native tokens will transform into {{ sharedState.rskConfig.tokenPrefix }}(tokenName). {{ sharedState.rskConfig.name }} native tokens will transform into
-      {{ sharedState.sideConfig.tokenPrefix }}(tokenName)
+      {{ sharedState.sideConfig.name }} native tokens will transform into
+      {{ sharedState.rskConfig.tokenPrefix }}(tokenName). {{ sharedState.rskConfig.name }} native
+      tokens will transform into {{ sharedState.sideConfig.tokenPrefix }}(tokenName)
     </p>
     <table class="table">
       <thead>
@@ -28,9 +29,7 @@
           </th>
         </tr>
       </thead>
-      <tbody
-        v-if="sharedState.rskConfig.tokens.length > 0"
-      >
+      <tbody v-if="sharedState.rskConfig.tokens.length > 0">
         <TokenRow
           v-for="token in sharedState.rskConfig.tokens"
           :key="token"

@@ -1,18 +1,19 @@
 import CrossForm from '@/components/crossForm/CrossForm'
 import NFTWrapper from '@/components/nftForm/NFTWrapper'
 import NFTWrapperCommingSoon from '@/components/nftForm/NFTWrapperCommingSoon'
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType.js'
 
 const nftAvailable = process.env.VUE_APP_NFT_AVAILABLE == 'true'
 
 const formWrapperTabs = [
   {
-    id: 'erc20',
+    tokenType: TOKEN_TYPE_ERC_20,
     label: 'ERC20 Tokens',
     component: CrossForm,
   },
   {
-    id: 'erc721',
-    label: 'NFT',
+    tokenType: TOKEN_TYPE_ERC_721,
+    label: 'ERC721 NFT',
     component: nftAvailable ? NFTWrapper : NFTWrapperCommingSoon,
   },
 ]
