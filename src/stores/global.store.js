@@ -3,7 +3,7 @@ import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType.js'
 
 const globalStore = {
   state: reactive({
-    actualTokenType: TOKEN_TYPE_ERC_20,
+    currentTokenType: TOKEN_TYPE_ERC_20,
   }),
 }
 
