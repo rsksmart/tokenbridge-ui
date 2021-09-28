@@ -22,6 +22,7 @@
         />
 
         <ImportantDetails
+          v-if="globalState.actualTokenType == tokenTypeErc20"
           :rsk-fee="rskFee"
           :side-fee="sideFee"
           :rsk-confirmations="rskConfirmations"
@@ -47,7 +48,7 @@
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
 import FEDERATION_ABI from '@/constants/abis/federation.json'
-import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType.js'
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType.js'
 
 import 'popper.js'
 import 'bootstrap'
@@ -80,6 +81,8 @@ export default {
       sideFee: 0,
       rskConfirmations: {},
       sideConfirmations: {},
+      rskConfirmationsNft: {},
+      sideConfirmationsNft: {},
       rskFedMembers: [],
       sideFedMembers: [],
       newTransaction: null,
@@ -88,6 +91,16 @@ export default {
     }
   },
   created() {
+    switch (this.globalState.actualTokenType) {
+      case TOKEN_TYPE_ERC_721:
+        break
+
+      default:
+        this.createdErc20()
+        break
+    }
+  },
+  createdErc20() {
     const data = this
     const rskWeb3 = this.sharedState.rskWeb3
     const rskConfig = this.sharedState.rskConfig
