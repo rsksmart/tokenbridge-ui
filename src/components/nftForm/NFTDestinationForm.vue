@@ -7,7 +7,7 @@
       <div class="form-group col-md-6">
         <label for="nftReceiverAddress" class="form-label">
           <a id="same-address" class="same-address" @click="useSameAddress">
-            NFT address
+            Receiver address
           </a>
         </label>
         <Field

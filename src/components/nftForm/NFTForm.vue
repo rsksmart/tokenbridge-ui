@@ -98,11 +98,11 @@ export default {
       const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
       this.isLoading = true
 
-      const [tokenURIError, uri] = await asyncTryCatch(erc721.methods.tokenURI(this.tokenId).call)
+      const [tokenURIError, tokenURI] = await asyncTryCatch(erc721.methods.tokenURI(this.tokenId).call)
       if (tokenURIError) {
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: tokenURIError.message } },
+          options: { modalProps: { message: tokenURIError.message, title: 'Token URI error' } },
         })
         this.isLoading = false
         return
@@ -117,23 +117,30 @@ export default {
       if (approvedError) {
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: approvedError.message } },
+          options: { modalProps: { message: approvedError.message, title: 'Error checking approved status' } },
         })
         this.isLoading = false
         return
       }
-      const [uriError, response] = await asyncTryCatch(fetch, uri)
+      const [uriError, response] = await asyncTryCatch(
+        fetch, this.formatTokenURI(tokenURI),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
       if (uriError) {
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: uriError.message } },
+          options: { modalProps: { message: uriError.message, title: 'Error trying to recover metadata' } },
         })
         this.isLoading = false
         return
       }
       try {
         const metadata = await response.json()
-        this.metadata = { ...metadata, link: uri }
+        this.metadata = { ...metadata, link: tokenURI }
         this.$emit('onSuccess', {
           metadata: this.metadata,
           web3Contract: erc721,
@@ -147,9 +154,17 @@ export default {
         this.isLoading = false
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: jsonError.message } },
+          options: { modalProps: { message: jsonError.message, title: 'Error on Metadata info' } },
         })
       }
+    },
+    formatTokenURI: function(tokenURI) {
+      let match = tokenURI.match('ipfs://(ipfs/.+)')
+      if (match.length > 1) {
+        tokenURI = `https://ipfs.io/${match[1]}`
+      }
+      tokenURI = `https://cors-anywhere.herokuapp.com/${tokenURI}`
+      return tokenURI
     },
   },
 }

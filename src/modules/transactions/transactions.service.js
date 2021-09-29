@@ -63,12 +63,12 @@ export class TransactionService {
       if (Array.isArray(transaction.accountsAddresses)) {
         return transaction.accountsAddresses.includes(addressLowerCase)
       }
-  
-      return transaction.receiverAddress.toLowerCase() == addressLowerCase || 
+
+      return transaction.receiverAddress.toLowerCase() == addressLowerCase ||
         transaction.senderAddress.toLowerCase() == addressLowerCase ||
         transaction.from == addressLowerCase
     }
-    
+
     const totalTransactions = await dbInstance.transactions
       .where('networkId')
       .anyOf(networkIds)
