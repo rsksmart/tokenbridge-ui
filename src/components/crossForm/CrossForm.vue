@@ -596,10 +596,10 @@ export default {
           const transaction = {
             type: 'Cross',
             networkId: config.networkId,
-            tokenFrom: token.symbol,
-            tokenTo: token.receiveToken.symbol,
-            amount: data.amount,
-            receiveAmount: data.receiveAmount,
+            tokenFrom: token.symbol, // TODO: not included in new table
+            tokenTo: token.receiveToken.symbol,  // TODO: not included in new table
+            amount: data.amount,  // TODO: not included in new table
+            receiveAmount: data.receiveAmount,  // TODO: not included in new table
             senderAddress: data.sharedState.accountAddress,
             receiverAddress,
             timestamp: Date.now(),

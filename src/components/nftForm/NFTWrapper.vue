@@ -134,6 +134,7 @@ export default {
       const accountAddress = this.sharedState.accountAddress
       this.isLoadingApprove = true
       try {
+        // TODO: rename SIDE_NFT_TOKEN (we're not necessarily talking about the side chain)
         const tokenContract = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
         const gasPrice = await store.getGasPriceHex()
 
