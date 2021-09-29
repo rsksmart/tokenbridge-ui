@@ -65,9 +65,9 @@ export class TransactionService {
       }
 
       return (
-        transaction.receiverAddress.toLowerCase() == addressLowerCase ||
-        transaction.senderAddress.toLowerCase() == addressLowerCase ||
-        transaction.from == addressLowerCase
+        transaction?.receiverAddress?.toLowerCase() === addressLowerCase ||
+        transaction?.senderAddress?.toLowerCase() === addressLowerCase ||
+        transaction.from === addressLowerCase
       )
     }
 

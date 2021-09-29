@@ -251,7 +251,7 @@ import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
 import ERC20_ABI from '@/constants/abis/erc20.json'
-import { MAX_UINT256, waitForReceipt, sanitizeTxHash, retry3Times } from '@/utils'
+import { sanitizeTxHash, retry3Times } from '@/utils'
 
 import Modal from '@/components/commons/Modal.vue'
 import WaitSpinner from './WaitSpinner.vue'
@@ -259,8 +259,8 @@ import SuccessMsg from './SuccessMsg.vue'
 import ErrorMsg from './ErrorMsg.vue'
 import { store } from '@/store.js'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
-import { crossToken } from '@/modules/transactions/transactions.actions'
 import { METHOD_TYPES } from '@/constants/methodType'
+import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
 
 export default {
   name: 'CrossForm',
@@ -315,6 +315,7 @@ export default {
       showModal: false,
       error: '',
       claimCost: null,
+      erc20TokenInstance: null,
     }
   },
   computed: {
@@ -402,9 +403,16 @@ export default {
       this.refreshBalanceAndAllowance()
       this.resetForm()
       this.setClaimCost()
+      this.initData()
     },
   },
   methods: {
+    initData() {
+      this.erc20TokenInstance = new ERC20TokenTransaction({
+        web3: this.sharedState.web3,
+        config: this.sharedState.currentConfig,
+      })
+    },
     resetForm() {
       this.selectedToken = {}
       this.amount = ''
@@ -512,43 +520,22 @@ export default {
       }
       const accountAddress = data.sharedState.accountAddress
       const tokenAddress = data.selectedToken.address
-      const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress)
 
-      const gasPrice = await store.getGasPriceHex()
-      data.showSpinner = true
-
-      return new Promise((resolve, reject) => {
-        tokenContract.methods
-          .approve(config.bridge, MAX_UINT256)
-          .send({ from: accountAddress, gasPrice: gasPrice, gas: 70_000 }, async (err, txHash) => {
-            const txExplorerLink = data.txExplorerLink(txHash)
-            if (err) {
-              return reject(new Error(`Execution failed ${err.message} ${txExplorerLink}`))
-            }
-            try {
-              const receipt = await waitForReceipt(txHash, web3)
-              if (receipt.status) {
-                return resolve(receipt)
-              } else {
-                return reject(
-                  new Error(`Transaction status failed ${err.message} ${txExplorerLink}`),
-                )
-              }
-            } catch (error) {
-              return reject(new Error(`${error} ${txExplorerLink}`))
-            }
-          })
-      })
-        .then(() => {
-          data.hasAllowance = true
-          data.showSpinner = false
+      try {
+        data.showSpinner = true
+        const receipt = await this.erc20TokenInstance.approve(tokenAddress, {
+          from: accountAddress,
+          gas: 70_000,
         })
-        .catch(err => {
-          data.hasAllowance = false
-          data.showSpinner = false
-          console.error(err)
-          data.error = `Couldn't approve. ${err.message}`
-        })
+        console.info(receipt)
+        data.hasAllowance = true
+        data.showSpinner = false
+      } catch (error) {
+        data.hasAllowance = false
+        data.showSpinner = false
+        console.error(error)
+        data.error = `Couldn't approve. ${error?.message}`
+      }
     },
     onSubmit: async function() {
       const data = this
@@ -584,47 +571,25 @@ export default {
 
       data.showModal = true
 
-      return crossToken(web3, config)(data.amount, token, store, {
-        txExplorerLink: data.txExplorerLink,
-        accountAddress: data.sharedState.accountAddress.toLowerCase(),
-        receiverAddress: receiverAddress.toLowerCase(),
-      })
-        .then(async receipt => {
-          data.showSpinner = false
-          data.showSuccess = true
+      try {
+        const transactionSaved = await this.erc20TokenInstance.cross(
+          data.amount,
+          data.receiveAmount,
+          token,
+          data.sharedState.accountAddress.toLowerCase(),
+          receiverAddress.toLowerCase(),
+        )
+        data.showSpinner = false
+        data.showSuccess = true
 
-          const transaction = {
-            type: 'Cross',
-            networkId: config.networkId,
-            tokenFrom: token.symbol,
-            tokenTo: token.receiveToken.symbol,
-            amount: data.amount,
-            receiveAmount: data.receiveAmount,
-            senderAddress: data.sharedState.accountAddress,
-            receiverAddress,
-            timestamp: Date.now(),
-            ...receipt,
-          }
-          const accountsAddresses = [data.sharedState.accountAddress.toLowerCase()]
-          if (data.sharedState.accountAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
-            accountsAddresses.push(receiverAddress.toLowerCase())
-          }
-          // save transaction to local storage...
-          const newTransaction = {
-            ...transaction,
-            accountsAddresses,
-          }
-          await this.$services.TransactionService.saveTransaction(newTransaction)
-
-          data.$emit('newTransaction', newTransaction)
-          data.resetForm()
-        })
-        .catch(err => {
-          data.showSpinner = false
-          data.showModal = false
-          console.error(err)
-          data.error = `Couln't cross the tokens. ${err.message}`
-        })
+        data.$emit('newTransaction', transactionSaved)
+        data.resetForm()
+      } catch (error) {
+        data.showSpinner = false
+        data.showModal = false
+        console.error(error)
+        data.error = `Couln't cross the tokens. ${error?.message}`
+      }
     },
     validateAmount(value) {
       const data = this
