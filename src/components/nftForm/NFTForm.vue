@@ -126,7 +126,7 @@ export default {
       }
       const [uriError, response] = await asyncTryCatch(
         fetch,
-        `https://cors-anywhere.herokuapp.com/${uri}`,
+        `${process.env.VUE_APP_PROXY_CORS_URI}${uri}`,
         {
           headers: {
             'Content-Type': 'application/json',
