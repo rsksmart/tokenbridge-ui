@@ -102,7 +102,7 @@ export default {
       if (tokenURIError) {
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: tokenURIError.message } },
+          options: { modalProps: { message: tokenURIError.message, title: 'Token URI error' } },
         })
         this.isLoading = false
         return
@@ -117,16 +117,28 @@ export default {
       if (approvedError) {
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: approvedError.message } },
+          options: {
+            modalProps: { message: approvedError.message, title: 'Error checking approved status' },
+          },
         })
         this.isLoading = false
         return
       }
-      const [uriError, response] = await asyncTryCatch(fetch, uri)
+      const [uriError, response] = await asyncTryCatch(
+        fetch,
+        `${process.env.VUE_APP_PROXY_CORS_URI}${uri}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
       if (uriError) {
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: uriError.message } },
+          options: {
+            modalProps: { message: uriError.message, title: 'Error trying to recover metadata' },
+          },
         })
         this.isLoading = false
         return
@@ -147,7 +159,7 @@ export default {
         this.isLoading = false
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: jsonError.message } },
+          options: { modalProps: { message: jsonError.message, title: 'Error on Metadata info' } },
         })
       }
     },
