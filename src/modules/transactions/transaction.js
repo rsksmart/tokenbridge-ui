@@ -41,13 +41,13 @@ class Transaction {
     return `0x${Math.ceil(gasPriceParsed).toString(16)}`
   }
   async approve() {
-    throw new Error('You are using a transaction method that require override')
+    throw new Error('You are using a transaction method that requires override')
   }
   async claim() {
-    throw new Error('You are using a transaction method that require override')
+    throw new Error('You are using a transaction method that requires override')
   }
   async cross() {
-    throw new Error('You are using a transaction method that require override')
+    throw new Error('You are using a transaction method that requires override')
   }
 }
 
