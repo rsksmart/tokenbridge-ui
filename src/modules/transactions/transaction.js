@@ -10,7 +10,7 @@ class Transaction {
   }
   callback({ resolve, reject }) {
     return async (err, txHash) => {
-      const textExplorerLink = txExplorerLink(txHash)
+      const textExplorerLink = txExplorerLink(txHash, this.config.explorer)
       if (err) {
         return reject(new Error(`Execution failed ${err?.message} ${textExplorerLink}`))
       }
@@ -19,7 +19,17 @@ class Transaction {
         if (receipt.status) {
           return resolve(receipt)
         } else {
-          return reject(new Error(`Transaction status failed ${err?.message} ${textExplorerLink}`))
+          const stringReceipt = JSON.stringify(receipt, null, 2)
+          return reject(
+            new Error(
+              `Transaction status failed ${textExplorerLink}
+                <p class="d-none">
+                  <small>Transaction Info</small>
+                  <pre class="overflow-auto d-none" style="max-height: 200px">${stringReceipt}</pre>
+                </p>
+              `,
+            ),
+          )
         }
       } catch (error) {
         return reject(new Error(`${error} ${textExplorerLink}`))
@@ -47,6 +57,9 @@ class Transaction {
     throw new Error('You are using a transaction method that requires override')
   }
   async cross() {
+    throw new Error('You are using a transaction method that requires override')
+  }
+  transactionDataHashes() {
     throw new Error('You are using a transaction method that requires override')
   }
 }

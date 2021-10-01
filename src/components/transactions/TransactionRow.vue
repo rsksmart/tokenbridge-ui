@@ -47,7 +47,7 @@
         </div>
       </div>
       <div v-else-if="currentStep === steps.Claimed">
-        <span class="confirmed claimed">Claimed</span>
+        <span class="confirmed claimed">Claimed {{ currentStep }}</span>
       </div>
     </td>
     <Modal v-if="showResultModal" @close="showResultModal = false">
@@ -104,13 +104,18 @@
 import BigNumber from 'bignumber.js'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
-import { wrappedFormat, blocksToTime, sanitizeTxHash, retry3Times, NULL_HASH } from '@/utils'
+import { wrappedFormat, blocksToTime, sanitizeTxHash, NULL_HASH } from '@/utils'
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { CROSSING_STEPS } from '@/constants/enums.js'
 import VotingInfo from './VotingInfo.vue'
 import { claim } from '@/modules/transactions/transactions.actions'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
+import globalStore from '@/stores/global.store'
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
+import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
+import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
+
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
 export default {
@@ -157,6 +162,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       currentStep: this.transaction.currentStep || 0,
       steps: CROSSING_STEPS,
       currentConfirmations: 0,
@@ -296,6 +302,26 @@ export default {
         ? `<a target="_blank" href="${this.sharedState.currentConfig.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
         : ''
     },
+    getTokenTypeInstance({ web3, config, sideConfig } = {}) {
+      switch (this.globalState.currentTokenType) {
+        case TOKEN_TYPE_ERC_20:
+          return new ERC20TokenTransaction({
+            web3: web3 || this.sharedState?.web3,
+            config: config || this.sharedState?.currentConfig,
+          })
+        case TOKEN_TYPE_ERC_721:
+          return new ERC721NFTTransaction({
+            web3: web3 || this.sharedState?.web3,
+            config: config || this.sharedState?.currentConfig,
+            sideConfig: sideConfig || this.sharedState?.sideConfig,
+          })
+        default:
+          return new ERC20TokenTransaction({
+            web3: web3 || this.sharedState?.web3,
+            config: config || this.sharedState?.currentConfig,
+          })
+      }
+    },
     async refreshStep() {
       const data = this
       if (data.currentStep >= data.steps.ToClaim) return
@@ -313,7 +339,7 @@ export default {
           data.votesCount = 0
         }
       }
-      const bridgeContract = new data.web3.eth.Contract(BRIDGE_ABI, data.toNetwork.bridge)
+      const tokenInstance = this.getTokenTypeInstance()
       if (data.transaction.blockNumber < data.fromNetwork.v2UpdateBlock) {
         // V1 Protocol
         data.currentStep = data.steps.Claimed
@@ -321,12 +347,13 @@ export default {
         return
       } else if (data.currentStep === data.steps.Voting && data.txDataHash === NULL_HASH) {
         // V2 Protocol
-        data.txDataHash = await retry3Times(
-          bridgeContract.methods.transactionsDataHashes(data.transaction.transactionHash).call,
+        data.txDataHash = await tokenInstance.transactionDataHashes(
+          data.transaction.transactionHash,
+          data.toNetwork,
         )
         if (data.txDataHash !== NULL_HASH) {
           data.estimatedTime = ''
-          const claimed = await retry3Times(bridgeContract.methods.claimed(data.txDataHash).call)
+          const claimed = await tokenInstance.claimed(data.txDataHash, data.toNetwork)
           if (claimed) {
             data.currentStep = data.steps.Claimed
             await this.$services.TransactionService.saveTransaction({
@@ -364,9 +391,22 @@ export default {
         event.data,
         event.topics,
       )
+      const tokenInstance = this.getTokenTypeInstance({ config: data.toNetwork })
       const gasPrice = await store.getGasPriceHex()
 
       try {
+        // TODO: Generate instance to every kind of token and replace claim method
+        const receipt = await tokenInstance.claim(
+          {
+            to: decodedEvent._to,
+            amount: decodedEvent._amount,
+            blockHash: event.blockHash,
+            transactionHash: event.transactionHash,
+            logIndex: event.logIndex,
+            txExplorerLink: data.txExplorerLinkTag,
+          },
+          { from: sharedState.accountAddress, gasPrice: gasPrice, gas: ESTIMATED_GAS_AVG },
+        )
         const receiptResponse = await claim(
           { config: data.toNetwork, web3: sharedState.web3 },
           {

@@ -171,24 +171,23 @@ export default {
     )
 
     // NFT
-    if (rskConfig.nftBridge == undefined || sideConfig.nftBridge == undefined) {
+    if (!rskConfig.nftBridge || !sideConfig.nftBridge) {
       return
     }
 
-    const rskBridgeNft = new rskWeb3.eth.Contract(NFT_BRIDGE, rskConfig.bridge)
+    const rskBridgeNft = new rskWeb3.eth.Contract(NFT_BRIDGE, rskConfig.nftBridge)
     rskBridgeNft.methods
       .getFixedFee()
       .call()
       .then(fee => {
-        debugger
         data.rskFeeNft = fee / rskConfig.feePercentageDivider
       })
       .catch(err => {
         // eslint-disable-next-line no-console
-        console.log('Error in getFixedFee', err)
+        console.error('Error in getFixedFee', err)
       })
 
-    const sideBridgeNft = new sideWeb3.eth.Contract(NFT_BRIDGE, sideConfig.bridge)
+    const sideBridgeNft = new sideWeb3.eth.Contract(NFT_BRIDGE, sideConfig.nftBridge)
     retry3Times(sideBridgeNft.methods.getFixedFee().call).then(fee => {
       data.sideFeeNft = fee / sideConfig.feePercentageDivider
     })
