@@ -21,35 +21,13 @@
           <td>~ {{ sharedState.sideConfig.secondsPerBlock }} seconds</td>
         </tr>
         <tr>
-          <th scope="row">Confirmations needed for small amounts</th>
+          <th scope="row">Confirmations needed</th>
           <td>
-            {{ rskConfirmations?.smallAmount }} blocks (~ {{ rskConfirmations?.smallAmountTime }}) +
+            {{ rskConfirmationsNft?.confirmations }} blocks (~ {{ rskConfirmationsNft?.time }}) +
             {{ votingTime }}
           </td>
           <td>
-            {{ sideConfirmations?.smallAmount }} blocks (~ {{ sideConfirmations?.smallAmountTime }}) +
-            {{ votingTime }}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Confirmations needed for medium amounts</th>
-          <td>
-            {{ rskConfirmations?.mediumAmount }} blocks (~ {{ rskConfirmations?.mediumAmountTime }})
-            + {{ votingTime }}
-          </td>
-          <td>
-            {{ sideConfirmations?.mediumAmount }} blocks (~ {{ sideConfirmations?.mediumAmountTime }})
-            + {{ votingTime }}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Confirmations needed for large amounts</th>
-          <td>
-            {{ rskConfirmations?.largeAmount }} blocks (~ {{ rskConfirmations?.largeAmountTime }}) +
-            {{ votingTime }}
-          </td>
-          <td>
-            {{ sideConfirmations?.largeAmount }} blocks (~ {{ sideConfirmations?.largeAmountTime }}) +
+            {{ sideConfirmationsNft?.confirmations }} blocks (~ {{ sideConfirmationsNft?.time }}) +
             {{ votingTime }}
           </td>
         </tr>
@@ -67,21 +45,21 @@
 import { store } from '@/store.js'
 
 export default {
-  name: 'ImportantDetails',
+  name: 'ImportantDetailsErc721',
   props: {
-    rskFee: {
+    rskFeeNft: {
       type: Number,
       required: true,
     },
-    sideFee: {
+    sideFeeNft: {
       type: Number,
       required: true,
     },
-    rskConfirmations: {
+    rskConfirmationsNft: {
       type: Object,
       required: true,
     },
-    sideConfirmations: {
+    sideConfirmationsNft: {
       type: Object,
       required: true,
     },
@@ -101,13 +79,13 @@ export default {
   },
   computed: {
     votingTime() {
-      return '3 minutes voting'
+      return '2 minutes voting'
     },
     rskFeeFormated() {
-      return this.rskFee * 100 + '%'
+      return this.rskFeeNft * 100 + '%'
     },
     sideFeeFormated() {
-      return this.sideFee * 100 + '%'
+      return this.sideFeeNft * 100 + '%'
     },
     rskFedMembersLen() {
       return this.rskFedMembers.length

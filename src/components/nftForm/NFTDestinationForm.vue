@@ -47,8 +47,7 @@ import { ErrorMessage, Field, Form } from 'vee-validate'
 import { store } from '@/store'
 import NFT_BRIDGE from '@/constants/abis/nft-bridge.json'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
-import { txExplorerLink } from '@/utils/text-helpers'
-import { waitForReceipt } from '@/utils'
+import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 
 export default {
   name: 'NFTDestinationForm',
@@ -78,11 +77,20 @@ export default {
       nftReceiverAddress: '',
       feePrice: 0,
       nftBridgeContract: null,
+      erc721NFTInstance: null,
     }
   },
   async created() {
     const web3 = this.sharedState.web3
-    this.nftBridgeContract = new web3.eth.Contract(NFT_BRIDGE, this.sharedState.sideConfig.nftBridge)
+    this.erc721NFTInstance = new ERC721NFTTransaction({
+      web3,
+      config: this.sharedState.currentConfig,
+      sideConfig: this.sharedState.sideConfig,
+    })
+    this.nftBridgeContract = new web3.eth.Contract(
+      NFT_BRIDGE,
+      this.sharedState.sideConfig.nftBridge,
+    )
     try {
       const fee = await this.nftBridgeContract.methods.getFixedFee().call()
       this.feePrice = fee
@@ -95,66 +103,20 @@ export default {
   },
   methods: {
     async onSubmit() {
-      const currentConfig = this.sharedState.currentConfig
-      const web3 = this.sharedState.web3
       try {
-        const gasPrice = await store.getGasPriceHex()
-        const transaction = await new Promise((resolve, reject) => {
-          this.nftBridgeContract.methods
-            .receiveTokensTo(this.nftContractAddress, this.nftReceiverAddress, this.tokenId)
-            .send(
-              {
-                from: this.sharedState.accountAddress,
-                gasPrice: gasPrice,
-                gas: ESTIMATED_GAS_AVG,
-              },
-              async (err, txHash) => {
-                const txExplorerLinkRes = txExplorerLink(txHash, currentConfig.explorer)
-                if (err) {
-                  reject(new Error(`Execution failed ${err.message} ${txExplorerLinkRes}`))
-                }
-                try {
-                  const receipt = await waitForReceipt(txHash, web3)
-                  if (receipt.status) {
-                    resolve(receipt)
-                  } else {
-                    reject(
-                      new Error(`Transaction status failed ${err?.message || ''} ${txExplorerLinkRes}`),
-                    )
-                  }
-                } catch (error) {
-                  reject(new Error(`${error} ${txExplorerLinkRes}`))
-                }
-              },
-            )
-        })
-
-        // const transactionRecord = {
-        //     type: 'NFT',
-        //     networkId: currentConfig.networkId,
-        //     tokenFrom: token.symbol,
-        //     tokenTo: token.receiveToken.symbol,
-        //     amount: data.amount,
-        //     receiveAmount: data.receiveAmount,
-        //     senderAddress: data.sharedState.accountAddress,
-        //     receiverAddress,
-        //     timestamp: Date.now(),
-        //     ...receipt,
-        //   }
-        //   const accountsAddresses = [data.sharedState.accountAddress.toLowerCase()]
-        //   if (data.sharedState.accountAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
-        //     accountsAddresses.push(receiverAddress.toLowerCase())
-        //   }
-        //   // save transaction to local storage...
-        //   const newTransaction = {
-        //     ...transactionRecord,
-        //     accountsAddresses,
-        //   }
-        //   await this.$services.TransactionService.saveTransaction(newTransaction)
+        const transactionSaved = await this.erc721NFTInstance.cross(
+          this.nftContractAddress,
+          this.nftReceiverAddress,
+          this.tokenId,
+          {
+            from: this.sharedState.accountAddress,
+            gas: ESTIMATED_GAS_AVG,
+          },
+        )
 
         return {
           success: true,
-          data: transaction,
+          data: transactionSaved,
         }
       } catch (error) {
         this.$modal.value.showModal({
