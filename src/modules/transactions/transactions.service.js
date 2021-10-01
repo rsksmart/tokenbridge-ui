@@ -64,9 +64,11 @@ export class TransactionService {
         return transaction.accountsAddresses.includes(addressLowerCase)
       }
 
-      return transaction.receiverAddress.toLowerCase() == addressLowerCase ||
-        transaction.senderAddress.toLowerCase() == addressLowerCase ||
-        transaction.from == addressLowerCase
+      return (
+        transaction?.receiverAddress?.toLowerCase() === addressLowerCase ||
+        transaction?.senderAddress?.toLowerCase() === addressLowerCase ||
+        transaction.from === addressLowerCase
+      )
     }
 
     const totalTransactions = await dbInstance.transactions

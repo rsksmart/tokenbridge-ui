@@ -199,11 +199,9 @@ export default {
       decodedEvent._from = decodedEvent._from ?? decodedEvent._to
       const token = data.selectedNetwork.tokens.find(token => {
         return (
-          token.address.toLowerCase() ===
-            decodedEvent._tokenAddress.toLowerCase() ||
+          token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
           // When crossing back uses the original token address
-          token.receiveToken.address.toLowerCase() ===
-            decodedEvent._tokenAddress.toLowerCase()
+          token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
         )
       })
       const tokenFromNetwork = token
