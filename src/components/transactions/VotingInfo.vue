@@ -35,6 +35,7 @@ import FEDERATION_ABI from '@/constants/abis/federation.json'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
+import globalStore from "@/stores/global.store";
 
 export default {
   name: 'VotingInfo',
@@ -54,6 +55,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       showModal: false,
       votes: [],
     }
@@ -94,7 +96,11 @@ export default {
       const receipt = await data.originWeb3.eth.getTransactionReceipt(
         data.transaction.transactionHash,
       )
-      const { event, decodedEvent } = decodeCrossEvent(data.originWeb3, receipt)
+      const { event, decodedEvent } = decodeCrossEvent(
+        data.originWeb3,
+        receipt,
+        this.globalState.currentTokenType,
+      )
       const federationContract = new data.destinationWeb3.eth.Contract(
         FEDERATION_ABI,
         data.federationAddress,

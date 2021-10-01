@@ -98,7 +98,9 @@ export default {
       const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
       this.isLoading = true
 
-      const [tokenURIError, tokenURI] = await asyncTryCatch(erc721.methods.tokenURI(this.tokenId).call)
+      const [tokenURIError, tokenURI] = await asyncTryCatch(
+        erc721.methods.tokenURI(this.tokenId).call,
+      )
       if (tokenURIError) {
         this.$modal.value.showModal({
           type: 'error',
@@ -124,15 +126,11 @@ export default {
         this.isLoading = false
         return
       }
-      const [uriError, response] = await asyncTryCatch(
-        fetch,
-        `${process.env.VUE_APP_PROXY_CORS_URI}${this.formatTokenURI(tokenURI)}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      const [uriError, response] = await asyncTryCatch(fetch, this.formatTokenURI(tokenURI), {
+        headers: {
+          'Content-Type': 'application/json',
         },
-      )
+      })
       if (uriError) {
         this.$modal.value.showModal({
           type: 'error',
@@ -164,11 +162,12 @@ export default {
       }
     },
     formatTokenURI: function(tokenURI) {
+      // TODO: check conversion from ipfs to https
       let match = tokenURI.match('ipfs://(ipfs/.+)')
-      if (match.length > 1) {
+      if (match?.length > 1) {
         tokenURI = `https://ipfs.io/${match[1]}`
       }
-      tokenURI = `https://cors-anywhere.herokuapp.com/${tokenURI}`
+      tokenURI = `${process.env.VUE_APP_PROXY_CORS_URI}${tokenURI}`
       return tokenURI
     },
   },

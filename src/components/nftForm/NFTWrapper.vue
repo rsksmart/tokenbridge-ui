@@ -58,9 +58,7 @@ import NFTViewInformation from '@/components/nftForm/NFTViewInformation'
 import NFTForm from '@/components/nftForm/NFTForm'
 import { store } from '@/store'
 import NFTDestinationForm from '@/components/nftForm/NFTDestinationForm'
-import SIDE_NFT_TOKEN from '@/constants/abis/side_nft_token.json'
-import { waitForReceipt } from '@/utils'
-import { txExplorerLink } from '@/utils/text-helpers'
+import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 
 export default {
   name: 'NFTWrapper',
@@ -76,6 +74,7 @@ export default {
       required: true,
     },
   },
+  emits: ['newTransaction'],
   data() {
     return {
       loadedInfo: false,
@@ -120,6 +119,7 @@ export default {
           })
         }
         this.isLoadingCross = false
+        this.$emit('newTransaction', submitResponse.data)
       } catch (error) {
         this.$modal.value.showModal({
           type: 'error',
@@ -135,35 +135,14 @@ export default {
       this.isLoadingApprove = true
       try {
         // TODO: rename SIDE_NFT_TOKEN (we're not necessarily talking about the side chain)
-        const tokenContract = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
-        const gasPrice = await store.getGasPriceHex()
-
-        await new Promise((resolve, reject) => {
-          tokenContract.methods.setApprovalForAll(currentConfig.nftBridge, true).send(
-            {
-              from: accountAddress,
-              gasPrice,
-              gas: 70_000,
-            },
-            async (err, txHash) => {
-              const txExplorerLinkRes = txExplorerLink(txHash, currentConfig.explorer)
-              if (err) {
-                throw new Error(`Execution failed ${err.message} ${txExplorerLinkRes}`)
-              }
-              try {
-                const receipt = await waitForReceipt(txHash, web3)
-                if (receipt.status) {
-                  return resolve(receipt)
-                } else {
-                  return reject(
-                    new Error(`Transaction status failed ${err.message} ${txExplorerLinkRes}`),
-                  )
-                }
-              } catch (error) {
-                return reject(new Error(`${error} ${txExplorerLinkRes}`))
-              }
-            },
-          )
+        const erc721NFTTransaction = new ERC721NFTTransaction({
+          web3,
+          config: currentConfig,
+          sideConfig: this.sharedState.sideConfig,
+        })
+        await erc721NFTTransaction.approve(this.nftContractAddress, {
+          from: accountAddress,
+          gas: 70_000,
         })
         this.isLoadingApprove = false
         this.isApproved = true
@@ -171,9 +150,8 @@ export default {
         this.isLoadingApprove = false
         this.$modal.value.showModal({
           type: 'error',
-          options: { modalProps: { message: 'Approve failed: ' + JSON.stringify(approvalError) } },
+          options: { modalProps: { message: `Approve failed: ${approvalError.message}` } },
         })
-        console.error('Approve failed: ' + JSON.stringify(approvalError))
       }
     },
   },

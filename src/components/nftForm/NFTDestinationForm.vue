@@ -113,7 +113,6 @@ export default {
             gas: ESTIMATED_GAS_AVG,
           },
         )
-
         return {
           success: true,
           data: transactionSaved,
@@ -134,7 +133,7 @@ export default {
       if (!valid) {
         return
       }
-      return await this.onSubmit()
+      return this.onSubmit()
     },
     useSameAddress(event) {
       if (event) event.preventDefault()
