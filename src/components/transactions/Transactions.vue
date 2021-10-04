@@ -16,6 +16,7 @@
       :rsk-fed-members="rskFedMembers"
       :side-fed-members="sideFedMembers"
       :transactions="transactions"
+      :transactions-columns="transactionsColumns"
       :rsk-block-number="rskBlockNumber"
       :side-block-number="sideBlockNumber"
       :limit="limit"
@@ -32,6 +33,9 @@ import TransactionList from './TransactionList.vue'
 import SearchTransaction from './SearchTransaction.vue'
 
 import { retry3Times } from '@/utils'
+import globalStore from '@/stores/global.store'
+import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
+import { tokenTypesColumns } from '@/constants/tokenTypeColumns'
 
 export default {
   name: 'Transactions',
@@ -69,7 +73,9 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       transactions: [],
+      transactionsColumns: [],
       rskBlockNumber: 0,
       sideBlockNumber: 0,
       pollingBlockNumber: null,
@@ -81,13 +87,21 @@ export default {
     accountConnected() {
       return `${this.sharedState.chainId} ${this.sharedState.accountAddress}`
     },
+    tokenTypeSelected() {
+      return this.globalState.currentTokenType
+    },
   },
   watch: {
     accountConnected() {
+      this.transactionsColumns = tokenTypesColumns[this.tokenTypeSelected]
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
     newTransaction() {
       if (!this.newTransaction) return
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
+    },
+    tokenTypeSelected() {
+      this.transactionsColumns = tokenTypesColumns[this.tokenTypeSelected]
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
   },
@@ -148,6 +162,12 @@ export default {
         sideConfig.localStorageName,
       )
       /* Synchronization end */
+      const tokenTypes = [this.globalState.currentTokenType]
+      if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_20) {
+        // To support old transactions without token type field
+        tokenTypes.push(null)
+        tokenTypes.push(undefined)
+      }
 
       const {
         info: { total },
@@ -155,6 +175,7 @@ export default {
       } = await this.$services.TransactionService.getTransactions(
         accountAddress,
         [rskConfig.networkId, sideConfig.networkId],
+        tokenTypes,
         {
           limit,
           offset,

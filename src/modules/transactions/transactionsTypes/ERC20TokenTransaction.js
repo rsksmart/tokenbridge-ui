@@ -104,6 +104,16 @@ class ERC20TokenTransaction extends Transaction {
     )
   }
 
+  getClaimData(decodedEvent, event) {
+    return {
+      to: decodedEvent._to,
+      amount: decodedEvent._amount,
+      blockHash: event.blockHash,
+      transactionHash: event.transactionHash,
+      logIndex: event.logIndex,
+    }
+  }
+
   async claim(claimData, transactionObject) {
     const gasPrice = await this.getGasPriceHex()
     return new Promise((resolve, reject) => {

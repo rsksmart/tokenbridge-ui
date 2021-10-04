@@ -61,6 +61,18 @@ class ERC721NFTTransaction extends Transaction {
     return this.saveTransaction(receipt, tokenId, tokenAddress, to)
   }
 
+  getClaimData(decodedEvent, event) {
+    return {
+      to: decodedEvent._to,
+      from: decodedEvent._from,
+      tokenId: decodedEvent._tokenId,
+      tokenAddress: decodedEvent._originalTokenAddress,
+      blockHash: event.blockHash,
+      transactionHash: event.transactionHash,
+      logIndex: event.logIndex,
+    }
+  }
+
   async claim(claimData, transactionObject) {
     const gasPrice = await this.getGasPriceHex()
     return new Promise((resolve, reject) => {

@@ -1,26 +1,10 @@
 <template>
   <tr class="transaction-row">
     <th scope="row">Cross</th>
-    <td :class="{ bold: isSenderNetwork }">{{ fromNetwork.name }}</td>
-    <td>
-      <a :href="senderAddressExplorerUrl" :class="{ bold: isSenderAddress }" target="_blank">
-        {{ formattedSenderAddress }}
-      </a>
-    </td>
-    <td>
-      <a :href="transactionHashExplorerUrl" target="_blank">
-        {{ formattedTransactionHash }}
-      </a>
-      <a href="#" class="ml-2" @click="copyTransactionHash">
+    <td v-for="cell in columnsWithRenderApplied" :key="cell.key">
+      <span v-html="cell.show"></span>
+      <a v-if="cell.showCopy" href="#" class="ml-2" @click.prevent="handleCopy(cell.value)">
         <i :class="copyIcon"></i>
-      </a>
-    </td>
-    <td>{{ transaction.blockNumber }}</td>
-    <td>{{ amountAndSymbol }}</td>
-    <td :class="{ bold: isReceiverNetwork }">{{ toNetwork.name }}</td>
-    <td>
-      <a :href="receiverAddressExplorerUrl" :class="{ bold: isReceiverAddress }" target="_blank">
-        {{ formattedReceiverAddress }}
       </a>
     </td>
     <td>
@@ -47,7 +31,7 @@
         </div>
       </div>
       <div v-else-if="currentStep === steps.Claimed">
-        <span class="confirmed claimed">Claimed {{ currentStep }}</span>
+        <span class="confirmed claimed">Claimed</span>
       </div>
     </td>
     <Modal v-if="showResultModal" @close="showResultModal = false">
@@ -106,15 +90,14 @@ import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
 import { wrappedFormat, blocksToTime, sanitizeTxHash, NULL_HASH } from '@/utils'
 // import FEDERATION_ABI from '@/constants/abis/federation.json'
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { CROSSING_STEPS } from '@/constants/enums.js'
 import VotingInfo from './VotingInfo.vue'
-import { claim } from '@/modules/transactions/transactions.actions'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import globalStore from '@/stores/global.store'
 import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
 import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
+import { decodeCrossEvent } from '@/utils/decodeEvents'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -128,6 +111,10 @@ export default {
   props: {
     transaction: {
       type: Object,
+      required: true,
+    },
+    transactionsColumns: {
+      type: Array,
       required: true,
     },
     typesLimits: {
@@ -266,6 +253,17 @@ export default {
         ? `${this.transaction.receiveAmount} ${this.transaction.tokenTo}`
         : `${this.transaction.amount} ${this.transaction.tokenFrom}`
     },
+    columnsWithRenderApplied() {
+      return this.transactionsColumns.map(({ render, key, showCopy }) => {
+        const hasRender = render instanceof Function
+        return {
+          value: this.transaction[key],
+          key,
+          showCopy,
+          show: hasRender ? render(this.transaction[key], this) : this.transaction[key],
+        }
+      })
+    },
   },
   watch: {
     rskBlockNumber() {
@@ -291,6 +289,13 @@ export default {
     async copyTransactionHash(event) {
       event.preventDefault()
       await navigator.clipboard.writeText(this.transaction.transactionHash)
+      this.copyIcon = 'fas fa-clipboard-check'
+      setTimeout(() => {
+        this.copyIcon = DEFAULT_COPY_ICON
+      }, 1000)
+    },
+    async handleCopy(value) {
+      await navigator.clipboard.writeText(value)
       this.copyIcon = 'fas fa-clipboard-check'
       setTimeout(() => {
         this.copyIcon = DEFAULT_COPY_ICON
@@ -339,7 +344,7 @@ export default {
           data.votesCount = 0
         }
       }
-      const tokenInstance = this.getTokenTypeInstance()
+      const tokenInstance = this.getTokenTypeInstance({ web3: this.web3 })
       if (data.transaction.blockNumber < data.fromNetwork.v2UpdateBlock) {
         // V1 Protocol
         data.currentStep = data.steps.Claimed
@@ -347,22 +352,31 @@ export default {
         return
       } else if (data.currentStep === data.steps.Voting && data.txDataHash === NULL_HASH) {
         // V2 Protocol
-        data.txDataHash = await tokenInstance.transactionDataHashes(
-          data.transaction.transactionHash,
-          data.toNetwork,
-        )
+        try {
+          data.txDataHash = await tokenInstance.transactionDataHashes(
+            data.transaction.transactionHash,
+            data.toNetwork,
+          )
+        } catch (dataHashError) {
+          console.error('DataHashError', dataHashError)
+        }
+
         if (data.txDataHash !== NULL_HASH) {
           data.estimatedTime = ''
-          const claimed = await tokenInstance.claimed(data.txDataHash, data.toNetwork)
-          if (claimed) {
-            data.currentStep = data.steps.Claimed
-            await this.$services.TransactionService.saveTransaction({
-              accountAddress: data.sharedState.accountAddress,
-              currentStep: data.currentStep,
-              ...data.transaction,
-            })
-          } else {
-            data.currentStep = data.steps.ToClaim
+          try {
+            const claimed = await tokenInstance.claimed(data.txDataHash, data.toNetwork)
+            if (claimed) {
+              data.currentStep = data.steps.Claimed
+              await this.$services.TransactionService.saveTransaction({
+                accountAddress: data.sharedState.accountAddress,
+                currentStep: data.currentStep,
+                ...data.transaction,
+              })
+            } else {
+              data.currentStep = data.steps.ToClaim
+            }
+          } catch (claimedError) {
+            console.error('Fail on Claimed', claimedError)
           }
         }
       }
@@ -382,44 +396,20 @@ export default {
       // Always retrieve transaction block hash as data.transaction.blockHash
       // may not be the final block hash in RSK
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transaction.transactionHash)
-      const eventJsonInterface = BRIDGE_ABI.find(x => x.name === 'Cross' && x.type === 'event')
-      const eventSignature = originWeb3.eth.abi.encodeEventSignature(eventJsonInterface)
-      const event = receipt.logs.find(x => x.topics[0] === eventSignature)
-      event.topics.shift()
-      const decodedEvent = originWeb3.eth.abi.decodeLog(
-        eventJsonInterface.inputs,
-        event.data,
-        event.topics,
+      const { decodedEvent, event } = decodeCrossEvent(
+        originWeb3,
+        receipt,
+        this.globalState.currentTokenType,
       )
       const tokenInstance = this.getTokenTypeInstance({ config: data.toNetwork })
-      const gasPrice = await store.getGasPriceHex()
 
       try {
         // TODO: Generate instance to every kind of token and replace claim method
-        const receipt = await tokenInstance.claim(
-          {
-            to: decodedEvent._to,
-            amount: decodedEvent._amount,
-            blockHash: event.blockHash,
-            transactionHash: event.transactionHash,
-            logIndex: event.logIndex,
-            txExplorerLink: data.txExplorerLinkTag,
-          },
-          { from: sharedState.accountAddress, gasPrice: gasPrice, gas: ESTIMATED_GAS_AVG },
+        const claimReceipt = await tokenInstance.claim(
+          tokenInstance.getClaimData(decodedEvent, event),
+          { from: sharedState.accountAddress, gas: ESTIMATED_GAS_AVG },
         )
-        const receiptResponse = await claim(
-          { config: data.toNetwork, web3: sharedState.web3 },
-          {
-            to: decodedEvent._to,
-            amount: decodedEvent._amount,
-            blockHash: event.blockHash,
-            transactionHash: event.transactionHash,
-            logIndex: event.logIndex,
-            txExplorerLink: data.txExplorerLinkTag,
-          },
-          { from: sharedState.accountAddress, gasPrice: gasPrice, gas: ESTIMATED_GAS_AVG },
-        )
-        if (receiptResponse) {
+        if (claimReceipt) {
           data.currentStep = data.steps.Claimed
           data.loading = false
           data.error = ''
