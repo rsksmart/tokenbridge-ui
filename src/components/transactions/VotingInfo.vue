@@ -35,7 +35,8 @@ import FEDERATION_ABI from '@/constants/abis/federation.json'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
-import globalStore from "@/stores/global.store";
+import globalStore from '@/stores/global.store'
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from "@/constants/tokenType";
 
 export default {
   name: 'VotingInfo',
@@ -62,7 +63,7 @@ export default {
   },
   computed: {
     fromNetwork() {
-      return this.transaction.networkId == this.sharedState.rskConfig.networkId
+      return this.transaction.networkId === this.sharedState.rskConfig.networkId
         ? this.sharedState.rskConfig
         : this.sharedState.sideConfig
     },
@@ -84,10 +85,48 @@ export default {
       this.setVotesFromFedMembers()
     },
   },
-  created() {
-    this.setVotesFromFedMembers()
+  async created() {
+    try {
+      await this.setVotesFromFedMembers()
+    } catch (error) {
+      console.error(error)
+    }
   },
   methods: {
+    getParamsByTokenType(decodedEvent, event) {
+      switch (this.globalState.currentTokenType) {
+        case TOKEN_TYPE_ERC_20:
+          return [
+            decodedEvent._tokenAddress,
+            decodedEvent._from,
+            decodedEvent._to,
+            decodedEvent._amount,
+            event.blockHash,
+            event.transactionHash,
+            event.logIndex,
+          ]
+        case TOKEN_TYPE_ERC_721:
+          return [
+            decodedEvent._originalTokenAddress,
+            decodedEvent._from,
+            decodedEvent._to,
+            decodedEvent._tokenId,
+            event.blockHash,
+            event.transactionHash,
+            event.logIndex,
+          ]
+        default:
+          return [
+            decodedEvent._tokenAddress,
+            decodedEvent._from,
+            decodedEvent._to,
+            decodedEvent._amount,
+            event.blockHash,
+            event.transactionHash,
+            event.logIndex,
+          ]
+      }
+    },
     async setVotesFromFedMembers() {
       const data = this
       if (!data.originWeb3 || !data.destinationWeb3 || !data.federationAddress || !data.fedMembers)
@@ -106,15 +145,7 @@ export default {
         data.federationAddress,
       )
       const txDataHash = await federationContract.methods
-        .getTransactionId(
-          decodedEvent._tokenAddress,
-          decodedEvent._from,
-          decodedEvent._to,
-          decodedEvent._amount,
-          event.blockHash,
-          event.transactionHash,
-          event.logIndex,
-        )
+        .getTransactionId(...this.getParamsByTokenType(decodedEvent, event))
         .call()
 
       const votesPromises = []

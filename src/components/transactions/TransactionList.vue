@@ -34,13 +34,9 @@
         <thead>
           <tr>
             <th scope="col">Action</th>
-            <th scope="col" width="12%">From</th>
-            <th scope="col">Sender</th>
-            <th scope="col">Txn hash</th>
-            <th scope="col">Block number</th>
-            <th scope="col" width="13%">Amount</th>
-            <th scope="col" width="12%">To</th>
-            <th scope="col">Receiver</th>
+            <th v-for="column in transactionsColumns" :key="column.key" scope="col">
+              {{ column.title }}
+            </th>
             <th scope="col" width="15%">Status</th>
           </tr>
         </thead>
@@ -49,6 +45,7 @@
             v-for="transaction in transactions"
             :key="transaction.transactionHash"
             :transaction="transaction"
+            :transactions-columns="transactionsColumns"
             :types-limits="typesLimits"
             :rsk-confirmations="rskConfirmations"
             :side-confirmations="sideConfirmations"
@@ -88,6 +85,7 @@
 <script>
 import { store } from '@/store.js'
 import TransactionRow from './TransactionRow.vue'
+import globalStore from '@/stores/global.store'
 
 export default {
   name: 'TransactionList',
@@ -119,6 +117,10 @@ export default {
       type: Array,
       required: true,
     },
+    transactionsColumns: {
+      type: Array,
+      required: true,
+    },
     rskBlockNumber: {
       type: Number,
       required: true,
@@ -140,6 +142,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       offset: 0,
       limitSelect: 10,
     }

@@ -10,15 +10,22 @@ export function decodeCrossEvent(web3, receipt, tokenType) {
       return decodeERC20CrossEvent(web3, receipt)
     case TOKEN_TYPE_ERC_721:
       return decodeERC721CrossEvent(web3, receipt)
+    default:
+      return decodeERC20CrossEvent(web3, receipt)
   }
 }
 
 function decodeERC20CrossEvent(web3, receipt) {
-  return (
-    getEventForAbi(web3, receipt, BRIDGE_ABI_V2, 'Cross') ||
-    getEventForAbi(web3, receipt, BRIDGE_ABI_V1, 'Cross') ||
-    getEventForAbi(web3, receipt, BRIDGE_ABI_V0, 'Cross')
-  )
+  let result = getEventForAbi(web3, receipt, BRIDGE_ABI_V2, 'Cross')
+  if (result) {
+    return result
+  }
+  result = getEventForAbi(web3, receipt, BRIDGE_ABI_V1, 'Cross')
+  if (result) {
+    return result
+  }
+  result = getEventForAbi(web3, receipt, BRIDGE_ABI_V0, 'Cross')
+  return result
 }
 
 function decodeERC721CrossEvent(web3, receipt) {
@@ -30,7 +37,6 @@ export function getEventForAbi(web3, receipt, abi, eventName) {
   if (!eventJsonInterface) {
     return null // can't fin the event
   }
-
   const eventSignature = web3.eth.abi.encodeEventSignature(eventJsonInterface)
   const logIndex = receipt.logs.findIndex(x => x.topics[0] === eventSignature)
   const event = receipt.logs[logIndex]
