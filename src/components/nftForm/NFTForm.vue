@@ -93,39 +93,7 @@ export default {
     },
   },
   methods: {
-    async onSubmit() {
-      const web3 = this.sharedState.web3
-      const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
-      this.isLoading = true
-
-      const [tokenURIError, tokenURI] = await asyncTryCatch(
-        erc721.methods.tokenURI(this.tokenId).call,
-      )
-      if (tokenURIError) {
-        this.$modal.value.showModal({
-          type: 'error',
-          options: { modalProps: { message: tokenURIError.message, title: 'Token URI error' } },
-        })
-        this.isLoading = false
-        return
-      }
-      const [approvedError, isApprovedForAll] = await asyncTryCatch(
-        erc721.methods.isApprovedForAll(
-          this.sharedState.accountAddress,
-          this.sharedState.currentConfig.nftBridge,
-        ).call,
-      )
-
-      if (approvedError) {
-        this.$modal.value.showModal({
-          type: 'error',
-          options: {
-            modalProps: { message: approvedError.message, title: 'Error checking approved status' },
-          },
-        })
-        this.isLoading = false
-        return
-      }
+    async getMetadata(erc721, tokenURI, isApprovedForAll) {
       const [uriError, response] = await asyncTryCatch(fetch, this.formatTokenURI(tokenURI), {
         headers: {
           'Content-Type': 'application/json',
@@ -159,6 +127,50 @@ export default {
           type: 'error',
           options: { modalProps: { message: jsonError.message, title: 'Error on Metadata info' } },
         })
+      }
+    },
+    async onSubmit() {
+      const web3 = this.sharedState.web3
+      const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
+      this.isLoading = true
+
+      const [tokenURIError, tokenURI] = await asyncTryCatch(
+        erc721.methods.tokenURI(this.tokenId).call,
+      )
+
+      const [approvedError, isApprovedForAll] = await asyncTryCatch(
+        erc721.methods.isApprovedForAll(
+          this.sharedState.accountAddress,
+          this.sharedState.currentConfig.nftBridge,
+        ).call,
+      )
+
+      if (approvedError) {
+        this.$modal.value.showModal({
+          type: 'error',
+          options: {
+            modalProps: { message: approvedError.message, title: 'Error checking approved status' },
+          },
+        })
+        this.isLoading = false
+        return
+      }
+      if (!tokenURIError) {
+        await this.getMetadata(erc721, tokenURI, isApprovedForAll)
+      } else {
+        const metadata = {
+          description:
+            '🚨 Attention:\nFailed on load metadata information, you can continue with the cross action.\n',
+        }
+        this.$emit('onSuccess', {
+          metadata,
+          web3Contract: erc721,
+          nftContractAddress: this.nftContractAddress,
+          isApprovedForAll,
+          tokenId: this.tokenId,
+          isApproved: isApprovedForAll,
+        })
+        this.isLoading = false
       }
     },
     formatTokenURI: function(tokenURI) {
