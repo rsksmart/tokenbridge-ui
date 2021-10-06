@@ -89,7 +89,7 @@ export default {
     })
     this.nftBridgeContract = new web3.eth.Contract(
       NFT_BRIDGE,
-      this.sharedState.sideConfig.nftBridge,
+      this.sharedState.currentConfig.nftBridge,
     )
     try {
       const fee = await this.nftBridgeContract.methods.getFixedFee().call()

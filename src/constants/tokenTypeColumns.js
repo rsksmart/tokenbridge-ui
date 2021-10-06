@@ -78,8 +78,11 @@ export const tokenTypesColumns = {
     {
       title: 'Token Address',
       key: 'senderAddress',
+      showCopy: true,
       render(value, compRef) {
-        return wrappedFormat(value)
+        return `<a href="${compRef.senderAddressExplorerUrl}" target="_blank">
+        ${wrappedFormat(value)}
+      </a>`
       },
     },
     {
