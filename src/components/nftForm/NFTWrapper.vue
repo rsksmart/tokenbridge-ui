@@ -134,7 +134,6 @@ export default {
       const accountAddress = this.sharedState.accountAddress
       this.isLoadingApprove = true
       try {
-        // TODO: rename SIDE_NFT_TOKEN (we're not necessarily talking about the side chain)
         const erc721NFTTransaction = new ERC721NFTTransaction({
           web3,
           config: currentConfig,
