@@ -16,7 +16,6 @@
       :rsk-fed-members="rskFedMembers"
       :side-fed-members="sideFedMembers"
       :transactions="transactions"
-      :transactions-columns="transactionsColumns"
       :rsk-block-number="rskBlockNumber"
       :side-block-number="sideBlockNumber"
       :limit="limit"
@@ -35,7 +34,6 @@ import SearchTransaction from './SearchTransaction.vue'
 import { retry3Times } from '@/utils'
 import globalStore from '@/stores/global.store'
 import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
-import { tokenTypesColumns } from '@/constants/tokenTypeColumns'
 
 export default {
   name: 'Transactions',
@@ -75,7 +73,6 @@ export default {
       sharedState: store.state,
       globalState: globalStore.state,
       transactions: [],
-      transactionsColumns: [],
       rskBlockNumber: 0,
       sideBlockNumber: 0,
       pollingBlockNumber: null,
@@ -93,7 +90,6 @@ export default {
   },
   watch: {
     accountConnected() {
-      this.transactionsColumns = tokenTypesColumns[this.tokenTypeSelected]
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
     newTransaction() {
@@ -101,7 +97,6 @@ export default {
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
     tokenTypeSelected() {
-      this.transactionsColumns = tokenTypesColumns[this.tokenTypeSelected]
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
   },

@@ -75,31 +75,17 @@
     </div>
     <div v-else>
       <table class="table mt-3">
-        <thead>
-          <tr>
-            <th scope="col">Action</th>
-            <th scope="col">From</th>
-            <th scope="col">Sender</th>
-            <th scope="col">Txn hash</th>
-            <th scope="col">Block number</th>
-            <th scope="col">Amount</th>
-            <th scope="col">To</th>
-            <th scope="col">Receiver</th>
-            <th scope="col">Status | Estimated time</th>
-          </tr>
-        </thead>
-        <tbody id="eth-rsk-tbody">
-          <TransactionRow
-            :transaction="transaction"
-            :types-limits="typesLimits"
-            :rsk-confirmations="rskConfirmations"
-            :side-confirmations="sideConfirmations"
-            :rsk-block-number="rskBlockNumber"
-            :side-block-number="sideBlockNumber"
-            :rsk-fed-members="rskFedMembers"
-            :side-fed-members="sideFedMembers"
-          />
-        </tbody>
+        <component
+          :is="currentTableType"
+          :types-limits="typesLimits"
+          :rsk-confirmations="rskConfirmations"
+          :side-confirmations="sideConfirmations"
+          :rsk-fed-members="rskFedMembers"
+          :side-fed-members="sideFedMembers"
+          :transactions="[transaction]"
+          :rsk-block-number="rskBlockNumber"
+          :side-block-number="sideBlockNumber"
+        />
       </table>
     </div>
   </div>
@@ -110,13 +96,15 @@ import { Field, Form, ErrorMessage } from 'vee-validate'
 import BigNumber from 'bignumber.js'
 
 import { store } from '@/store.js'
-import TransactionRow from './TransactionRow.vue'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
+import ERC20TransactionTable from '@/components/transactions/transactionsTables/ERC20Table/ERC20TransactionTable'
+import ERC721TransactionTable from '@/components/transactions/transactionsTables/ERC721Table/ERC721TransactionTable'
+import globalStore from '@/stores/global.store'
 
 export default {
   name: 'TransactionList',
   components: {
-    TransactionRow,
     Form,
     Field,
     ErrorMessage,
@@ -155,12 +143,25 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       selectedNetwork: store.state.rskConfig,
       transactionHash: '',
       searchedTransaction: false,
       isSearching: false,
       transaction: null,
     }
+  },
+  computed: {
+    currentTableType() {
+      switch (this.globalState.currentTokenType) {
+        case TOKEN_TYPE_ERC_20:
+          return ERC20TransactionTable
+        case TOKEN_TYPE_ERC_721:
+          return ERC721TransactionTable
+        default:
+          throw new Error(`Transaction type ${this.globalState.currentTokenType} is not supported`)
+      }
+    },
   },
   methods: {
     validateHash(value) {

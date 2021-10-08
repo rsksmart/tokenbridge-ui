@@ -92,7 +92,7 @@ export class TransactionService {
         limit,
         offset,
       },
-      data: data.slice(offset, limit),
+      data: data.slice(offset, offset + limit),
     }
   }
 }

@@ -7,9 +7,19 @@ import * as methodType from '@/constants/methodType'
 import { MAX_UINT256, retry3Times } from '@/utils'
 import BigNumber from 'bignumber.js'
 import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
-import NFT_BRIDGE from '@/constants/abis/nft-bridge.json'
 
 class ERC20TokenTransaction extends Transaction {
+  static getParamsForGetTransactionId(decodedEvent, event) {
+    return [
+      decodedEvent._tokenAddress,
+      decodedEvent._from,
+      decodedEvent._to,
+      decodedEvent._amount,
+      event.blockHash,
+      event.transactionHash,
+      event.logIndex,
+    ]
+  }
   /**
    * Approve
    * @param {string} tokenAddress
