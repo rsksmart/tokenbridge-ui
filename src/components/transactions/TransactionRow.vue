@@ -307,7 +307,7 @@ export default {
         ? `<a target="_blank" href="${this.sharedState.currentConfig.explorer}/tx/${sanitizedTxHash}">see Tx</a>`
         : ''
     },
-    getTokenTypeInstance({ web3, config, sideConfig } = {}) {
+    getTokenTypeInstance({ web3, config } = {}) {
       switch (this.globalState.currentTokenType) {
         case TOKEN_TYPE_ERC_20:
           return new ERC20TokenTransaction({
@@ -318,7 +318,6 @@ export default {
           return new ERC721NFTTransaction({
             web3: web3 || this.sharedState?.web3,
             config: config || this.sharedState?.currentConfig,
-            sideConfig: sideConfig || this.sharedState?.sideConfig,
           })
         default:
           return new ERC20TokenTransaction({

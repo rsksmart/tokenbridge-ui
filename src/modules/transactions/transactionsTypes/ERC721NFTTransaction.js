@@ -6,13 +6,6 @@ import { TransactionService } from '@/modules/transactions/transactions.service'
 import { retry3Times } from '@/utils'
 
 class ERC721NFTTransaction extends Transaction {
-  sideConfig = null
-
-  constructor({ web3, config, sideConfig }) {
-    super({ web3, config })
-    this.sideConfig = sideConfig
-  }
-
   async approve(nftContractAddress, transactionObject) {
     const gasPrice = await this.getGasPriceHex()
     return new Promise((resolve, reject) => {
@@ -39,9 +32,10 @@ class ERC721NFTTransaction extends Transaction {
     return transactionService.saveTransaction(transactionBody)
   }
 
-  receiveTokensTo({ tokenAddress, to, tokenId }, transactionObject) {
+  async receiveTokensTo({ tokenAddress, to, tokenId }, transactionObject) {
+    const bridgeContract = new this.web3.eth.Contract(NFT_BRIDGE, this.config.nftBridge)
+
     return new Promise((resolve, reject) => {
-      const bridgeContract = new this.web3.eth.Contract(NFT_BRIDGE, this.sideConfig.nftBridge)
       bridgeContract.methods
         .receiveTokensTo(tokenAddress, to, tokenId)
         .send(transactionObject, this.callback({ resolve, reject }))
@@ -76,7 +70,7 @@ class ERC721NFTTransaction extends Transaction {
   async claim(claimData, transactionObject) {
     const gasPrice = await this.getGasPriceHex()
     return new Promise((resolve, reject) => {
-      const nftContractAddress = new this.web3.eth.Contract(NFT_BRIDGE, this.sideConfig.nftBridge)
+      const nftContractAddress = new this.web3.eth.Contract(NFT_BRIDGE, this.config.nftBridge)
       nftContractAddress.methods
         .claim(claimData)
         .send({ ...transactionObject, gasPrice }, this.callback({ resolve, reject }))

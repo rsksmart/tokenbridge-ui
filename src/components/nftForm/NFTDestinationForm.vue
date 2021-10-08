@@ -85,7 +85,6 @@ export default {
     this.erc721NFTInstance = new ERC721NFTTransaction({
       web3,
       config: this.sharedState.currentConfig,
-      sideConfig: this.sharedState.sideConfig,
     })
     this.nftBridgeContract = new web3.eth.Contract(
       NFT_BRIDGE,
