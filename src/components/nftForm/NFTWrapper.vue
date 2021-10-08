@@ -138,7 +138,6 @@ export default {
         const erc721NFTTransaction = new ERC721NFTTransaction({
           web3,
           config: currentConfig,
-          sideConfig: this.sharedState.sideConfig,
         })
         await erc721NFTTransaction.approve(this.nftContractAddress, {
           from: accountAddress,

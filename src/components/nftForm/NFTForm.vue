@@ -155,7 +155,7 @@ export default {
         this.isLoading = false
         return
       }
-      if (!tokenURIError) {
+      if (!tokenURIError && tokenURI) {
         await this.getMetadata(erc721, tokenURI, isApprovedForAll)
       } else {
         const metadata = {
