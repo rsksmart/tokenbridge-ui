@@ -179,7 +179,7 @@ export default {
       if (match?.length > 1) {
         tokenURI = `https://ipfs.io/${match[1]}`
       }
-      tokenURI = `${process.env.VUE_APP_PROXY_CORS_URI}${tokenURI}`
+      tokenURI = `${process.env.VUE_APP_PROXY_CORS_URI || ''}${tokenURI}`
       return tokenURI
     },
   },
