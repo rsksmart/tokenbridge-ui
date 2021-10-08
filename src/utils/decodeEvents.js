@@ -24,8 +24,7 @@ function decodeERC20CrossEvent(web3, receipt) {
   if (result) {
     return result
   }
-  result = getEventForAbi(web3, receipt, BRIDGE_ABI_V0, 'Cross')
-  return result
+  return getEventForAbi(web3, receipt, BRIDGE_ABI_V0, 'Cross')
 }
 
 function decodeERC721CrossEvent(web3, receipt) {

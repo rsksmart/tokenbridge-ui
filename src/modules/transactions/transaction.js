@@ -51,16 +51,16 @@ class Transaction {
     return `0x${Math.ceil(gasPriceParsed).toString(16)}`
   }
   async approve() {
-    throw new Error('You are using a transaction method that requires override')
+    throw new Error('Method not implemented yet')
   }
   async claim() {
-    throw new Error('You are using a transaction method that requires override')
+    throw new Error('Method not implemented yet')
   }
   async cross() {
-    throw new Error('You are using a transaction method that requires override')
+    throw new Error('Method not implemented yet')
   }
   transactionDataHashes() {
-    throw new Error('You are using a transaction method that requires override')
+    throw new Error('Method not implemented yet')
   }
 }
 

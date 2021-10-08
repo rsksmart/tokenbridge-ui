@@ -403,7 +403,6 @@ export default {
       const tokenInstance = this.getTokenTypeInstance({ config: data.toNetwork })
 
       try {
-        // TODO: Generate instance to every kind of token and replace claim method
         const claimReceipt = await tokenInstance.claim(
           tokenInstance.getClaimData(decodedEvent, event),
           { from: sharedState.accountAddress, gas: ESTIMATED_GAS_AVG },
