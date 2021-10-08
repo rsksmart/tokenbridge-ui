@@ -1,97 +1,9 @@
-<template>
-  <tr class="transaction-row">
-    <th scope="row">Cross</th>
-    <td v-for="cell in columnsWithRenderApplied" :key="cell.key">
-      <span v-html="cell.show"></span>
-      <a v-if="cell.showCopy" href="#" class="ml-2" @click.prevent="handleCopy(cell.value)">
-        <i :class="copyIcon"></i>
-      </a>
-    </td>
-    <td>
-      <div v-if="currentStep === steps.Pending">
-        <span class="pending">
-          Pending {{ currentConfirmations }}/{{ neededConfirmations }} blocks
-          <br />
-          ~ {{ estimatedTime }}
-        </span>
-      </div>
-      <div v-else-if="currentStep === steps.Voting">
-        <span class="pending">
-          Voting ~ {{ estimatedTime }}
-          <VotingInfo :fed-members="fedMembers" :transaction="transaction" />
-        </span>
-      </div>
-      <div v-else-if="currentStep === steps.ToClaim">
-        <div v-if="!loading" class="to-claim">
-          <button class="btn btn-primary claim" @click="claimClick">Claim</button>
-        </div>
-        <div v-else>
-          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-      <div v-else-if="currentStep === steps.Claimed">
-        <span class="confirmed claimed">Claimed</span>
-      </div>
-    </td>
-    <Modal v-if="showResultModal" @close="showResultModal = false">
-      <template #title>
-        {{ error ? 'Error' : 'Claimed' }}
-      </template>
-      <template #body>
-        <p v-if="error">There was an error: {{ error }}</p>
-        <h2 v-else>Operation succesful!</h2>
-        <a v-if="claimTxHash" target="_blank" :href="txExplorerLink">See the transaction</a>
-      </template>
-    </Modal>
-    <Modal v-if="showConnectionProblemModal" @close="showConnectionProblemModal = false">
-      <template #title>
-        Connection problem
-      </template>
-      <template #body>
-        <p>{{ connectionProblem }}</p>
-      </template>
-    </Modal>
-    <Modal v-if="showMismatchAddressModal" @close="showMismatchAddressModal = false">
-      <template #title>
-        Receiver address is not the current account
-      </template>
-      <template #body>
-        <p>
-          The receiver address {{ transaction.receiverAddress }} is not your currently connected
-          account {{ sharedState.accountAddress }}
-        </p>
-        <p v-if="toNetwork.isRsk" class="alert alert-warning" role="alert">
-          Binance is not taking deposits sent by a smart contract for RSK network, they only accept
-          deposits from an account
-        </p>
-        <p class="font-weight-bold">
-          Are you sure you want to claim the funds to {{ transaction.receiverAddress }} anyway?
-        </p>
-      </template>
-      <template #footer>
-        <button class="btn btn-primary modal-default-button" @click="claim()">
-          Yes
-        </button>
-        <button
-          class="btn btn-danger modal-default-button"
-          @click="showMismatchAddressModal = false"
-        >
-          No
-        </button>
-      </template>
-    </Modal>
-  </tr>
-</template>
-
-<script>
 import BigNumber from 'bignumber.js'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
 import { wrappedFormat, blocksToTime, sanitizeTxHash, NULL_HASH } from '@/utils'
-// import FEDERATION_ABI from '@/constants/abis/federation.json'
 import { CROSSING_STEPS } from '@/constants/enums.js'
-import VotingInfo from './VotingInfo.vue'
+import VotingInfo from './../VotingInfo.vue'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import globalStore from '@/stores/global.store'
 import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
@@ -102,7 +14,6 @@ import { decodeCrossEvent } from '@/utils/decodeEvents'
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
 export default {
-  name: 'TransactionRow',
   components: {
     Modal,
     VotingInfo,
@@ -111,10 +22,6 @@ export default {
   props: {
     transaction: {
       type: Object,
-      required: true,
-    },
-    transactionsColumns: {
-      type: Array,
       required: true,
     },
     typesLimits: {
@@ -253,17 +160,6 @@ export default {
         ? `${this.transaction.receiveAmount} ${this.transaction.tokenTo}`
         : `${this.transaction.amount} ${this.transaction.tokenFrom}`
     },
-    columnsWithRenderApplied() {
-      return this.transactionsColumns.map(({ render, key, showCopy }) => {
-        const hasRender = render instanceof Function
-        return {
-          value: this.transaction[key],
-          key,
-          showCopy,
-          show: hasRender ? render(this.transaction[key], this) : this.transaction[key],
-        }
-      })
-    },
   },
   watch: {
     rskBlockNumber() {
@@ -279,11 +175,11 @@ export default {
       this.txDataHash = NULL_HASH
       this.loading = false
       this.error = ''
-      this.refreshStep()
+      this.refreshStep().then(() => {})
     },
   },
-  created() {
-    this.refreshStep()
+  async created() {
+    await this.refreshStep()
   },
   methods: {
     async copyTransactionHash(event) {
@@ -447,4 +343,3 @@ export default {
     },
   },
 }
-</script>

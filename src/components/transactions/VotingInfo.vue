@@ -36,7 +36,9 @@ import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
 import globalStore from '@/stores/global.store'
-import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from "@/constants/tokenType";
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
+import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
+import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 
 export default {
   name: 'VotingInfo',
@@ -96,35 +98,11 @@ export default {
     getParamsByTokenType(decodedEvent, event) {
       switch (this.globalState.currentTokenType) {
         case TOKEN_TYPE_ERC_20:
-          return [
-            decodedEvent._tokenAddress,
-            decodedEvent._from,
-            decodedEvent._to,
-            decodedEvent._amount,
-            event.blockHash,
-            event.transactionHash,
-            event.logIndex,
-          ]
+          return ERC20TokenTransaction.getParamsForGetTransactionId(decodedEvent, event)
         case TOKEN_TYPE_ERC_721:
-          return [
-            decodedEvent._originalTokenAddress,
-            decodedEvent._from,
-            decodedEvent._to,
-            decodedEvent._tokenId,
-            event.blockHash,
-            event.transactionHash,
-            event.logIndex,
-          ]
+          return ERC721NFTTransaction.getParamsForGetTransactionId(decodedEvent, event)
         default:
-          return [
-            decodedEvent._tokenAddress,
-            decodedEvent._from,
-            decodedEvent._to,
-            decodedEvent._amount,
-            event.blockHash,
-            event.transactionHash,
-            event.logIndex,
-          ]
+          throw new Error(`Token type ${this.globalState.currentTokenType} isn't supported`)
       }
     },
     async setVotesFromFedMembers() {
