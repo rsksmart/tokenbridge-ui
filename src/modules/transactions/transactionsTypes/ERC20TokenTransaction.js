@@ -126,8 +126,9 @@ class ERC20TokenTransaction extends Transaction {
 
   async claim(claimData, transactionObject) {
     const gasPrice = await this.getGasPriceHex()
+    const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
+
     return new Promise((resolve, reject) => {
-      const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
       bridgeContract.methods
         .claim(claimData)
         .send({ ...transactionObject, gasPrice }, this.callback({ resolve, reject }))
