@@ -4,7 +4,7 @@ import * as methodType from '../methodType'
 export const TEST_NET_BINANCE_MAIN_TOKEN = {
   ...tokensInfo.TOKEN_WBNB_INFO,
   symbol: 'BNB',
-  address: '0xae13d989dac2f0debff460ac112a837c89baa7cd',
+  address: '0xa9f70D8c300B28DB2c94eD1690EA7c161a905B63',
   decimals: 18,
   methodType: methodType.DEPOSITOR,
 }

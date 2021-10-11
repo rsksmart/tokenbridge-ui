@@ -44,10 +44,10 @@ class ERC721NFTTransaction extends Transaction {
   }
 
   async receiveTokensTo({ tokenAddress, to, tokenId }, transactionObject) {
-    const bridgeContract = new this.web3.eth.Contract(NFT_BRIDGE, this.config.nftBridge)
+    const nftBridgeContract = new this.web3.eth.Contract(NFT_BRIDGE, this.config.nftBridge)
 
     return new Promise((resolve, reject) => {
-      bridgeContract.methods
+      nftBridgeContract.methods
         .receiveTokensTo(tokenAddress, to, tokenId)
         .send(transactionObject, this.callback({ resolve, reject }))
     })
@@ -61,11 +61,34 @@ class ERC721NFTTransaction extends Transaction {
     )
     if (!receipt) {
       throw new Error('Failed to recover receipt information')
+    } else {
+      console.log('Transaction Receipt is: ', receipt)
     }
 
     return this.saveTransaction(receipt, tokenId, tokenAddress, to)
   }
 
+  /**
+   *
+   * @param {
+   *  to: String,
+   *  from: String,
+   *  _originalTokenAddress: String,
+   *  blockHash: bytes32,
+   *  transactionHash: bytes32,
+   *  logIndex: uint32,
+   * }
+   * @param {*} event
+   * @returns {
+   *  to: address payable,
+   *  from: address,
+   *  tokenId: uint256,
+   *  tokenAddress: address,
+   *  blockHash: bytes32,
+   *  transactionHash: bytes32,
+   *  logIndex: uint32,
+   * }
+   */
   getClaimData(decodedEvent, event) {
     return {
       to: decodedEvent._to,
