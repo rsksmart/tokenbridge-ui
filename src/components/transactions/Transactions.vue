@@ -32,6 +32,8 @@ import TransactionList from './TransactionList.vue'
 import SearchTransaction from './SearchTransaction.vue'
 
 import { retry3Times } from '@/utils'
+import globalStore from '@/stores/global.store'
+import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
 
 export default {
   name: 'Transactions',
@@ -69,6 +71,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       transactions: [],
       rskBlockNumber: 0,
       sideBlockNumber: 0,
@@ -81,6 +84,9 @@ export default {
     accountConnected() {
       return `${this.sharedState.chainId} ${this.sharedState.accountAddress}`
     },
+    tokenTypeSelected() {
+      return this.globalState.currentTokenType
+    },
   },
   watch: {
     accountConnected() {
@@ -88,6 +94,9 @@ export default {
     },
     newTransaction() {
       if (!this.newTransaction) return
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
+    },
+    tokenTypeSelected() {
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
   },
@@ -148,6 +157,12 @@ export default {
         sideConfig.localStorageName,
       )
       /* Synchronization end */
+      const tokenTypes = [this.globalState.currentTokenType]
+      if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_20) {
+        // To support old transactions without token type field
+        tokenTypes.push(null)
+        tokenTypes.push(undefined)
+      }
 
       const {
         info: { total },
@@ -155,6 +170,7 @@ export default {
       } = await this.$services.TransactionService.getTransactions(
         accountAddress,
         [rskConfig.networkId, sideConfig.networkId],
+        tokenTypes,
         {
           limit,
           offset,

@@ -4,10 +4,22 @@ import ERC20_ABI from '@/constants/abis/erc20.json'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import * as methodType from '@/constants/methodType'
-import { MAX_UINT256 } from '@/utils'
+import { MAX_UINT256, retry3Times } from '@/utils'
 import BigNumber from 'bignumber.js'
+import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
 
 class ERC20TokenTransaction extends Transaction {
+  static getParamsForGetTransactionId(decodedEvent, event) {
+    return [
+      decodedEvent._tokenAddress,
+      decodedEvent._from,
+      decodedEvent._to,
+      decodedEvent._amount,
+      event.blockHash,
+      event.transactionHash,
+      event.logIndex,
+    ]
+  }
   /**
    * Approve
    * @param {string} tokenAddress
@@ -54,6 +66,7 @@ class ERC20TokenTransaction extends Transaction {
       receiverAddress,
       timestamp: Date.now(),
       accountsAddresses: [senderAddress.toLowerCase()],
+      tokenType: TOKEN_TYPE_ERC_20,
       ...receipt,
     }
     if (senderAddress.toLowerCase() !== receiverAddress.toLowerCase()) {
@@ -91,7 +104,7 @@ class ERC20TokenTransaction extends Transaction {
     if (!receipt) {
       throw new Error('Failed to recover receipt information')
     }
-    return await this.saveTransaction(
+    return this.saveTransaction(
       receipt,
       token,
       amount,
@@ -101,13 +114,35 @@ class ERC20TokenTransaction extends Transaction {
     )
   }
 
+  getClaimData(decodedEvent, event) {
+    return {
+      to: decodedEvent._to,
+      amount: decodedEvent._amount,
+      blockHash: event.blockHash,
+      transactionHash: event.transactionHash,
+      logIndex: event.logIndex,
+    }
+  }
+
   async claim(claimData, transactionObject) {
+    const gasPrice = await this.getGasPriceHex()
+    const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
+
     return new Promise((resolve, reject) => {
-      const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
       bridgeContract.methods
         .claim(claimData)
-        .send(transactionObject, this.callback({ resolve, reject }))
+        .send({ ...transactionObject, gasPrice }, this.callback({ resolve, reject }))
     })
+  }
+
+  transactionDataHashes(transactionHash, toNetwork) {
+    const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, toNetwork.bridge)
+    return retry3Times(bridgeContract.methods.transactionsDataHashes(transactionHash).call)
+  }
+
+  claimed(transactionDataHash, toNetwork) {
+    const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, toNetwork.bridge)
+    return retry3Times(bridgeContract.methods.claimed(transactionDataHash).call)
   }
 }
 

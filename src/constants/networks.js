@@ -63,7 +63,7 @@ export const TEST_NET_KOVAN_CONFIG = {
 export const TEST_NET_RINKEBY_CONFIG = {
   networkId: chainId.TEST_NET_RINKEBY,
   name: 'Rinkeby',
-  localStorageName: 'ethereum-rinkevy',
+  localStorageName: 'ethereum-rinkeby',
   bridge: '0x7E339118346364d7D86AB67cb0775CBB808E65F7',
   allowTokens: '0xAE3852306015df037D458a65173BBc7527F4680b',
   federation: '0xBC383764ceBc13b66c04E1abeb36804a0Caaa5C6',
@@ -72,7 +72,7 @@ export const TEST_NET_RINKEBY_CONFIG = {
   explorerTokenTab: '#tokentxns',
   secondsPerBlock: 5,
   rpc: `https://rinkeby.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
-  v2UpdateBlock: 25547922,
+  v2UpdateBlock: 9264196,
   feePercentageDivider: 10_000,
   mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
