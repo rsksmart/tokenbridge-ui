@@ -93,20 +93,51 @@ export default {
     },
   },
   methods: {
+    async getMetadata(erc721, tokenURI, isApprovedForAll) {
+      const [uriError, response] = await asyncTryCatch(fetch, this.formatTokenURI(tokenURI), {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (uriError) {
+        this.$modal.value.showModal({
+          type: 'error',
+          options: {
+            modalProps: { message: uriError.message, title: 'Error trying to recover metadata' },
+          },
+        })
+        this.isLoading = false
+        return
+      }
+      try {
+        const metadata = await response.json()
+        this.metadata = { ...metadata, link: tokenURI }
+        this.$emit('onSuccess', {
+          metadata: this.metadata,
+          web3Contract: erc721,
+          nftContractAddress: this.nftContractAddress,
+          isApprovedForAll,
+          tokenId: this.tokenId,
+          isApproved: isApprovedForAll,
+        })
+        this.isLoading = false
+      } catch (jsonError) {
+        this.isLoading = false
+        this.$modal.value.showModal({
+          type: 'error',
+          options: { modalProps: { message: jsonError.message, title: 'Error on Metadata info' } },
+        })
+      }
+    },
     async onSubmit() {
       const web3 = this.sharedState.web3
       const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
       this.isLoading = true
 
-      const [tokenURIError, uri] = await asyncTryCatch(erc721.methods.tokenURI(this.tokenId).call)
-      if (tokenURIError) {
-        this.$modal.value.showModal({
-          type: 'error',
-          options: { modalProps: { message: tokenURIError.message, title: 'Token URI error' } },
-        })
-        this.isLoading = false
-        return
-      }
+      const [tokenURIError, tokenURI] = await asyncTryCatch(
+        erc721.methods.tokenURI(this.tokenId).call,
+      )
+
       const [approvedError, isApprovedForAll] = await asyncTryCatch(
         erc721.methods.isApprovedForAll(
           this.sharedState.accountAddress,
@@ -124,30 +155,15 @@ export default {
         this.isLoading = false
         return
       }
-      const [uriError, response] = await asyncTryCatch(
-        fetch,
-        `${process.env.VUE_APP_PROXY_CORS_URI}${uri}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-      if (uriError) {
-        this.$modal.value.showModal({
-          type: 'error',
-          options: {
-            modalProps: { message: uriError.message, title: 'Error trying to recover metadata' },
-          },
-        })
-        this.isLoading = false
-        return
-      }
-      try {
-        const metadata = await response.json()
-        this.metadata = { ...metadata, link: uri }
+      if (!tokenURIError && tokenURI) {
+        await this.getMetadata(erc721, tokenURI, isApprovedForAll)
+      } else {
+        const metadata = {
+          description:
+            '🚨 Attention:\nFailed on load metadata information, you can continue with the cross action.\n',
+        }
         this.$emit('onSuccess', {
-          metadata: this.metadata,
+          metadata,
           web3Contract: erc721,
           nftContractAddress: this.nftContractAddress,
           isApprovedForAll,
@@ -155,13 +171,16 @@ export default {
           isApproved: isApprovedForAll,
         })
         this.isLoading = false
-      } catch (jsonError) {
-        this.isLoading = false
-        this.$modal.value.showModal({
-          type: 'error',
-          options: { modalProps: { message: jsonError.message, title: 'Error on Metadata info' } },
-        })
       }
+    },
+    formatTokenURI: function(tokenURI) {
+      // TODO: check conversion from ipfs to https
+      let match = tokenURI.match('ipfs://(ipfs/.+)')
+      if (match?.length > 1) {
+        tokenURI = `https://ipfs.io/${match[1]}`
+      }
+      tokenURI = `${process.env.VUE_APP_PROXY_CORS_URI || ''}${tokenURI}`
+      return tokenURI
     },
   },
 }

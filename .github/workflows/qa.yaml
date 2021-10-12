@@ -18,7 +18,7 @@ jobs:
       run: yarn
     - name: Build site
       run: |
-        VUE_APP_INFURA_KEY=${{ secrets.VUE_APP_INFURA_KEY_QA }} VUE_APP_IS_MAINNET=false yarn build
+        VUE_APP_INFURA_KEY=${{ secrets.VUE_APP_INFURA_KEY_QA }} VUE_APP_OFFLINE_DB=tknbrgoff VUE_APP_MAIN_CHAIN_ID=31 VUE_APP_SIDE_CHAIN_ID=4 VUE_APP_NFT_AVAILABLE=true VUE_APP_PROXY_CORS_URI=https://cors-anywhere.herokuapp.com/ yarn build
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:

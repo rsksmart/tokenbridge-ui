@@ -4,7 +4,7 @@ import * as methodType from '../methodType'
 export const TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN = {
   ...tokensInfo.TOKEN_WBNB_INFO,
   symbol: 'bWBNB',
-  address: '0x50F2CD4e18428e1c8C73b7638d5DA32975663e16',
+  address: '0x0a94c1a74cc54a7fa2cf6222bdfecbd59ce186b4',
   decimals: 18,
   methodType: methodType.RECEIVER,
 }

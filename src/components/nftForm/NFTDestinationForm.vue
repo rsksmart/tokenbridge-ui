@@ -7,7 +7,7 @@
       <div class="form-group col-md-6">
         <label for="nftReceiverAddress" class="form-label">
           <a id="same-address" class="same-address" @click="useSameAddress">
-            NFT address
+            Receiver address
           </a>
         </label>
         <Field
@@ -85,11 +85,10 @@ export default {
     this.erc721NFTInstance = new ERC721NFTTransaction({
       web3,
       config: this.sharedState.currentConfig,
-      sideConfig: this.sharedState.sideConfig,
     })
     this.nftBridgeContract = new web3.eth.Contract(
       NFT_BRIDGE,
-      this.sharedState.sideConfig.nftBridge,
+      this.sharedState.currentConfig.nftBridge,
     )
     try {
       const fee = await this.nftBridgeContract.methods.getFixedFee().call()
@@ -113,7 +112,6 @@ export default {
             gas: ESTIMATED_GAS_AVG,
           },
         )
-
         return {
           success: true,
           data: transactionSaved,
@@ -134,7 +132,7 @@ export default {
       if (!valid) {
         return
       }
-      return await this.onSubmit()
+      return this.onSubmit()
     },
     useSameAddress(event) {
       if (event) event.preventDefault()

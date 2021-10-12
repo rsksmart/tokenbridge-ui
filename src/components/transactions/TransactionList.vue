@@ -31,33 +31,17 @@
             </select>
           </div>
         </caption>
-        <thead>
-          <tr>
-            <th scope="col">Action</th>
-            <th scope="col" width="12%">From</th>
-            <th scope="col">Sender</th>
-            <th scope="col">Txn hash</th>
-            <th scope="col">Block number</th>
-            <th scope="col" width="13%">Amount</th>
-            <th scope="col" width="12%">To</th>
-            <th scope="col">Receiver</th>
-            <th scope="col" width="15%">Status</th>
-          </tr>
-        </thead>
-        <tbody id="eth-rsk-tbody">
-          <TransactionRow
-            v-for="transaction in transactions"
-            :key="transaction.transactionHash"
-            :transaction="transaction"
-            :types-limits="typesLimits"
-            :rsk-confirmations="rskConfirmations"
-            :side-confirmations="sideConfirmations"
-            :rsk-block-number="rskBlockNumber"
-            :side-block-number="sideBlockNumber"
-            :rsk-fed-members="rskFedMembers"
-            :side-fed-members="sideFedMembers"
-          />
-        </tbody>
+        <component
+          :is="currentTableType"
+          :types-limits="typesLimits"
+          :rsk-confirmations="rskConfirmations"
+          :side-confirmations="sideConfirmations"
+          :rsk-fed-members="rskFedMembers"
+          :side-fed-members="sideFedMembers"
+          :transactions="transactions"
+          :rsk-block-number="rskBlockNumber"
+          :side-block-number="sideBlockNumber"
+        />
       </table>
       <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2 btn-group-sm" role="group" aria-label="First group">
@@ -87,13 +71,13 @@
 
 <script>
 import { store } from '@/store.js'
-import TransactionRow from './TransactionRow.vue'
+import globalStore from '@/stores/global.store'
+import ERC20TransactionTable from '@/components/transactions/transactionsTables/ERC20Table/ERC20TransactionTable'
+import ERC721TransactionTable from '@/components/transactions/transactionsTables/ERC721Table/ERC721TransactionTable'
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 
 export default {
   name: 'TransactionList',
-  components: {
-    TransactionRow,
-  },
   props: {
     typesLimits: {
       type: Array,
@@ -140,6 +124,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       offset: 0,
       limitSelect: 10,
     }
@@ -153,6 +138,16 @@ export default {
     },
     recordsOnPage() {
       return this.transactions.length
+    },
+    currentTableType() {
+      switch (this.globalState.currentTokenType) {
+        case TOKEN_TYPE_ERC_20:
+          return ERC20TransactionTable
+        case TOKEN_TYPE_ERC_721:
+          return ERC721TransactionTable
+        default:
+          throw new Error(`Transaction type ${this.globalState.currentTokenType} is not supported`)
+      }
     },
   },
   methods: {
