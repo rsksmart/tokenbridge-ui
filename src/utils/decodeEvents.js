@@ -11,6 +11,8 @@ export function decodeCrossEvent(web3, receipt, tokenType) {
     case TOKEN_TYPE_ERC_721:
       return decodeERC721CrossEvent(web3, receipt)
     default:
+      // in the old database schema, we aren't saving the token type, so the old transactions have an empty tokenType
+      // for this reason, by default, all the transactions without token type are considered as ERC20
       return decodeERC20CrossEvent(web3, receipt)
   }
 }
