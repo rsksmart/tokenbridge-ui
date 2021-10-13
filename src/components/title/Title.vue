@@ -1,27 +1,26 @@
 <template>
   <div class="title">
-    <div v-if="isTestnet" div class="bridge-info">
-      <h1 id="title">RSK Testnet bridge with Kovan</h1>
+    <div div class="bridge-info">
+      <h1 id="title">
+        {{ sharedState.rskConfig.name }} bridge with {{ sharedState.sideConfig.name }}
+      </h1>
       <h5 class="bridge-info-subtitle">
-        You can convert your tokens from RSK Testnet to Ethereum Kovan and viceversa.
-      </h5>
-    </div>
-    <div v-else class="bridge-info">
-      <h1 id="title">RSK bridge with Ethereum</h1>
-      <h5 class="bridge-info-subtitle">
-        You can convert your tokens from RSK to Ethereum and viceversa.
+        You can convert your tokens from {{ sharedState.rskConfig.name }} to
+        {{ sharedState.sideConfig.name }} and viceversa.
       </h5>
     </div>
   </div>
 </template>
+
 <script>
+import { store } from '@/store.js'
+
 export default {
   name: 'Title',
-  props: {
-    isTestnet: {
-      type: Boolean,
-      default: true,
-    },
+  data() {
+    return {
+      sharedState: store.state,
+    }
   },
 }
 </script>

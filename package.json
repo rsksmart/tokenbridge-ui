@@ -6,6 +6,7 @@
     "start": "npm run serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "deploy-firebase": "npm run build && npx firebase deploy --only hosting",
     "lint": "vue-cli-service lint",
     "lint:check": "eslint './src/**/*.{js,vue}'",
     "lint:autofix": "yarn lint:check --fix",
@@ -40,7 +41,8 @@
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-prettier": "^3.3.0",
-    "eslint-plugin-vue": "^7.0.0"
+    "eslint-plugin-vue": "^7.0.0",
+    "firebase-tools": "^9.18.0"
   },
   "browserslist": [
     "> 1%",
