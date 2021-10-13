@@ -26,15 +26,15 @@
         </div>
         <div class="form-check form-check-inline">
           <input
-            id="selectedNetworkEth"
+            id="selectedNetworkSide"
             v-model="selectedNetwork"
             class="form-check-input"
             type="radio"
             name="selectedNetwork"
-            :value="sharedState.ethConfig"
+            :value="sharedState.sideConfig"
           />
           <label class="form-check-label" for="inlineRadio2">{{
-            sharedState.ethConfig.name
+            sharedState.sideConfig.name
           }}</label>
         </div>
       </div>
@@ -75,31 +75,17 @@
     </div>
     <div v-else>
       <table class="table mt-3">
-        <thead>
-          <tr>
-            <th scope="col">Action</th>
-            <th scope="col">From</th>
-            <th scope="col">Sender</th>
-            <th scope="col">Txn hash</th>
-            <th scope="col">Block number</th>
-            <th scope="col">Amount</th>
-            <th scope="col">To</th>
-            <th scope="col">Receiver</th>
-            <th scope="col">Status | Estimated time</th>
-          </tr>
-        </thead>
-        <tbody id="eth-rsk-tbody">
-          <TransactionRow
-            :transaction="transaction"
-            :types-limits="typesLimits"
-            :rsk-confirmations="rskConfirmations"
-            :eth-confirmations="ethConfirmations"
-            :rsk-block-number="rskBlockNumber"
-            :eth-block-number="ethBlockNumber"
-            :rsk-fed-members="rskFedMembers"
-            :eth-fed-members="ethFedMembers"
-          />
-        </tbody>
+        <component
+          :is="currentTableType"
+          :types-limits="typesLimits"
+          :rsk-confirmations="rskConfirmations"
+          :side-confirmations="sideConfirmations"
+          :rsk-fed-members="rskFedMembers"
+          :side-fed-members="sideFedMembers"
+          :transactions="[transaction]"
+          :rsk-block-number="rskBlockNumber"
+          :side-block-number="sideBlockNumber"
+        />
       </table>
     </div>
   </div>
@@ -110,13 +96,15 @@ import { Field, Form, ErrorMessage } from 'vee-validate'
 import BigNumber from 'bignumber.js'
 
 import { store } from '@/store.js'
-import TransactionRow from './TransactionRow.vue'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
+import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
+import ERC20TransactionTable from '@/components/transactions/transactionsTables/ERC20Table/ERC20TransactionTable'
+import ERC721TransactionTable from '@/components/transactions/transactionsTables/ERC721Table/ERC721TransactionTable'
+import globalStore from '@/stores/global.store'
 
 export default {
   name: 'TransactionList',
   components: {
-    TransactionRow,
     Form,
     Field,
     ErrorMessage,
@@ -131,7 +119,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -139,7 +127,7 @@ export default {
       type: Array,
       required: true,
     },
-    ethFedMembers: {
+    sideFedMembers: {
       type: Array,
       required: true,
     },
@@ -147,7 +135,7 @@ export default {
       type: Number,
       required: true,
     },
-    ethBlockNumber: {
+    sideBlockNumber: {
       type: Number,
       required: true,
     },
@@ -155,12 +143,25 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       selectedNetwork: store.state.rskConfig,
       transactionHash: '',
       searchedTransaction: false,
       isSearching: false,
       transaction: null,
     }
+  },
+  computed: {
+    currentTableType() {
+      switch (this.globalState.currentTokenType) {
+        case TOKEN_TYPE_ERC_20:
+          return ERC20TransactionTable
+        case TOKEN_TYPE_ERC_721:
+          return ERC721TransactionTable
+        default:
+          throw new Error(`Transaction type ${this.globalState.currentTokenType} is not supported`)
+      }
+    },
   },
   methods: {
     validateHash(value) {
@@ -175,7 +176,7 @@ export default {
       data.isSearching = true
       const originWeb3 = data.selectedNetwork.isRsk
         ? data.sharedState.rskWeb3
-        : data.sharedState.ethWeb3
+        : data.sharedState.sideWeb3
 
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transactionHash)
       if (!receipt) {
@@ -197,17 +198,15 @@ export default {
       const decodedEvent = result.decodedEvent
       // decodedEvent._from did not existed on events of previous versions
       decodedEvent._from = decodedEvent._from ?? decodedEvent._to
-      const token = data.sharedState.tokens.find(x => {
+      const token = data.selectedNetwork.tokens.find(token => {
         return (
-          x[data.selectedNetwork.networkId].address.toLowerCase() ===
-            decodedEvent._tokenAddress.toLowerCase() ||
+          token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
           // When crossing back uses the original token address
-          x[data.selectedNetwork.crossToNetwork.networkId].address.toLowerCase() ===
-            decodedEvent._tokenAddress.toLowerCase()
+          token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
         )
       })
-      const tokenFromNetwork = token[data.selectedNetwork.networkId]
-      const tokenToNetwork = token[data.selectedNetwork.crossToNetwork.networkId]
+      const tokenFromNetwork = token
+      const tokenToNetwork = token.receiveToken
       const block = await originWeb3.eth.getBlock(receipt.blockNumber)
 
       const transaction = {

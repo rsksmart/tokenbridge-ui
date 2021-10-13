@@ -72,7 +72,7 @@ export class TXN_Storage {
     return returnObj
   }
 
-  static crateStorageKey(accountAddress, networkName) {
+  static createStorageKey(accountAddress, networkName) {
     return `${accountAddress}-${networkName.replace(' ', '-')}`.toLowerCase()
   }
 

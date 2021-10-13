@@ -3,21 +3,21 @@
     <SearchTransaction
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
-      :eth-confirmations="ethConfirmations"
+      :side-confirmations="sideConfirmations"
       :rsk-fed-members="rskFedMembers"
-      :eth-fed-members="ethFedMembers"
+      :side-fed-members="sideFedMembers"
       :rsk-block-number="rskBlockNumber"
-      :eth-block-number="ethBlockNumber"
+      :side-block-number="sideBlockNumber"
     />
     <TransactionList
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
-      :eth-confirmations="ethConfirmations"
+      :side-confirmations="sideConfirmations"
       :rsk-fed-members="rskFedMembers"
-      :eth-fed-members="ethFedMembers"
+      :side-fed-members="sideFedMembers"
       :transactions="transactions"
       :rsk-block-number="rskBlockNumber"
-      :eth-block-number="ethBlockNumber"
+      :side-block-number="sideBlockNumber"
       :limit="limit"
       :total-transactions="totalTransactions"
       @changePagination="changePagination"
@@ -32,6 +32,8 @@ import TransactionList from './TransactionList.vue'
 import SearchTransaction from './SearchTransaction.vue'
 
 import { retry3Times } from '@/utils'
+import globalStore from '@/stores/global.store'
+import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
 
 export default {
   name: 'Transactions',
@@ -49,7 +51,7 @@ export default {
       type: Object,
       required: true,
     },
-    ethConfirmations: {
+    sideConfirmations: {
       type: Object,
       required: true,
     },
@@ -57,7 +59,7 @@ export default {
       type: Array,
       required: true,
     },
-    ethFedMembers: {
+    sideFedMembers: {
       type: Array,
       required: true,
     },
@@ -69,9 +71,10 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      globalState: globalStore.state,
       transactions: [],
       rskBlockNumber: 0,
-      ethBlockNumber: 0,
+      sideBlockNumber: 0,
       pollingBlockNumber: null,
       limit: 10,
       totalTransactions: 0,
@@ -81,6 +84,9 @@ export default {
     accountConnected() {
       return `${this.sharedState.chainId} ${this.sharedState.accountAddress}`
     },
+    tokenTypeSelected() {
+      return this.globalState.currentTokenType
+    },
   },
   watch: {
     accountConnected() {
@@ -88,6 +94,9 @@ export default {
     },
     newTransaction() {
       if (!this.newTransaction) return
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
+    },
+    tokenTypeSelected() {
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
   },
@@ -108,15 +117,15 @@ export default {
     refreshBlockNumber() {
       const data = this
       const rskWeb3 = this.sharedState.rskWeb3
-      const ethWeb3 = this.sharedState.ethWeb3
+      const sideWeb3 = this.sharedState.sideWeb3
       if (rskWeb3) {
         retry3Times(rskWeb3.eth.getBlockNumber).then(blockNumber => {
           data.rskBlockNumber = blockNumber
         })
       }
-      if (ethWeb3) {
-        retry3Times(ethWeb3.eth.getBlockNumber).then(blockNumber => {
-          data.ethBlockNumber = blockNumber
+      if (sideWeb3) {
+        retry3Times(sideWeb3.eth.getBlockNumber).then(blockNumber => {
+          data.sideBlockNumber = blockNumber
         })
       }
     },
@@ -130,7 +139,7 @@ export default {
     async refreshTransactions({ limit, offset }) {
       const accountAddress = this.sharedState.accountAddress
       const rskConfig = this.sharedState.rskConfig
-      const ethConfig = this.sharedState.ethConfig
+      const sideConfig = this.sharedState.sideConfig
       if (!accountAddress) {
         this.transactions = []
         return
@@ -145,16 +154,23 @@ export default {
       )
       await this.$services.TransactionService.synchronizeTransactions(
         accountAddress,
-        ethConfig.localStorageName,
+        sideConfig.localStorageName,
       )
       /* Synchronization end */
+      const tokenTypes = [this.globalState.currentTokenType]
+      if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_20) {
+        // To support old transactions without token type field
+        tokenTypes.push(null)
+        tokenTypes.push(undefined)
+      }
 
       const {
         info: { total },
         data,
       } = await this.$services.TransactionService.getTransactions(
         accountAddress,
-        [rskConfig.networkId, ethConfig.networkId],
+        [rskConfig.networkId, sideConfig.networkId],
+        tokenTypes,
         {
           limit,
           offset,
