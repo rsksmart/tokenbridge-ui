@@ -58,7 +58,7 @@ export class TransactionService {
   }
 
   async getTransactions(accountAddress, networkIds, tokenTypes, { limit, offset }) {
-    const transactionIncludeAddress = (transaction, accountAddress) => {
+    const transactionIncludeAddress = transaction => {
       const addressLowerCase = accountAddress.toLowerCase()
       if (Array.isArray(transaction.accountsAddresses)) {
         return transaction.accountsAddresses.includes(addressLowerCase)
