@@ -21,7 +21,7 @@
             :value="sharedState.rskConfig"
           />
           <label class="form-check-label" for="inlineRadio1">{{
-            sharedState.rskConfig.name
+            sharedState.rskConfig?.name
           }}</label>
         </div>
         <div class="form-check form-check-inline">
@@ -34,7 +34,7 @@
             :value="sharedState.sideConfig"
           />
           <label class="form-check-label" for="inlineRadio2">{{
-            sharedState.sideConfig.name
+            sharedState.sideConfig?.name
           }}</label>
         </div>
       </div>
