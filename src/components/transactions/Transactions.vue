@@ -1,6 +1,7 @@
 <template>
   <div class="transactions">
     <SearchTransaction
+      v-if="sharedState.isConnected"
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
       :side-confirmations="sideConfirmations"
