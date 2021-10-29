@@ -26,6 +26,8 @@ export const store = {
     rskConfig: null,
     sideConfig: null,
     connectionError: '',
+    networksAvailable: [],
+    preSettingsEnabled: false,
   }),
   accountsChanged(accounts) {
     if (accounts.length === 0) {
@@ -34,19 +36,15 @@ export const store = {
     }
     store.state.accountAddress = accounts[0]
   },
-  initMainSettings(rskConfig, sideConfig) {
+  async initMainSettings(chainId, rskConfig, sideConfig) {
     const state = store.state
+    state.chainId = chainId
     state.rskConfig = rskConfig
     state.sideConfig = sideConfig
     state.rskWeb3 = new Web3(rskConfig.rpc)
     state.sideWeb3 = new Web3(sideConfig.rpc)
-  },
-  async chainChanged(chainId) {
-    const state = store.state
-    const parsedChainId = convertToNumber(chainId)
-    state.chainId = parsedChainId
-    const { rskConfig, sideConfig } = getNetworksConf(parsedChainId)
-    store.initMainSettings(rskConfig, sideConfig)
+    state.isConnected = true
+    state.preSettingsEnabled = false
     if (rskConfig.networkId == chainId) {
       state.currentConfig = state.rskConfig
     } else if (sideConfig.networkId == chainId) {
@@ -59,6 +57,19 @@ export const store = {
     if (state.web3) {
       const accounts = await state.web3.eth.getAccounts()
       store.accountsChanged(accounts)
+    }
+  },
+  async chainChanged(chainId) {
+    const state = store.state
+    state.preSettingsEnabled = false
+    state.networksAvailable = []
+    const parsedChainId = convertToNumber(chainId)
+    const { rskConfig, sideConfig, networks } = getNetworksConf(parsedChainId)
+    if (rskConfig && sideConfig && !networks) {
+      await store.initMainSettings(parsedChainId, rskConfig, sideConfig)
+    } else if (networks.length > 1) {
+      state.preSettingsEnabled = true
+      state.networksAvailable = networks
     }
   },
   handleDisconnect() {
@@ -102,8 +113,14 @@ export const store = {
         const chainId = await state.web3.eth.net.getId()
         store.chainChanged(chainId)
         state.isConnected = true
-        state.provider.on('chainChanged', store.chainChanged)
-        state.provider.on('accountsChanged', store.accountsChanged)
+        state.provider.on('chainChanged', (...params) => {
+          store.isConnected = false
+          store.chainChanged(...params)
+        })
+        state.provider.on('accountsChanged', (...params) => {
+          store.isConnected = false
+          store.accountsChanged(...params)
+        })
       })
       .catch(function(err) {
         console.error(err)

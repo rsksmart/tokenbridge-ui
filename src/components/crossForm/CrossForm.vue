@@ -359,7 +359,7 @@ export default {
       }
     },
     accountConnected() {
-      return `${this.sharedState.chainId} ${this.sharedState.accountAddress}`
+      return `${this.sharedState.chainId} ${this.sharedState.accountAddress} ${this.sharedState.sideConfig.networkId}`
     },
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
@@ -400,13 +400,24 @@ export default {
       this.amount = value.replace(',', '.').replace(/[^0-9]\./gi, '')
     },
     accountConnected() {
+      if (this.isMounted) {
+        this.handleOnAccountConnected()
+      }
+    },
+  },
+  mounted() {
+    if (!this.erc20TokenInstance) {
+      this.handleOnAccountConnected()
+    }
+    this.isMounted = true
+  },
+  methods: {
+    handleOnAccountConnected() {
       this.refreshBalanceAndAllowance()
       this.resetForm()
       this.setClaimCost()
       this.initData()
     },
-  },
-  methods: {
     initData() {
       this.erc20TokenInstance = new ERC20TokenTransaction({
         web3: this.sharedState.web3,
