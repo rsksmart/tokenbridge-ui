@@ -221,45 +221,31 @@ function getTokensWithReceiveToken(mainTokens, sideTokens) {
   }))
 }
 
-export function getRskNetworkConf() {
-  // if it has the side chain set, depends on the side chain
-  switch (sideChainId) {
-    case chainId.TEST_NET_BINANCE:
-      return TEST_NET_RSK_CROSS_BINANCE_CONFIG
-    case chainId.TEST_NET_KOVAN:
-      return TEST_NET_RSK_CROSS_KOVAN_CONFIG
-    case chainId.TEST_NET_RINKEBY:
-      return TEST_NET_RSK_CROSS_RINKEBY_CONFIG
-    // here we can put another conf like for rinkeby
-  }
-
-  return MAIN_NET_RSK_CONFIG
+export function findNetworkByChainId(chainId) {
+  const networks = getNetworksAvailable()
+  return networks.find(net => net.networkId === chainId)
 }
 
 export function getNetworksConf(selectedChainId) {
   const networksAvailable = getNetworksAvailable()
-  const network = networksAvailable.find(net => net.networkId === selectedChainId)
-  if (!network) {
+  const networks = networksAvailable.filter(net => net.networkId === selectedChainId)
+  if (!networks || networks.length === 0) {
     throw new Error(`Network ${selectedChainId} not found`)
   }
 
+  if (networks.length !== 1) {
+    return {
+      rskConfig: null,
+      sideConfig: null,
+      networks,
+    }
+  }
+
+  const [network] = networks
   return {
     rskConfig: network.isRsk ? network : network.crossToNetwork,
     sideConfig: network.isSide ? network : network.crossToNetwork,
   }
-}
-
-export function getSideNetworkConf() {
-  switch (sideChainId) {
-    case chainId.TEST_NET_BINANCE:
-      return TEST_NET_BINANCE_CONFIG
-    case chainId.TEST_NET_KOVAN:
-      return TEST_NET_KOVAN_CONFIG
-    case chainId.TEST_NET_RINKEBY:
-      return TEST_NET_RINKEBY_CONFIG
-  }
-
-  return MAIN_NET_ETH_CONFIG
 }
 
 export function getEnvironmentNetworks() {

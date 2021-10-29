@@ -223,6 +223,9 @@ export default {
         ...receipt,
       }
 
+      console.log('%cTransaction: ', 'color: white; background-color: purple; font-weight: bold')
+      console.table(transaction)
+
       // save transaction ...
       const accountsAddresses = [decodedEvent._from.toLowerCase()]
       if (decodedEvent._from.toLowerCase() !== decodedEvent._to.toLowerCase()) {

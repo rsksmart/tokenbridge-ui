@@ -67,6 +67,7 @@ class ERC20TokenTransaction extends Transaction {
       timestamp: Date.now(),
       accountsAddresses: [senderAddress.toLowerCase()],
       tokenType: TOKEN_TYPE_ERC_20,
+      destinationChainId: this.config.crossToNetwork.networkId,
       ...receipt,
     }
     if (senderAddress.toLowerCase() !== receiverAddress.toLowerCase()) {

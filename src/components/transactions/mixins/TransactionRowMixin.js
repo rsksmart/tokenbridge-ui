@@ -10,6 +10,7 @@ import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
 import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
+import { findNetworkByChainId } from '@/constants/networks'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -80,7 +81,7 @@ export default {
         : this.sharedState.sideConfig
     },
     toNetwork() {
-      return this.fromNetwork.crossToNetwork
+      return findNetworkByChainId(this.transaction.destinationChainId)
     },
     web3() {
       return this.toNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.sideWeb3
