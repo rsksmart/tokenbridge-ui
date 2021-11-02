@@ -14,6 +14,7 @@ import {
   TEST_NET_RSK_CROSS_KOVAN_TOKENS,
   TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
 } from './tokens/testNetRskCrossKovan'
+import ENVIRONMENTS from '@/constants/environments'
 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
 const sideChainIdStr = process.env.VUE_APP_SIDE_CHAIN_ID
@@ -35,6 +36,7 @@ export const TEST_NET_BINANCE_CONFIG = {
   v2UpdateBlock: 1,
   feePercentageDivider: 10_000,
   tokenPrefix: 'b',
+  env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_BINANCE_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
@@ -55,6 +57,7 @@ export const TEST_NET_KOVAN_CONFIG = {
   v2UpdateBlock: 25547922,
   feePercentageDivider: 10_000,
   tokenPrefix: 'e',
+  env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
@@ -74,6 +77,7 @@ export const TEST_NET_RINKEBY_CONFIG = {
   rpc: `https://rinkeby.infura.io/v3/${process.env.VUE_APP_INFURA_KEY}`,
   v2UpdateBlock: 9264196,
   feePercentageDivider: 10_000,
+  env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
@@ -95,6 +99,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_KOVAN_CONFIG,
   tokenPrefix: 'r',
+  env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
   isRsk: true,
   isSide: false,
@@ -117,6 +122,7 @@ export const TEST_NET_RSK_CROSS_BINANCE_CONFIG = {
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_BINANCE_CONFIG,
   tokenPrefix: 'b',
+  env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
   isRsk: true,
   isSide: false,
@@ -140,6 +146,7 @@ export const TEST_NET_RSK_CROSS_RINKEBY_CONFIG = {
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_RINKEBY_CONFIG,
   tokenPrefix: 'b',
+  env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
   isRsk: true,
   isSide: false,
@@ -161,6 +168,7 @@ export const MAIN_NET_ETH_CONFIG = {
   v2UpdateBlock: 12871770,
   feePercentageDivider: 10_000,
   tokenPrefix: 'e',
+  env: ENVIRONMENTS.MAINNET,
   mainToken: MAIN_NET_ETHEREUM_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
@@ -182,12 +190,20 @@ export const MAIN_NET_RSK_CONFIG = {
   feePercentageDivider: 10_000,
   crossToNetwork: MAIN_NET_ETH_CONFIG,
   tokenPrefix: 'r',
+  env: ENVIRONMENTS.MAINNET,
   mainToken: MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN,
   isRsk: true,
   isSide: false,
   tokens: getTokensWithReceiveToken(MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_TOKENS),
 }
 MAIN_NET_ETH_CONFIG.crossToNetwork = MAIN_NET_RSK_CONFIG
+
+export const rskNetworks = [
+  MAIN_NET_RSK_CONFIG,
+  TEST_NET_RSK_CROSS_RINKEBY_CONFIG,
+  TEST_NET_RSK_CROSS_BINANCE_CONFIG,
+  TEST_NET_RSK_CROSS_KOVAN_CONFIG,
+]
 
 function getReceiveToken(mainToken, sideTokens) {
   const receiveTokens = sideTokens.filter(token => token.token == mainToken.token)
@@ -205,30 +221,39 @@ function getTokensWithReceiveToken(mainTokens, sideTokens) {
   }))
 }
 
-export function getRskNetworkConf() {
-  // if it has the side chain set, depends on the side chain
-  switch (sideChainId) {
-    case chainId.TEST_NET_BINANCE:
-      return TEST_NET_RSK_CROSS_BINANCE_CONFIG
-    case chainId.TEST_NET_KOVAN:
-      return TEST_NET_RSK_CROSS_KOVAN_CONFIG
-    case chainId.TEST_NET_RINKEBY:
-      return TEST_NET_RSK_CROSS_RINKEBY_CONFIG
-    // here we can put another conf like for rinkeby
-  }
-
-  return MAIN_NET_RSK_CONFIG
+export function findNetworkByChainId(chainId) {
+  const networks = getNetworksAvailable()
+  return networks.find(net => net.networkId === chainId)
 }
 
-export function getSideNetworkConf() {
-  switch (sideChainId) {
-    case chainId.TEST_NET_BINANCE:
-      return TEST_NET_BINANCE_CONFIG
-    case chainId.TEST_NET_KOVAN:
-      return TEST_NET_KOVAN_CONFIG
-    case chainId.TEST_NET_RINKEBY:
-      return TEST_NET_RINKEBY_CONFIG
+export function getNetworksConf(selectedChainId) {
+  const networksAvailable = getNetworksAvailable()
+  const networks = networksAvailable.filter(net => net.networkId === selectedChainId)
+  if (!networks || networks.length === 0) {
+    throw new Error(`Network ${selectedChainId} not found`)
   }
 
-  return MAIN_NET_ETH_CONFIG
+  if (networks.length !== 1) {
+    return {
+      rskConfig: null,
+      sideConfig: null,
+      networks,
+    }
+  }
+
+  const [network] = networks
+  return {
+    rskConfig: network.isRsk ? network : network.crossToNetwork,
+    sideConfig: network.isSide ? network : network.crossToNetwork,
+  }
+}
+
+export function getEnvironmentNetworks() {
+  return rskNetworks.filter(network => network.env === process.env.VUE_APP_ENV)
+}
+
+export function getNetworksAvailable() {
+  const networksOnEnvironment = getEnvironmentNetworks()
+  const sideNetworks = networksOnEnvironment.map(network => network.crossToNetwork)
+  return [...networksOnEnvironment, ...sideNetworks]
 }

@@ -1,6 +1,7 @@
 <template>
   <div class="transactions">
     <SearchTransaction
+      v-if="sharedState.isConnected"
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
       :side-confirmations="sideConfirmations"
@@ -109,6 +110,12 @@ export default {
       }.bind(this),
       20_000,
     )
+    this.$watch(
+      () => this.sharedState.sideConfig,
+      (sideConfig, prevSideConfig) => {
+        this.refreshTransactions({ limit: this.limit, offset: 0 })
+      },
+    )
   },
   beforeUnmount() {
     clearInterval(this.pollingBlockNumber)
@@ -150,11 +157,13 @@ export default {
        */
       await this.$services.TransactionService.synchronizeTransactions(
         accountAddress,
-        rskConfig.localStorageName,
+        rskConfig,
+        sideConfig,
       )
       await this.$services.TransactionService.synchronizeTransactions(
         accountAddress,
-        sideConfig.localStorageName,
+        sideConfig,
+        rskConfig,
       )
       /* Synchronization end */
       const tokenTypes = [this.globalState.currentTokenType]
