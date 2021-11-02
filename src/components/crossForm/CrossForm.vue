@@ -13,7 +13,7 @@
               class="form-control-plaintext text-center originNetwork"
               :class="{ disabled: disabled }"
               readonly
-              :value="originNetwork.name"
+              :value="originNetwork?.name"
             />
           </div>
         </div>
@@ -111,7 +111,7 @@
               class="form-control-plaintext text-center destinationNetwork"
               :class="{ disabled: disabled }"
               readonly
-              :value="destinationNetwork.name"
+              :value="destinationNetwork?.name"
             />
           </div>
         </div>
@@ -186,7 +186,7 @@
       </div>
       <div class="row">
         <div class="offset-md-2 col-md-8 col-12">
-          <p v-if="destinationNetwork.isRsk" class="alert alert-warning" role="alert">
+          <p v-if="destinationNetwork?.isRsk" class="alert alert-warning" role="alert">
             Binance is not taking deposits sent by a smart contract for RSK network, they only
             accept deposits from an account
           </p>
@@ -359,7 +359,7 @@ export default {
       }
     },
     accountConnected() {
-      return `${this.sharedState.chainId} ${this.sharedState.accountAddress}`
+      return `${this.sharedState.chainId} ${this.sharedState.accountAddress} ${this.sharedState.sideConfig.networkId}`
     },
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
@@ -369,7 +369,7 @@ export default {
       return !this.sharedState.isConnected || this.showSpinner
     },
     currentNetworkTokens() {
-      return this.originNetwork.tokens
+      return this.originNetwork?.tokens
     },
     senderAddress() {
       return this.sharedState.accountAddress || '0x00...00'
@@ -400,13 +400,24 @@ export default {
       this.amount = value.replace(',', '.').replace(/[^0-9]\./gi, '')
     },
     accountConnected() {
+      if (this.isMounted) {
+        this.handleOnAccountConnected()
+      }
+    },
+  },
+  mounted() {
+    if (!this.erc20TokenInstance) {
+      this.handleOnAccountConnected()
+    }
+    this.isMounted = true
+  },
+  methods: {
+    handleOnAccountConnected() {
       this.refreshBalanceAndAllowance()
       this.resetForm()
       this.setClaimCost()
       this.initData()
     },
-  },
-  methods: {
     initData() {
       this.erc20TokenInstance = new ERC20TokenTransaction({
         web3: this.sharedState.web3,
