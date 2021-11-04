@@ -112,7 +112,10 @@ export default {
     changeSideNetwork() {
       const { crossToNetwork: hostNetwork } = this.sideNetworkConfig
       store.state.isConnected = false
-      store.initMainSettings(hostNetwork.networkId, hostNetwork, this.sideNetworkConfig)
+      const rskConfig = this.sideNetworkConfig.isRsk ? this.sideNetworkConfig : hostNetwork
+      const sideConfig = this.sideNetworkConfig.isRsk ? hostNetwork : this.sideNetworkConfig
+
+      store.initMainSettings(hostNetwork.networkId, rskConfig, sideConfig)
     },
   },
 }

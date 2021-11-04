@@ -17,6 +17,7 @@
           />
 
           <Transactions
+            v-if="isLoadedAllInfo"
             :types-limits="typesLimits"
             :rsk-confirmations="rskConfirmations"
             :side-confirmations="sideConfirmations"
@@ -79,6 +80,7 @@ import FormWrapper from '@/components/formWrapper/FormWrapper'
 import HostNetwork from '@/modules/networks/HostNetwork'
 import SideNetwork from '@/modules/networks/SideNetwork'
 import MultiChain from '@/components/multiChain/MultiChain'
+import { isEmpty } from '@/utils/helpers'
 
 export default {
   name: 'Home',
@@ -115,6 +117,15 @@ export default {
   computed: {
     isConnected() {
       return this.sharedState.isConnected && !this.sharedState.preSettingsEnabled
+    },
+    isLoadedAllInfo() {
+      return [
+        this.typesLimits,
+        this.rskFedMembers,
+        this.sideFedMembers,
+        this.rskConfirmations,
+        this.sideConfirmations,
+      ].every(entry => !isEmpty(entry))
     },
   },
   created() {

@@ -116,6 +116,9 @@ export default {
         this.refreshTransactions({ limit: this.limit, offset: 0 })
       },
     )
+    if (this.transactions.length === 0) {
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
+    }
   },
   beforeUnmount() {
     clearInterval(this.pollingBlockNumber)

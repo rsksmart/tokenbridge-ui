@@ -88,9 +88,9 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   networkId: chainId.TEST_NET_RSK,
   name: 'RSK Testnet',
   localStorageName: 'rsk-testnet',
-  bridge: '0x4ec10A50801f89266F0F1FA7fd3fa320106bBF63',
-  allowTokens: '0xd5343aafd8bfe2960d4E832201CB69CD04E531d5',
-  federation: '0xe450bBE6C28cCd253a56ac24c55E44015e576783',
+  bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
+  allowTokens: '0xc65bf0ae75dc1a5fc9e6f4215125692a548c773a',
+  federation: '0x5d663981d930e8ec108280b9d80885658148ab0f',
   explorer: 'https://explorer.testnet.rsk.co',
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
@@ -221,9 +221,11 @@ function getTokensWithReceiveToken(mainTokens, sideTokens) {
   }))
 }
 
-export function findNetworkByChainId(chainId) {
+export function findNetworkByChainId(chainId, crossToNetworkId) {
   const networks = getNetworksAvailable()
-  return networks.find(net => net.networkId === chainId)
+  return networks.find(
+    net => net.networkId === chainId && net.crossToNetwork.networkId === crossToNetworkId,
+  )
 }
 
 export function getNetworksConf(selectedChainId) {
