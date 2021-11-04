@@ -76,12 +76,10 @@ export default {
   },
   computed: {
     fromNetwork() {
-      return this.transaction.networkId === this.sharedState.rskConfig.networkId
-        ? this.sharedState.rskConfig
-        : this.sharedState.sideConfig
+      return findNetworkByChainId(this.transaction.networkId, this.transaction.destinationChainId)
     },
     toNetwork() {
-      return findNetworkByChainId(this.transaction.destinationChainId)
+      return findNetworkByChainId(this.transaction.destinationChainId, this.transaction.networkId)
     },
     web3() {
       return this.toNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.sideWeb3
@@ -139,6 +137,9 @@ export default {
         return false
       }
       const limits = this.typesLimits[this.token.typeId]
+      if (!limits) {
+        return false
+      }
       const confirmations = this.fromNetwork.isRsk ? this.rskConfirmations : this.sideConfirmations
       let amount = this.transaction.amount
       if (!amount) {
