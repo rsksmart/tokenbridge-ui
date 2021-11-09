@@ -64,7 +64,9 @@ export const store = {
     state.preSettingsEnabled = false
     state.networksAvailable = []
     const parsedChainId = convertToNumber(chainId)
-    const { rskConfig, sideConfig, networks } = getNetworksConf(parsedChainId)
+    const { rskConfig, sideConfig, networks } = getNetworksConf(parsedChainId, state.chainId)
+    state.rskConfig = rskConfig
+    state.sideConfig = sideConfig
     if (rskConfig && sideConfig && !networks) {
       await store.initMainSettings(parsedChainId, rskConfig, sideConfig)
     } else if (networks.length > 1) {

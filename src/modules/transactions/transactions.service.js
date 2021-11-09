@@ -77,7 +77,7 @@ export class TransactionService {
       .where('networkId')
       .anyOf(networkIds)
       // Should be enable for display transactions that respect the origin and destination selected
-      // .and(transaction => networkIds.includes(transaction.destinationChainId))
+      .and(transaction => networkIds.includes(transaction.destinationChainId))
       .and(transaction => transactionIncludeAddress(transaction))
       .and(transaction => tokenTypes.includes(transaction.tokenType))
       .count()
@@ -86,7 +86,7 @@ export class TransactionService {
       .where('networkId')
       .anyOf(networkIds)
       // Should be enable for display transactions that respect the origin and destination selected
-      // .and(transaction => networkIds.includes(transaction.destinationChainId))
+      .and(transaction => networkIds.includes(transaction.destinationChainId))
       .and(transaction => transactionIncludeAddress(transaction))
       .and(transaction => tokenTypes.includes(transaction.tokenType))
       .reverse()

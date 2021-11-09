@@ -64,7 +64,24 @@ export default {
       return this.networks[0].name
     },
   },
+  created() {
+    this.$watch(
+      () => this.sharedState.preSettingsEnabled,
+      () => {
+        this.loadDefaultConfig()
+      },
+    )
+  },
+  mounted() {
+    this.loadDefaultConfig()
+  },
   methods: {
+    loadDefaultConfig() {
+      if (this.sharedState.rskConfig && this.sharedState.sideConfig) {
+        this.sideNetworkConfig = this.sharedState.sideConfig
+        this.selectSideNetwork()
+      }
+    },
     connectWalletClick() {
       return store.handleLogin()
     },

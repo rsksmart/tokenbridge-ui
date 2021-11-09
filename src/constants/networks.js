@@ -205,6 +205,17 @@ export const rskNetworks = [
   TEST_NET_RSK_CROSS_KOVAN_CONFIG,
 ]
 
+export const defaultNetworks = {
+  [ENVIRONMENTS.MAINNET]: {
+    rskConfig: MAIN_NET_RSK_CONFIG,
+    sideConfig: MAIN_NET_ETH_CONFIG,
+  },
+  [ENVIRONMENTS.TESTNET]: {
+    rskConfig: TEST_NET_RSK_CROSS_KOVAN_CONFIG,
+    sideConfig: TEST_NET_KOVAN_CONFIG,
+  },
+}
+
 function getReceiveToken(mainToken, sideTokens) {
   const receiveTokens = sideTokens.filter(token => token.token == mainToken.token)
   if (receiveTokens.length == 0) {
@@ -228,7 +239,7 @@ export function findNetworkByChainId(chainId, crossToNetworkId) {
   )
 }
 
-export function getNetworksConf(selectedChainId) {
+export function getNetworksConf(selectedChainId, prevChainId = null) {
   const networksAvailable = getNetworksAvailable()
   const networks = networksAvailable.filter(net => net.networkId === selectedChainId)
   if (!networks || networks.length === 0) {
@@ -236,9 +247,15 @@ export function getNetworksConf(selectedChainId) {
   }
 
   if (networks.length !== 1) {
+    if (prevChainId) {
+      const networkConfig = getNetworksConf(prevChainId, null)
+      return {
+        ...networkConfig,
+        networks,
+      }
+    }
     return {
-      rskConfig: null,
-      sideConfig: null,
+      ...defaultNetworks[process.env.VUE_APP_ENV],
       networks,
     }
   }

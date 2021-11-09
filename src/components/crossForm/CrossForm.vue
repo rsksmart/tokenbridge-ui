@@ -548,7 +548,7 @@ export default {
         data.error = `Couldn't approve. ${error?.message}`
       }
     },
-    onSubmit: async function() {
+    async onSubmit() {
       const data = this
       data.error = ''
       data.showSuccess = false
