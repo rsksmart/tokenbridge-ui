@@ -27,14 +27,14 @@ class ERC721NFTTransaction extends Transaction {
     })
   }
 
-  async saveTransaction(receipt, tokenId, senderAddress, receiverAddress) {
+  async saveTransaction(receipt, tokenId, senderAddress, receiverAddress, timestamp = Date.now()) {
     const transactionBody = {
       type: 'NFT',
       networkId: this.config.networkId,
       tokenId,
       senderAddress,
       receiverAddress,
-      timestamp: Date.now(),
+      timestamp,
       tokenType: TOKEN_TYPE_ERC_721,
       accountsAddresses: [senderAddress.toLowerCase(), receiverAddress.toLowerCase()],
       destinationChainId: this.config.crossToNetwork.networkId,

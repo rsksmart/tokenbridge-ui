@@ -48,10 +48,10 @@ export class TransactionService {
     const fixedTransactionStructure = JSON.parse(JSON.stringify(transaction))
     try {
       const transactionSaved = await dbInstance.transactions.put(fixedTransactionStructure)
-      if (!transactionSaved || !transactionSaved.transactionHash) {
+      if (!transactionSaved || transactionSaved !== transaction.transactionHash) {
         return {}
       }
-      return transactionSaved
+      return transaction
     } catch (error) {
       console.error('Failed on save transaction', transaction)
       console.error(error.message)

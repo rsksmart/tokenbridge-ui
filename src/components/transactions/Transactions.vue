@@ -9,6 +9,7 @@
       :side-fed-members="sideFedMembers"
       :rsk-block-number="rskBlockNumber"
       :side-block-number="sideBlockNumber"
+      @onSearchTransaction="handleOnSearchTransaction"
     />
     <TransactionList
       :types-limits="typesLimits"
@@ -124,6 +125,9 @@ export default {
     clearInterval(this.pollingBlockNumber)
   },
   methods: {
+    handleOnSearchTransaction() {
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
+    },
     refreshBlockNumber() {
       const data = this
       const rskWeb3 = this.sharedState.rskWeb3
