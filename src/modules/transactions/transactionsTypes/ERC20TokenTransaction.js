@@ -54,7 +54,15 @@ class ERC20TokenTransaction extends Transaction {
     })
   }
 
-  async saveTransaction(receipt, token, amount, receiveAmount, senderAddress, receiverAddress) {
+  async saveTransaction(
+    receipt,
+    token,
+    amount,
+    receiveAmount,
+    senderAddress,
+    receiverAddress,
+    timestamp = Date.now(),
+  ) {
     const transactionBody = {
       type: 'Cross',
       networkId: this.config.networkId,
@@ -64,7 +72,7 @@ class ERC20TokenTransaction extends Transaction {
       receiveAmount,
       senderAddress,
       receiverAddress,
-      timestamp: Date.now(),
+      timestamp,
       accountsAddresses: [senderAddress.toLowerCase()],
       tokenType: TOKEN_TYPE_ERC_20,
       destinationChainId: this.config.crossToNetwork.networkId,

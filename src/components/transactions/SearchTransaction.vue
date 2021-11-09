@@ -101,6 +101,8 @@ import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TransactionTable from '@/components/transactions/transactionsTables/ERC20Table/ERC20TransactionTable'
 import ERC721TransactionTable from '@/components/transactions/transactionsTables/ERC721Table/ERC721TransactionTable'
 import globalStore from '@/stores/global.store'
+import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
+import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 
 export default {
   name: 'TransactionList',
@@ -140,6 +142,7 @@ export default {
       required: true,
     },
   },
+  emits: ['onSearchTransaction'],
   data() {
     return {
       sharedState: store.state,
@@ -149,6 +152,7 @@ export default {
       searchedTransaction: false,
       isSearching: false,
       transaction: null,
+      isCrossTransaction: false,
     }
   },
   computed: {
@@ -185,7 +189,7 @@ export default {
         data.isSearching = false
         return
       }
-      const result = decodeCrossEvent(originWeb3, receipt)
+      const result = decodeCrossEvent(originWeb3, receipt, this.globalState.currentTokenType)
       if (!result) {
         data.isCrossTransaction = false
         data.searchedTransaction = true
@@ -198,48 +202,54 @@ export default {
       const decodedEvent = result.decodedEvent
       // decodedEvent._from did not existed on events of previous versions
       decodedEvent._from = decodedEvent._from ?? decodedEvent._to
-      const token = data.selectedNetwork.tokens.find(token => {
-        return (
-          token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
-          // When crossing back uses the original token address
-          token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
-        )
-      })
-      const tokenFromNetwork = token
-      const tokenToNetwork = token.receiveToken
+      let transaction = null
       const block = await originWeb3.eth.getBlock(receipt.blockNumber)
+      if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_20) {
+        const token = data.selectedNetwork.tokens.find(token => {
+          return (
+            token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
+            // When crossing back uses the original token address
+            token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
+          )
+        })
 
-      const transaction = {
-        type: 'Cross',
-        networkId: data.selectedNetwork.networkId,
-        tokenFrom: tokenFromNetwork.symbol,
-        tokenTo: tokenToNetwork.symbol,
-        receiveAmount: new BigNumber(decodedEvent._amount)
-          .div(10 ** tokenFromNetwork.decimals)
-          .toString(),
-        senderAddress: decodedEvent._from,
-        receiverAddress: decodedEvent._to,
-        timestamp: block.timestamp,
-        ...receipt,
+        const receiveAmount = new BigNumber(decodedEvent._amount)
+          .div(10 ** token.decimals)
+          .toString()
+        const erc20TokenInstance = new ERC20TokenTransaction({
+          web3: originWeb3,
+          config: data.selectedNetwork,
+        })
+        transaction = await erc20TokenInstance.saveTransaction(
+          receipt,
+          token,
+          decodedEvent._amount,
+          receiveAmount,
+          decodedEvent._from,
+          decodedEvent._to,
+          block.timestamp * 1000,
+        )
+      } else if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_721) {
+        const erc721TokenInstance = new ERC721NFTTransaction({
+          web3: originWeb3,
+          config: data.selectedNetwork,
+        })
+        transaction = await erc721TokenInstance.saveTransaction(
+          receipt,
+          decodedEvent._tokenId,
+          decodedEvent._originalTokenAddress,
+          decodedEvent._to,
+          block.timestamp * 1000,
+        )
       }
-
       console.log('%cTransaction: ', 'color: white; background-color: purple; font-weight: bold')
       console.table(transaction)
 
-      // save transaction ...
-      const accountsAddresses = [decodedEvent._from.toLowerCase()]
-      if (decodedEvent._from.toLowerCase() !== decodedEvent._to.toLowerCase()) {
-        accountsAddresses.push(decodedEvent._to.toLowerCase())
-      }
-      // save transaction to local storage...
-      const newTransaction = {
-        ...transaction,
-        accountsAddresses,
-      }
-      await this.$services.TransactionService.saveTransaction(newTransaction)
+      // await this.$services.TransactionService.saveTransaction(newTransaction)
       data.transaction = transaction
       data.searchedTransaction = true
       data.isSearching = false
+      this.$emit('onSearchTransaction', transaction)
     },
   },
 }
