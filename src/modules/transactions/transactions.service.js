@@ -2,6 +2,13 @@ import dbInstance from '@/config/offlineDB.connection'
 import { TXN_Storage } from '@/utils'
 
 export class TransactionService {
+  static validateTimestamp(timestamp) {
+    if (timestamp && timestamp.toString().length < Date.now().toString().length) {
+      return parseInt(timestamp, 10) * 1000
+    }
+    return timestamp ?? 0
+  }
+
   async synchronizeTransactions(accountAddress = '', hostConfig = {}, sideConfig = {}) {
     if (!TXN_Storage.isStorageAvailable('localStorage')) {
       return
@@ -15,14 +22,11 @@ export class TransactionService {
       // Check if empty amount
       transaction.receiveAmount = transaction.receiveAmount ?? transaction.amount
       // Check if empty sender
-      transaction.senderAddress = '0xa5Bd308FCd2140778142fC531a39ec0EC574fC67' // transaction.senderAddress ?? transaction.from
+      transaction.senderAddress = transaction.senderAddress ?? transaction.from
       // Check if empty receiver
-      transaction.receiverAddress = '0xa5Bd308FCd2140778142fC531a39ec0EC574fC67' // transaction.receiverAddress ?? transaction.senderAddress
+      transaction.receiverAddress = transaction.receiverAddress ?? transaction.senderAddress
       // Check if its in seconds
-      transaction.timestamp =
-        transaction.timestamp > 1000000000
-          ? transaction.timestamp
-          : (transaction.timestamp ?? 0) * 1000
+      transaction.timestamp = TransactionService.validateTimestamp(transaction.timestamp)
       transaction.destinationChainId =
         hostConfig.networkId === transaction.networkId ? sideConfig.networkId : hostConfig.networkId
       const accountsAddresses = [transaction.senderAddress.toLowerCase()]
