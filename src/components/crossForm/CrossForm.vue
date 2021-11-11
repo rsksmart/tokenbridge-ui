@@ -6,15 +6,9 @@
         <div class="text-center  col-sm-2">
           <label class="tokenAddress-label" for="originNetwork">Origin Network</label>
           <div class="form-group">
-            <input
-              id="originNetwork"
-              type="text"
-              name="originNetwork"
-              class="form-control-plaintext text-center originNetwork"
-              :class="{ disabled: disabled }"
-              readonly
-              :value="originNetwork?.name"
-            />
+            <span class="originNetwork">
+              {{ originNetwork?.name }}
+            </span>
           </div>
         </div>
 
@@ -104,15 +98,9 @@
         <div class="text-center  col-sm-2">
           <label class="tokenAddress-label" for="destinationNetwork">Destination Network</label>
           <div class="form-group">
-            <input
-              id="destinationNetwork"
-              type="text"
-              name="destinationNetwork"
-              class="form-control-plaintext text-center destinationNetwork"
-              :class="{ disabled: disabled }"
-              readonly
-              :value="destinationNetwork?.name"
-            />
+            <span class="destinationNetwork">
+              {{ destinationNetwork?.name }}
+            </span>
           </div>
         </div>
 
@@ -631,10 +619,14 @@ export default {
     setClaimCost() {
       const { currentConfig: { isRsk } = {} } = this.sharedState
       const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
-      const networkConf = isRsk ? this.sharedState.rskConfig : this.sharedState.sideConfg
+      const networkConf = isRsk ? this.sharedState.rskConfig : this.sharedState.sideConfig
       web3.eth.getGasPrice().then(gasPrice => {
-        const costInWei = new BigNumber(ESTIMATED_GAS_AVG).multipliedBy(gasPrice)
-        this.claimCost = `${costInWei.shiftedBy(-18).toString()} ${networkConf?.mainToken?.symbol}`
+        const costInWei = new BigNumber(ESTIMATED_GAS_AVG)
+          .multipliedBy(gasPrice)
+          .shiftedBy(-18)
+          .toPrecision(6)
+          .toString()
+        this.claimCost = `${costInWei} ${networkConf?.mainToken?.symbol}`
       })
     },
   },
