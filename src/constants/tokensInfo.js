@@ -143,3 +143,10 @@ export const TOKEN_UBI_INFO = {
   typeId: 6,
   icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/ubi.png',
 }
+
+export const TOKEN_WBTC_INFO = {
+  token: 'WBTC',
+  name: 'Wrapped Ethereum',
+  typeId: 0,
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
+}

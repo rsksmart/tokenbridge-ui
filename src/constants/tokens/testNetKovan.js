@@ -102,4 +102,11 @@ export const TEST_NET_KOVAN_TOKENS = [
     decimals: 18,
     methodType: methodType.RECEIVER,
   },
+  {
+    ...tokensInfo.TOKEN_WBTC_INFO,
+    symbol: 'WBTC',
+    address: '0xd1b98b6607330172f1d991521145a22bce793277',
+    decimals: 8,
+    methodType: methodType.RECEIVER,
+  },
 ]
