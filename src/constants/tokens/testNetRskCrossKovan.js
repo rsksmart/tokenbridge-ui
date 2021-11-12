@@ -102,4 +102,11 @@ export const TEST_NET_RSK_CROSS_KOVAN_TOKENS = [
     decimals: 18,
     methodType: methodType.RECEIVER,
   },
+  {
+    ...tokensInfo.TOKEN_WBTC_INFO,
+    symbol: 'rKovWBTC',
+    address: '0xb8ae2cb769255359190fbce89d3ad38687da5e65',
+    decimals: 18,
+    methodType: methodType.RECEIVER,
+  },
 ]
