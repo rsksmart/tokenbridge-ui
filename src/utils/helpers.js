@@ -21,3 +21,10 @@ export function isEmpty(value) {
       return false
   }
 }
+
+export function numToHex(value) {
+  if (typeof value === 'number') {
+    return `0x${value.toString(16)}`
+  }
+  return value
+}
