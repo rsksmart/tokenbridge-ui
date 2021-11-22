@@ -36,28 +36,38 @@
         >
           <span id="address">{{ sharedState.accountAddress }}</span>
         </div>
-        <div v-if="networks.length > 0">
-          <div v-if="isConnected" class="input-group">
-            <span class="input-group-text mr-2 bg-transparent text-primary border-0">
-              <i class="fas fa-long-arrow-alt-right"></i>
-            </span>
-            <select
-              id="networks"
-              v-model="sideConfig"
-              name="networks"
-              class="form-control"
-              @change="changeSideNetwork"
+        <div v-if="isConnected" class="d-flex align-items-center navbar-item">
+          <span class="input-group-text mr-2 bg-transparent text-primary border-0">
+            <i class="fas fa-long-arrow-alt-right"></i>
+          </span>
+          <select
+            v-if="networks.length > 0"
+            id="networks"
+            v-model="sideConfig"
+            name="networks"
+            class="form-control select-networks"
+            @change="changeSideNetwork"
+          >
+            <option value="" selected disabled>Destination network</option>
+            <option
+              v-for="network in networks"
+              :key="network.crossToNetwork.networkId"
+              :value="network.crossToNetwork"
             >
-              <option value="" selected disabled>Destination network</option>
-              <option
-                v-for="network in networks"
-                :key="network.crossToNetwork.networkId"
-                :value="network.crossToNetwork"
-              >
-                {{ network.crossToNetwork.name }}
-              </option>
-            </select>
+              {{ network.crossToNetwork.name }}
+            </option>
+          </select>
+          <div v-else class="wallet-status indicator badge-outline badge-pill">
+            {{ sharedState.currentConfig.crossToNetwork.name }}
           </div>
+          <button
+            type="button"
+            v-if="isMetaMask"
+            class="btn btn-link btn-sm text-primary"
+            @click="handleSwitchNetwork"
+          >
+            Switch Network
+          </button>
         </div>
         <div class="navbar-item ml-auto">
           <button
@@ -80,6 +90,7 @@
 
 <script>
 import { store } from '@/store.js'
+import { numToHex } from '@/utils/helpers'
 
 export default {
   name: 'NavBar',
@@ -104,10 +115,48 @@ export default {
     isConnected() {
       return this.sharedState.isConnected && !this.sharedState.preSettingsEnabled
     },
+    isMetaMask() {
+      return window.ethereum.isMetaMask
+    },
   },
   methods: {
     connectWalletClick() {
       return store.handleLogin()
+    },
+    async handleAddNetwork(networkConfig) {
+      try {
+        const chainId = numToHex(networkConfig.networkId)
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId,
+              chainName: networkConfig.name,
+              nativeCurrency: {
+                name: networkConfig.mainToken.name,
+                symbol: networkConfig.mainToken.symbol,
+                decimals: networkConfig.mainToken.decimals,
+              },
+              rpcUrls: [networkConfig.rpc],
+            },
+          ],
+        })
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    async handleSwitchNetwork() {
+      try {
+        const chainId = numToHex(this.sharedState.currentConfig.crossToNetwork.networkId)
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId }],
+        })
+      } catch (error) {
+        if (error.code === 4902) {
+          await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
+        }
+      }
     },
     changeSideNetwork() {
       const { crossToNetwork: hostNetwork } = this.sideNetworkConfig
@@ -120,3 +169,16 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.select-networks {
+  border-radius: 20px;
+  border-color: var(--primary);
+  color: var(--primary);
+  outline: none;
+  width: 260px;
+}
+.select-networks:focus {
+  outline: none;
+}
+</style>
