@@ -3,7 +3,7 @@
     v-if="isModalVisible"
     class="modal-wrapper fixed-top w-100 h-100 d-flex justify-content-center align-items-center"
   >
-    <div class="modal-container mw-50">
+    <div class="modal-container mw-50" :class="modalSizeClass">
       <button type="button" class="close mr-2" aria-label="Close" @click="handleCloseModal">
         <span aria-hidden="true">&times;</span>
       </button>
@@ -14,7 +14,7 @@
 
 <script>
 import ErrorModal from '@/components/commons/Modals/ErrorModal'
-import { shallowRef } from 'vue'
+import { markRaw, shallowRef } from 'vue'
 import SuccessModal from '@/components/commons/Modals/SuccessModal'
 
 export default {
@@ -30,11 +30,15 @@ export default {
       },
       customModalComponent: null,
       modalProps: {},
+      modalSize: '',
     }
   },
   computed: {
     currentModal() {
       return this.customModalComponent || this.modalTypes[this.modalType]
+    },
+    modalSizeClass() {
+      return `modal-size-${this.modalSize || 'small'}`
     },
   },
   methods: {
@@ -48,15 +52,16 @@ export default {
         showCloseIcon: true,
         closeUsingKey: false,
         modalProps: {},
+        size: 'small',
       },
     }) {
       if (!this.isModalVisible) {
         this.modalType = type
         if (type === 'custom' && options.customModalComponent) {
-          this.customModalComponent = options.customModalComponent
+          this.customModalComponent = shallowRef(options.customModalComponent)
         }
         this.modalProps = options.modalProps
-
+        this.modalSize = options.size
         this.isModalVisible = true
       }
     },
@@ -71,8 +76,18 @@ export default {
   transition: opacity 0.3s ease;
 }
 
-.modal-container {
+.modal-container.modal-size-small {
   min-width: 360px;
   max-width: 450px;
+}
+
+.modal-container.modal-size-medium {
+  min-width: 720px;
+  max-width: 810px;
+}
+
+.modal-container.modal-size-large {
+  min-width: 1024px;
+  max-width: 1140px;
 }
 </style>

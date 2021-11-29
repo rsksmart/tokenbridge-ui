@@ -95,12 +95,16 @@ label {
 .btn-toolbar {
   justify-content: center;
 }
+
+.btn {
+  border-radius: 10px;
+}
+
 .btn-primary {
   font-family: 'Quicksand';
   color: #fff;
   background-color: var(--primary);
   border-color: var(--primary);
-  border-radius: 10px;
 }
 .btn-primary:hover,
 .btn-primary:not(:disabled):not(.disabled):active {

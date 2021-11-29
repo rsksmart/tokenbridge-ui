@@ -32,7 +32,7 @@
         </span>
       </div>
       <div v-else-if="currentStep === steps.Voting">
-        <span class="pending">
+        <span class="pending" @click="claimClick">
           Voting ~ {{ estimatedTime }}
           <VotingInfo :fed-members="fedMembers" :transaction="transaction" />
         </span>

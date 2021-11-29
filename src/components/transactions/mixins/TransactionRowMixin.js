@@ -10,6 +10,8 @@ import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
 import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
+import { TOKEN_WBTC_INFO } from '@/constants/tokensInfo'
+import ClaimWRBTCModal from '../modals/ClaimWRBTCModal'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -17,8 +19,9 @@ export default {
   components: {
     Modal,
     VotingInfo,
+    ClaimWRBTCModal,
   },
-  inject: ['$services'],
+  inject: ['$services', '$modal'],
   props: {
     transaction: {
       type: Object,
@@ -320,6 +323,24 @@ export default {
         console.error(error)
       }
     },
+    async claimWBTC() {
+      if (this.transaction.tokenFrom === TOKEN_WBTC_INFO.token) {
+        this.$modal.value.showModal({
+          type: 'custom',
+          options: {
+            customModalComponent: ClaimWRBTCModal,
+            modalProps: {
+              receiver: this.transaction.receiverAddress,
+              amount: this.transaction.amount,
+              amountToken: this.transaction.tokenFrom,
+              receiveAmount: this.transaction.receiveAmount,
+              receiveAmountToken: this.transaction.tokenTo,
+            },
+            size: 'medium',
+          },
+        })
+      }
+    },
     async claimClick() {
       const data = this
       const sharedState = data.sharedState
@@ -336,7 +357,8 @@ export default {
       if (
         sharedState.accountAddress.toLowerCase() === data.transaction.receiverAddress.toLowerCase()
       ) {
-        await this.claim()
+        await this.claimWBTC()
+        // await this.claim()
       } else {
         data.showMismatchAddressModal = true
       }
