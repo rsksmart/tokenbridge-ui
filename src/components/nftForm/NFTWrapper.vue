@@ -3,7 +3,12 @@
     <div class="nft-wrapper container p-5 mt-5">
       <div class="row">
         <div class="col-md-12 p-2">
-          <NFTForm :origin-network="originNetwork" @onSuccess="handleOnSuccess" />
+          <NFTForm
+            :origin-network="originNetwork"
+            @onSuccess="handleOnSuccess"
+            @onLoading="handleOnLoading"
+            @onFailed="handleOnFailed"
+          />
         </div>
         <div v-if="displayInformation" class="col-md-12 p-2">
           <NFTViewInformation :metadata="metadata"></NFTViewInformation>
@@ -99,6 +104,21 @@ export default {
     },
   },
   methods: {
+    resetState() {
+      this.displayInformation = false
+      this.metadata = {}
+      this.web3Contract = null
+      this.nftContractAddress = ''
+      this.tokenId = ''
+      this.isApproved = false
+      this.loadedInfo = false
+    },
+    handleOnLoading() {
+      this.resetState()
+    },
+    handleOnFailed() {
+      this.resetState()
+    },
     handleOnSuccess({ metadata, web3Contract, nftContractAddress, tokenId, isApproved }) {
       this.metadata = metadata
       this.displayInformation = true

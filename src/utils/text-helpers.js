@@ -9,3 +9,15 @@ export const txExplorerLink = (txHash, explorerLink) => {
   }
   return `<a target="_blank" href="${explorerLink}/tx/${sanitizedTxHash}">see Tx</a>`
 }
+
+export const convertToNumber = value => {
+  if (typeof value === 'number') {
+    return value
+  }
+  if (typeof value === 'string') {
+    const radix = value.startsWith('0x') ? 16 : 10
+    return parseInt(value, radix)
+  }
+
+  return value
+}

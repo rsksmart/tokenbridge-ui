@@ -1,6 +1,7 @@
 <template>
   <div class="transactions">
     <SearchTransaction
+      v-if="sharedState.isConnected"
       :types-limits="typesLimits"
       :rsk-confirmations="rskConfirmations"
       :side-confirmations="sideConfirmations"
@@ -8,6 +9,7 @@
       :side-fed-members="sideFedMembers"
       :rsk-block-number="rskBlockNumber"
       :side-block-number="sideBlockNumber"
+      @onSearchTransaction="handleOnSearchTransaction"
     />
     <TransactionList
       :types-limits="typesLimits"
@@ -109,11 +111,23 @@ export default {
       }.bind(this),
       20_000,
     )
+    this.$watch(
+      () => this.sharedState.sideConfig,
+      (sideConfig, prevSideConfig) => {
+        this.refreshTransactions({ limit: this.limit, offset: 0 })
+      },
+    )
+    if (this.transactions.length === 0) {
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
+    }
   },
   beforeUnmount() {
     clearInterval(this.pollingBlockNumber)
   },
   methods: {
+    handleOnSearchTransaction() {
+      this.refreshTransactions({ limit: this.limit, offset: 0 })
+    },
     refreshBlockNumber() {
       const data = this
       const rskWeb3 = this.sharedState.rskWeb3
@@ -150,11 +164,13 @@ export default {
        */
       await this.$services.TransactionService.synchronizeTransactions(
         accountAddress,
-        rskConfig.localStorageName,
+        rskConfig,
+        sideConfig,
       )
       await this.$services.TransactionService.synchronizeTransactions(
         accountAddress,
-        sideConfig.localStorageName,
+        sideConfig,
+        rskConfig,
       )
       /* Synchronization end */
       const tokenTypes = [this.globalState.currentTokenType]

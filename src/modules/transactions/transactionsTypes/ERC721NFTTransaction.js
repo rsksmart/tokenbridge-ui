@@ -27,16 +27,17 @@ class ERC721NFTTransaction extends Transaction {
     })
   }
 
-  async saveTransaction(receipt, tokenId, senderAddress, receiverAddress) {
+  async saveTransaction(receipt, tokenId, senderAddress, receiverAddress, timestamp = Date.now()) {
     const transactionBody = {
       type: 'NFT',
       networkId: this.config.networkId,
       tokenId,
       senderAddress,
       receiverAddress,
-      timestamp: Date.now(),
+      timestamp,
       tokenType: TOKEN_TYPE_ERC_721,
       accountsAddresses: [senderAddress.toLowerCase(), receiverAddress.toLowerCase()],
+      destinationChainId: this.config.crossToNetwork.networkId,
       ...receipt,
     }
     const transactionService = new TransactionService()
@@ -62,14 +63,15 @@ class ERC721NFTTransaction extends Transaction {
     if (!receipt) {
       throw new Error('Failed to recover receipt information')
     } else {
-      console.log('Transaction Receipt is: ', receipt)
+      console.log('%cTransaction Receipt is: ', 'color: purple; font-weight: bold')
+      console.table(receipt)
     }
 
     return this.saveTransaction(receipt, tokenId, tokenAddress, to)
   }
 
   /**
-   *
+   * Get Claim Data method
    * @param {
    *  to: String,
    *  from: String,
