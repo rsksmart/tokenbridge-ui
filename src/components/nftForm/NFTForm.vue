@@ -71,7 +71,7 @@ export default {
       required: true,
     },
   },
-  emits: ['onSuccess'],
+  emits: ['onSuccess', 'onLoading', 'onFailed'],
   data() {
     return {
       sharedState: store.state,
@@ -107,6 +107,7 @@ export default {
           },
         })
         this.isLoading = false
+        this.$emit('onFailed')
         return
       }
       try {
@@ -123,6 +124,7 @@ export default {
         this.isLoading = false
       } catch (jsonError) {
         this.isLoading = false
+        this.$emit('onFailed')
         this.$modal.value.showModal({
           type: 'error',
           options: { modalProps: { message: jsonError.message, title: 'Error on Metadata info' } },
@@ -133,6 +135,7 @@ export default {
       const web3 = this.sharedState.web3
       const erc721 = new web3.eth.Contract(SIDE_NFT_TOKEN, this.nftContractAddress)
       this.isLoading = true
+      this.$emit('onLoading')
 
       const [tokenURIError, tokenURI] = await asyncTryCatch(
         erc721.methods.tokenURI(this.tokenId).call,
@@ -153,6 +156,7 @@ export default {
           },
         })
         this.isLoading = false
+        this.$emit('onFailed')
         return
       }
       if (!tokenURIError && tokenURI) {

@@ -2,11 +2,18 @@ import dbInstance from '@/config/offlineDB.connection'
 import { TXN_Storage } from '@/utils'
 
 export class TransactionService {
-  async synchronizeTransactions(accountAddress = '', networkName = '') {
+  static validateTimestamp(timestamp) {
+    if (timestamp && timestamp.toString().length < Date.now().toString().length) {
+      return parseInt(timestamp, 10) * 1000
+    }
+    return timestamp ?? 0
+  }
+
+  async synchronizeTransactions(accountAddress = '', hostConfig = {}, sideConfig = {}) {
     if (!TXN_Storage.isStorageAvailable('localStorage')) {
       return
     }
-    const transactions = TXN_Storage.getAllTxns4Address(accountAddress, networkName)
+    const transactions = TXN_Storage.getAllTxns4Address(accountAddress, hostConfig.localStorageName)
     const migratedTransactions = transactions.map(transaction => {
       // Check if empty current step
       transaction.currentStep = transaction.currentStep ?? 0
@@ -19,10 +26,9 @@ export class TransactionService {
       // Check if empty receiver
       transaction.receiverAddress = transaction.receiverAddress ?? transaction.senderAddress
       // Check if its in seconds
-      transaction.timestamp =
-        transaction.timestamp > 1000000000
-          ? transaction.timestamp
-          : (transaction.timestamp ?? 0) * 1000
+      transaction.timestamp = TransactionService.validateTimestamp(transaction.timestamp)
+      transaction.destinationChainId =
+        hostConfig.networkId === transaction.networkId ? sideConfig.networkId : hostConfig.networkId
       const accountsAddresses = [transaction.senderAddress.toLowerCase()]
       if (transaction.senderAddress.toLowerCase() !== transaction.receiverAddress.toLowerCase()) {
         accountsAddresses.push(transaction.receiverAddress.toLowerCase())
@@ -31,7 +37,7 @@ export class TransactionService {
       this.saveTransaction(newTransaction)
     })
     await Promise.all(migratedTransactions)
-    const storageKey = TXN_Storage.createStorageKey(accountAddress, networkName)
+    const storageKey = TXN_Storage.createStorageKey(accountAddress, hostConfig.localStorageName)
     const itemsToSave = TXN_Storage.Storage.getItem(storageKey)
     if (itemsToSave) {
       TXN_Storage.Storage.setItem(`${storageKey}_deprecated`, itemsToSave)
@@ -46,10 +52,10 @@ export class TransactionService {
     const fixedTransactionStructure = JSON.parse(JSON.stringify(transaction))
     try {
       const transactionSaved = await dbInstance.transactions.put(fixedTransactionStructure)
-      if (!transactionSaved || !transactionSaved.transactionHash) {
+      if (!transactionSaved || transactionSaved !== transaction.transactionHash) {
         return {}
       }
-      return transactionSaved
+      return transaction
     } catch (error) {
       console.error('Failed on save transaction', transaction)
       console.error(error.message)
@@ -58,7 +64,7 @@ export class TransactionService {
   }
 
   async getTransactions(accountAddress, networkIds, tokenTypes, { limit, offset }) {
-    const transactionIncludeAddress = (transaction, accountAddress) => {
+    const transactionIncludeAddress = transaction => {
       const addressLowerCase = accountAddress.toLowerCase()
       if (Array.isArray(transaction.accountsAddresses)) {
         return transaction.accountsAddresses.includes(addressLowerCase)
@@ -74,18 +80,21 @@ export class TransactionService {
     const totalTransactions = await dbInstance.transactions
       .where('networkId')
       .anyOf(networkIds)
-      .and(transaction => transactionIncludeAddress(transaction, accountAddress))
+      // Should be enable for display transactions that respect the origin and destination selected
+      .and(transaction => networkIds.includes(transaction.destinationChainId))
+      .and(transaction => transactionIncludeAddress(transaction))
       .and(transaction => tokenTypes.includes(transaction.tokenType))
       .count()
 
     const data = await dbInstance.transactions
       .where('networkId')
       .anyOf(networkIds)
-      .and(transaction => transactionIncludeAddress(transaction, accountAddress))
+      // Should be enable for display transactions that respect the origin and destination selected
+      .and(transaction => networkIds.includes(transaction.destinationChainId))
+      .and(transaction => transactionIncludeAddress(transaction))
       .and(transaction => tokenTypes.includes(transaction.tokenType))
       .reverse()
       .sortBy('timestamp')
-
     return {
       info: {
         total: totalTransactions,

@@ -5,25 +5,10 @@ import Web3 from 'web3'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 
-import { getRskNetworkConf, getSideNetworkConf } from '@/constants/networks.js'
+import { getNetworksAvailable, getNetworksConf } from '@/constants/networks.js'
 
 import { ALL_RPC } from '@/constants/rpc.js'
-
-const rskConfig = getRskNetworkConf()
-const sideChainConfig = getSideNetworkConf()
-
-const rLogin = new RLogin({
-  cachedProvider: false,
-  providerOptions: {
-    walletconnect: {
-      package: WalletConnectProvider,
-      options: {
-        rpc: ALL_RPC,
-      },
-    },
-  },
-  supportedChains: [rskConfig.networkId, sideChainConfig.networkId],
-})
+import { convertToNumber } from '@/utils/text-helpers'
 
 export const store = {
   state: reactive({
@@ -31,16 +16,18 @@ export const store = {
     provider: null,
     dataVault: null,
     disconnect: null,
-    rLogin: rLogin,
+    // rLogin: rLogin,
     isConnected: false,
     accountAddress: '',
     currentConfig: null,
     chainId: null,
-    rskWeb3: new Web3(rskConfig.rpc),
-    sideWeb3: new Web3(sideChainConfig.rpc),
-    rskConfig: rskConfig,
-    sideConfig: sideChainConfig,
+    rskWeb3: null,
+    sideWeb3: null,
+    rskConfig: null,
+    sideConfig: null,
     connectionError: '',
+    networksAvailable: [],
+    preSettingsEnabled: false,
   }),
   accountsChanged(accounts) {
     if (accounts.length === 0) {
@@ -49,21 +36,42 @@ export const store = {
     }
     store.state.accountAddress = accounts[0]
   },
-  async chainChanged(chainId) {
+  async initMainSettings(chainId, rskConfig, sideConfig) {
     const state = store.state
-    state.chainId = parseInt(chainId)
+    state.chainId = chainId
+    state.rskConfig = rskConfig
+    state.sideConfig = sideConfig
+    state.rskWeb3 = new Web3(rskConfig.rpc)
+    state.sideWeb3 = new Web3(sideConfig.rpc)
+    state.isConnected = true
+    state.preSettingsEnabled = false
     if (rskConfig.networkId == chainId) {
       state.currentConfig = state.rskConfig
-    } else if (sideChainConfig.networkId == chainId) {
+    } else if (sideConfig.networkId == chainId) {
       state.currentConfig = state.sideConfig
     } else {
       state.isConnected = false
-      state.connectionError = `Unknown network, should be ${rskConfig.name} or ${sideChainConfig.name} networks`
+      state.connectionError = `Unknown network, should be ${rskConfig.name} or ${sideConfig.name} networks`
       return
     }
     if (state.web3) {
       const accounts = await state.web3.eth.getAccounts()
       store.accountsChanged(accounts)
+    }
+  },
+  async chainChanged(chainId) {
+    const state = store.state
+    state.preSettingsEnabled = false
+    state.networksAvailable = []
+    const parsedChainId = convertToNumber(chainId)
+    const { rskConfig, sideConfig, networks } = getNetworksConf(parsedChainId, state.chainId)
+    state.rskConfig = rskConfig
+    state.sideConfig = sideConfig
+    if (rskConfig && sideConfig && !networks) {
+      await store.initMainSettings(parsedChainId, rskConfig, sideConfig)
+    } else if (networks.length > 1) {
+      state.preSettingsEnabled = true
+      state.networksAvailable = networks
     }
   },
   handleDisconnect() {
@@ -77,10 +85,26 @@ export const store = {
     state.web3 = null
     state.currentConfig = null
   },
+  getRLogin() {
+    const supportedChains = [...new Set(getNetworksAvailable().map(network => network.networkId))]
+    return new RLogin({
+      cachedProvider: false,
+      providerOptions: {
+        walletconnect: {
+          package: WalletConnectProvider,
+          options: {
+            rpc: ALL_RPC,
+          },
+        },
+      },
+      supportedChains,
+    })
+  },
   handleLogin() {
     const state = store.state
     state.connectionError = ''
-    return rLogin
+    const rLoginInstance = store.getRLogin()
+    return rLoginInstance
       .connect()
       .then(async function(rLoginResponse) {
         state.provider = rLoginResponse.provider
@@ -91,8 +115,14 @@ export const store = {
         const chainId = await state.web3.eth.net.getId()
         store.chainChanged(chainId)
         state.isConnected = true
-        state.provider.on('chainChanged', store.chainChanged)
-        state.provider.on('accountsChanged', store.accountsChanged)
+        state.provider.on('chainChanged', (...params) => {
+          store.isConnected = false
+          store.chainChanged(...params)
+        })
+        state.provider.on('accountsChanged', (...params) => {
+          store.isConnected = false
+          store.accountsChanged(...params)
+        })
       })
       .catch(function(err) {
         console.error(err)
