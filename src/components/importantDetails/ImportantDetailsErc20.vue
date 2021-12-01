@@ -1,5 +1,5 @@
 <template>
-  <div class="important-details mt-5 mb-5">
+  <div v-if="sharedState.isConnected" class="important-details mt-5 mb-5">
     <h2 id="important-details" class="subtitle">Important details</h2>
     <table class="table">
       <thead>

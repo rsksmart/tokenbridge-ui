@@ -45,16 +45,24 @@ class ERC20TokenTransaction extends Transaction {
     })
   }
 
-  receiveTokensTo({ tokenToUse, to, amount }, transactionObject) {
+  async receiveTokensTo({ tokenToUse, to, amount }, transactionObject) {
+    const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
     return new Promise((resolve, reject) => {
-      const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
       bridgeContract.methods
         .receiveTokensTo(tokenToUse, to, amount)
         .send(transactionObject, this.callback({ resolve, reject }))
     })
   }
 
-  async saveTransaction(receipt, token, amount, receiveAmount, senderAddress, receiverAddress) {
+  async saveTransaction(
+    receipt,
+    token,
+    amount,
+    receiveAmount,
+    senderAddress,
+    receiverAddress,
+    timestamp = Date.now(),
+  ) {
     const transactionBody = {
       type: 'Cross',
       networkId: this.config.networkId,
@@ -64,9 +72,10 @@ class ERC20TokenTransaction extends Transaction {
       receiveAmount,
       senderAddress,
       receiverAddress,
-      timestamp: Date.now(),
+      timestamp,
       accountsAddresses: [senderAddress.toLowerCase()],
       tokenType: TOKEN_TYPE_ERC_20,
+      destinationChainId: this.config.crossToNetwork.networkId,
       ...receipt,
     }
     if (senderAddress.toLowerCase() !== receiverAddress.toLowerCase()) {

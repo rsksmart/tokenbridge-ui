@@ -10,7 +10,7 @@ import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
 import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
-import { TOKEN_WBTC_INFO } from '@/constants/tokensInfo'
+import { findNetworkByChainId } from '@/constants/networks'
 import ClaimWRBTCModal from '../modals/ClaimWRBTCModal'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
@@ -78,12 +78,10 @@ export default {
   },
   computed: {
     fromNetwork() {
-      return this.transaction.networkId === this.sharedState.rskConfig.networkId
-        ? this.sharedState.rskConfig
-        : this.sharedState.sideConfig
+      return findNetworkByChainId(this.transaction.networkId, this.transaction.destinationChainId)
     },
     toNetwork() {
-      return this.fromNetwork.crossToNetwork
+      return findNetworkByChainId(this.transaction.destinationChainId, this.transaction.networkId)
     },
     web3() {
       return this.toNetwork.isRsk ? this.sharedState.rskWeb3 : this.sharedState.sideWeb3
@@ -141,6 +139,9 @@ export default {
         return false
       }
       const limits = this.typesLimits[this.token.typeId]
+      if (!limits) {
+        return false
+      }
       const confirmations = this.fromNetwork.isRsk ? this.rskConfirmations : this.sideConfirmations
       let amount = this.transaction.amount
       if (!amount) {
@@ -324,22 +325,16 @@ export default {
       }
     },
     async claimWBTC() {
-      if (this.transaction.tokenFrom === TOKEN_WBTC_INFO.token) {
-        this.$modal.value.showModal({
-          type: 'custom',
-          options: {
-            customModalComponent: ClaimWRBTCModal,
-            modalProps: {
-              receiver: this.transaction.receiverAddress,
-              amount: this.transaction.amount,
-              amountToken: this.transaction.tokenFrom,
-              receiveAmount: this.transaction.receiveAmount,
-              receiveAmountToken: this.transaction.tokenTo,
-            },
-            size: 'medium',
+      this.$modal.value.showModal({
+        type: 'custom',
+        options: {
+          customModalComponent: ClaimWRBTCModal,
+          modalProps: {
+            transaction: this.transaction,
           },
-        })
-      }
+          size: 'medium',
+        },
+      })
     },
     async claimClick() {
       const data = this

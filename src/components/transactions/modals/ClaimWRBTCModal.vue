@@ -12,7 +12,7 @@
             type="text"
             readonly
             class="form-control-plaintext"
-            :value="transaction.receiver"
+            :value="transaction.receiverAddress"
           />
         </div>
       </div>
@@ -61,7 +61,13 @@
       <div class="form-group row">
         <div class="col-sm-2 d-flex align-items-center">Amount</div>
         <div class="col-sm-10">
-          <input id="amount" type="text" readonly class="form-control-plaintext" :value="amountValue" />
+          <input
+            id="amount"
+            type="text"
+            readonly
+            class="form-control-plaintext"
+            :value="amountValue"
+          />
         </div>
       </div>
       <div class="form-group row">
@@ -85,6 +91,8 @@
 </template>
 
 <script>
+import { store } from '@/store'
+
 export default {
   name: 'ClaimWRBTCModal',
   props: {
@@ -95,6 +103,7 @@ export default {
   },
   data() {
     return {
+      sharedState: store.state,
       claimTypes: {
         STANDARD: 'standard',
         PAY_WITH_TOKENS: 'payWithTokens',
@@ -154,68 +163,46 @@ export default {
     handleCancelAction() {
       this.$parent.handleCloseModal()
     },
-    signWithMetamask() {
+    async signWithMetamask() {
       const msgObject = {
         domain: {
-          chainId: this.transaction.networkId, // I will need the destination network id
-          // Give a user friendly name to the specific contract you are signing for.
-          name: 'Ether Mail',
-          // If name isn't enough add verifying contract to make sure you are establishing contracts with the proper entity
-          verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-          // Just let's you know the latest version. Definitely make sure the field name is correct.
+          chainId: this.transaction.destinationChainId,
+          name: 'RSK Token Bridge',
+          verifyingContract: this.sharedState.currentConfig.bridge,
           version: '1',
         },
-        // Defining the message signing data content.
         message: {
-          /*
-           - Anything you want. Just a JSON Blob that encodes the data you want to send
-           - No required fields
-           - This is DApp Specific
-           - Be as explicit as possible when building out the message schema.
-          */
-          contents: '',
-          attachedMoneyInEth: 4.2,
-          from: {
-            name: '',
-            wallets: [this.transaction.senderAddress],
-          },
-          to: [
-            {
-              name: '',
-              wallets: [this.transaction.receiverAddress],
-            },
-          ],
+          to: this.transaction.receiverAddress,
+          amount: this.transaction.amount,
+          transactionHash: this.transaction.transactionHash,
+          originChainId: this.transaction.networkId,
+          relayer: '0x94566B8161847D209e3CDC104b5B35B89cd34811',
+          fee: '',
+          nonce: '',
+          deadline: '',
         },
-        primaryType: 'Mail',
+        primaryType: 'Claim',
         types: {
-          // TODO: Clarify if EIP712Domain refers to the domain the contract is hosted on
-          EIP712Domain: [
-            { name: 'name', type: 'string' },
-            { name: 'version', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
-          ],
-          // Not an EIP712Domain definition
-          Group: [
-            { name: 'name', type: 'string' },
-            { name: 'members', type: 'Person[]' },
-          ],
-          // Refer to PrimaryType
-          Mail: [
-            { name: 'from', type: 'Person' },
-            { name: 'to', type: 'Person[]' },
-            { name: 'contents', type: 'string' },
-          ],
-          // Not an EIP712Domain definition
-          Person: [
-            { name: 'name', type: 'string' },
-            { name: 'wallets', type: 'address[]' },
+          Claim: [
+            { name: 'to', type: 'address' },
+            { name: 'amount', type: 'uint256' },
+            { name: 'transactionHash', type: 'bytes32' },
+            { name: 'originChainId', type: 'uint256' },
+            { name: 'relayer', type: 'address' },
+            { name: 'fee', type: 'uint256' },
+            { name: 'nonce', type: 'uint256' },
+            { name: 'deadline', type: 'uint256' },
           ],
         },
       }
     },
     async handleClaimAction() {
       try {
+        const signedData = await this.signWithMetamask()
+        console.log('Signed Data', signedData)
+        if (!signedData) {
+          return null
+        }
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
           method: 'POST',
           body: JSON.stringify({
@@ -229,9 +216,9 @@ export default {
             },
             deadline: '', // ?
             relayerAddress: '', // env or network setting
-            v: '', // ?
-            r: '', // ?
-            s: '', // ?
+            v: signedData.v,
+            r: signedData.r,
+            s: signedData.s,
             estimatedGasFee: {
               amount: '',
               unitType: '',
@@ -239,7 +226,7 @@ export default {
           }),
         })
         const responseObject = await response.json()
-        this.signWithMetamask(responseObject)
+
         this.$parent.handleCloseModal()
       } catch (responseError) {
         console.error(responseError)
