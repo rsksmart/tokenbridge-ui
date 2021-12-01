@@ -1,6 +1,6 @@
 <template>
   <div class="title">
-    <div div class="bridge-info">
+    <div v-if="sharedState.isConnected" class="bridge-info">
       <h1 id="title">
         {{ sharedState.rskConfig.name }} bridge with {{ sharedState.sideConfig.name }}
       </h1>
