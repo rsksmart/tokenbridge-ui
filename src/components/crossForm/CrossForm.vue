@@ -619,7 +619,7 @@ export default {
     setClaimCost() {
       const { currentConfig: { isRsk } = {} } = this.sharedState
       const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
-      const networkConf = isRsk ? this.sharedState.rskConfig : this.sharedState.sideConfig
+      const networkConf = isRsk ? this.sharedState.sideConfig : this.sharedState.rskConfig
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG)
           .multipliedBy(gasPrice)
