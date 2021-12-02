@@ -11,6 +11,7 @@ import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC2
 import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
 import { findNetworkByChainId } from '@/constants/networks'
+import WrongNetwork from '@/components/transactions/modals/WrongNetwork'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -19,7 +20,7 @@ export default {
     Modal,
     VotingInfo,
   },
-  inject: ['$services'],
+  inject: ['$services', '$modal'],
   props: {
     transaction: {
       type: Object,
@@ -331,8 +332,13 @@ export default {
         return
       }
       if (sharedState.currentConfig.networkId !== this.toNetwork.networkId) {
-        data.connectionProblem = `Wrong network. To claim this tokens you need to connect your wallet to ${data.toNetwork.name}`
-        data.showConnectionProblemModal = true
+        this.$modal.value.showModal({
+          type: 'custom',
+          options: {
+            customModalComponent: WrongNetwork,
+            modalProps: { networkConfig: this.toNetwork },
+          },
+        })
         return
       }
       if (
