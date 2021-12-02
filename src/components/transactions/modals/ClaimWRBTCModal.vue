@@ -94,6 +94,7 @@
 import { store } from '@/store'
 import { CLAIM_TYPES } from '@/constants/claimTypes'
 import BigNumber from 'bignumber.js'
+import moment from "moment";
 
 export default {
   name: 'ClaimWRBTCModal',
@@ -178,8 +179,10 @@ export default {
           originChainId: this.transaction.networkId,
           relayer: '0x3cbec7a3ffed4153cb3610a08057264d87d7018b',
           fee: this.transaction.amount,
-          nonce: '',
-          deadline: '',
+          nonce: '0',
+          deadline: moment()
+            .add(3, 'days')
+            .unix(),
         },
         primaryType: 'Claim',
         types: {
@@ -195,24 +198,25 @@ export default {
           ],
         },
       }
-
-      console.log('msgObject', msgObject)
       const params = [this.sharedState.accountAddress, JSON.stringify(msgObject)]
-      // const method = 'eth_signTypedData'
-      console.log(this.sharedState.rskWeb3)
-      this.sharedState.rskWeb3.eth.sign(
-        JSON.stringify(msgObject),
-        this.sharedState.accountAddress,
+
+      this.sharedState.rskWeb3.currentProvider.send(
+        {
+          jsonrpc: '2.0',
+          method: 'eth_signTypedData_v4',
+          id: 0,
+          params,
+        },
         (error, result) => {
           if (error) {
             console.dir(error)
           }
           if (result?.error) {
-            console.error(result.error)
+            console.error('result Error', result?.error)
           }
-          console.log(JSON.stringify(result.result))
+          console.log('Result.result', JSON.stringify(result?.result))
 
-          console.log(result)
+          console.log('Result', result)
         },
       )
     },
