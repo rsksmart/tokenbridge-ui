@@ -92,6 +92,8 @@
 
 <script>
 import { store } from '@/store'
+import { CLAIM_TYPES } from '@/constants/claimTypes'
+import BigNumber from 'bignumber.js'
 
 export default {
   name: 'ClaimWRBTCModal',
@@ -104,12 +106,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      claimTypes: {
-        STANDARD: 'standard',
-        PAY_WITH_TOKENS: 'payWithTokens',
-        CONVERT_TO_RBTC: 'convertToRBTC',
-      },
-      claimType: 'standard',
+      claimType: CLAIM_TYPES.STANDARD,
       receiveAmount: '',
       receiveAmountToken: '',
       amount: '',
@@ -123,6 +120,9 @@ export default {
     receiveAmountValue() {
       return `${this.receiveAmount} ${this.receiveAmountToken}`
     },
+    claimTypes() {
+      return CLAIM_TYPES
+    },
   },
   mounted() {
     this.handleChangeClaimType({ target: { value: this.claimTypes.STANDARD } })
@@ -132,7 +132,7 @@ export default {
       try {
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/estimated-gas`, {
           method: 'POST',
-          body: JSON.stringify({ amount: '', unitType: 'wei' }),
+          body: JSON.stringify({ amount: amount, unitType: 'wei' }),
         })
         const responseObject = await response.json()
 
@@ -145,7 +145,7 @@ export default {
     async handleChangeClaimType($event) {
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
-          this.amount = this.transaction.amount
+          this.amount = new BigNumber(this.transaction.amount).shiftedBy(-18)
           this.receiveAmount = this.transaction.receiveAmount
           break
         }
@@ -163,12 +163,12 @@ export default {
     handleCancelAction() {
       this.$parent.handleCloseModal()
     },
-    async signWithMetamask() {
+    async signWithMetamask(payload, callback) {
       const msgObject = {
         domain: {
           chainId: this.transaction.destinationChainId,
           name: 'RSK Token Bridge',
-          verifyingContract: this.sharedState.currentConfig.bridge,
+          verifyingContract: this.sharedState.currentConfig.bridge.toLowerCase(),
           version: '1',
         },
         message: {
@@ -176,8 +176,8 @@ export default {
           amount: this.transaction.amount,
           transactionHash: this.transaction.transactionHash,
           originChainId: this.transaction.networkId,
-          relayer: '0x94566B8161847D209e3CDC104b5B35B89cd34811',
-          fee: '',
+          relayer: '0x3cbec7a3ffed4153cb3610a08057264d87d7018b',
+          fee: this.transaction.amount,
           nonce: '',
           deadline: '',
         },
@@ -195,8 +195,31 @@ export default {
           ],
         },
       }
+
+      console.log('msgObject', msgObject)
+      const params = [this.sharedState.accountAddress, JSON.stringify(msgObject)]
+      // const method = 'eth_signTypedData'
+      console.log(this.sharedState.rskWeb3)
+      this.sharedState.rskWeb3.eth.sign(
+        JSON.stringify(msgObject),
+        this.sharedState.accountAddress,
+        (error, result) => {
+          if (error) {
+            console.dir(error)
+          }
+          if (result?.error) {
+            console.error(result.error)
+          }
+          console.log(JSON.stringify(result.result))
+
+          console.log(result)
+        },
+      )
     },
-    async handleClaimAction() {
+    async callStandardType() {
+      // Call standard Type
+    },
+    async callSwapToRBTC() {
       try {
         const signedData = await this.signWithMetamask()
         console.log('Signed Data', signedData)
@@ -230,6 +253,21 @@ export default {
         this.$parent.handleCloseModal()
       } catch (responseError) {
         console.error(responseError)
+      }
+    },
+    async handleClaimAction() {
+      switch (this.claimType) {
+        case CLAIM_TYPES.STANDARD:
+          await this.callStandardType()
+          break
+        case CLAIM_TYPES.CONVERT_TO_RBTC:
+          await this.callSwapToRBTC()
+          break
+        case CLAIM_TYPES.PAY_WITH_TOKENS:
+          await this.callStandardType()
+          break
+        default:
+          break
       }
     },
   },

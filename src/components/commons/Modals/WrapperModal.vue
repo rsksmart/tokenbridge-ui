@@ -14,7 +14,7 @@
 
 <script>
 import ErrorModal from '@/components/commons/Modals/ErrorModal'
-import { markRaw, shallowRef } from 'vue'
+import { shallowRef } from 'vue'
 import SuccessModal from '@/components/commons/Modals/SuccessModal'
 
 export default {
