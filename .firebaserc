@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "tokenbridge-ui"
-  }
+    "default": "tokenbridge-ui",
+    "development": "tokenbridge-ui-330504"
+  },
+  "targets": {}
 }
