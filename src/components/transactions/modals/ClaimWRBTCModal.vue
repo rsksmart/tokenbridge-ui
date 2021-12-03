@@ -82,6 +82,7 @@
           />
         </div>
       </div>
+      <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
       <div class="d-flex justify-content-center">
         <button class="btn btn-primary mx-4" @click="handleClaimAction">OK</button>
         <button class="btn btn-danger mx-4" @click="handleCancelAction">Cancel</button>
@@ -94,7 +95,8 @@
 import { store } from '@/store'
 import { CLAIM_TYPES } from '@/constants/claimTypes'
 import BigNumber from 'bignumber.js'
-import moment from "moment";
+import moment from 'moment'
+import BRIDGE_ABI from '@/constants/abis/bridge.json'
 
 export default {
   name: 'ClaimWRBTCModal',
@@ -112,6 +114,8 @@ export default {
       receiveAmountToken: '',
       amount: '',
       amountToken: '',
+      errorMessage: '',
+      responseEstimatedGas: {},
     }
   },
   computed: {
@@ -133,27 +137,29 @@ export default {
       try {
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/estimated-gas`, {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({ amount: amount, unitType: 'wei' }),
         })
-        const responseObject = await response.json()
-
-        console.log(responseObject)
-        return this.amount
+        return response.json()
       } catch (requestError) {
-        console.error(requestError)
+        this.errorMessage = requestError.message
       }
     },
     async handleChangeClaimType($event) {
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
-          this.amount = new BigNumber(this.transaction.amount).shiftedBy(-18)
+          this.amount = new BigNumber(this.transaction.amount).shiftedBy(-8).toString()
           this.receiveAmount = this.transaction.receiveAmount
           break
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
-          const estimatedGasPrice = await this.getEstimatedGasPrice(this.amount)
-          console.log(estimatedGasPrice)
-          //this.estimatedAmount = estimatedGasPrice
+          this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amount)
+          const estimatedGas = new BigNumber(this.responseEstimatedGas?.amountEstimatedGas)
+            .shiftedBy(-8)
+            .toString()
+          this.receiveAmount = new BigNumber(this.amount).minus(estimatedGas).toString()
           break
         }
         default: {
@@ -164,8 +170,8 @@ export default {
     handleCancelAction() {
       this.$parent.handleCloseModal()
     },
-    async signWithMetamask(payload, callback) {
-      const msgObject = {
+    getDataTypeObject(nonce) {
+      return {
         domain: {
           chainId: this.transaction.destinationChainId,
           name: 'RSK Token Bridge',
@@ -177,9 +183,9 @@ export default {
           amount: this.transaction.amount,
           transactionHash: this.transaction.transactionHash,
           originChainId: this.transaction.networkId,
-          relayer: '0x3cbec7a3ffed4153cb3610a08057264d87d7018b',
+          relayer: this.sharedState.currentConfig.relayer,
           fee: this.transaction.amount,
-          nonce: '0',
+          nonce: parseInt(nonce, 10) + 1,
           deadline: moment()
             .add(3, 'days')
             .unix(),
@@ -198,27 +204,49 @@ export default {
           ],
         },
       }
-      const params = [this.sharedState.accountAddress, JSON.stringify(msgObject)]
+    },
+    getSignedData(params) {
+      return new Promise((resolve, reject) => {
+        this.sharedState.web3.currentProvider.sendAsync(
+          {
+            method: 'eth_signTypedData_v4',
+            params,
+            from: this.sharedState.accountAddress,
+          },
+          (error, result) => {
+            if (error) {
+              reject(error)
+            }
+            if (result?.error) {
+              reject('result Error', result?.error)
+            }
+            if (!result?.result) {
+              reject(new Error('Empty o undefined result'))
+            }
+            const signature = result.result.substring(2)
+            const r = `0x${signature.substring(0, 64)}`
+            const s = `0x${signature.substring(64, 128)}`
+            const v = parseInt(signature.substring(128, 130), 16)
 
-      this.sharedState.rskWeb3.currentProvider.send(
-        {
-          jsonrpc: '2.0',
-          method: 'eth_signTypedData_v4',
-          id: 0,
-          params,
-        },
-        (error, result) => {
-          if (error) {
-            console.dir(error)
-          }
-          if (result?.error) {
-            console.error('result Error', result?.error)
-          }
-          console.log('Result.result', JSON.stringify(result?.result))
-
-          console.log('Result', result)
-        },
+            resolve({ r, s, v })
+          },
+        )
+      })
+    },
+    async signWithMetamask() {
+      const contract = new this.sharedState.web3.eth.Contract(
+        BRIDGE_ABI,
+        this.sharedState.currentConfig.bridge,
       )
+      try {
+        const nonce = await contract.methods.nonces(this.sharedState.accountAddress).call()
+        const msgObject = this.getDataTypeObject(nonce)
+        const params = [this.sharedState.accountAddress, JSON.stringify(msgObject)]
+        const signedData = await this.getSignedData(params)
+        return { ...signedData, nonce }
+      } catch (error) {
+        this.errorMessage = error.message
+      }
     },
     async callStandardType() {
       // Call standard Type
@@ -226,37 +254,38 @@ export default {
     async callSwapToRBTC() {
       try {
         const signedData = await this.signWithMetamask()
-        console.log('Signed Data', signedData)
         if (!signedData) {
           return null
         }
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             claimData: {
               toAddress: this.transaction.receiverAddress,
               amount: this.transaction.amount,
               blockHash: this.transaction.blockHash,
               transactionHash: this.transaction.transactionHash,
-              logIndex: '', // event index
-              originChainId: this.transaction.networkId, // number or hex
+              logIndex: parseInt(signedData.nonce, 10) + 1,
+              originChainId: this.transaction.networkId,
             },
-            deadline: '', // ?
-            relayerAddress: '', // env or network setting
+            deadline: moment()
+              .add(3, 'days')
+              .unix(),
+            relayerAddress: this.sharedState.currentConfig.relayer, // env or network setting
             v: signedData.v,
             r: signedData.r,
             s: signedData.s,
-            estimatedGasFee: {
-              amount: '',
-              unitType: '',
-            },
+            estimatedGasFee: this.responseEstimatedGas,
           }),
         })
         const responseObject = await response.json()
-
+        console.log('Response object: ', responseObject)
         this.$parent.handleCloseModal()
       } catch (responseError) {
-        console.error(responseError)
+        this.errorMessage = responseError.message
       }
     },
     async handleClaimAction() {
