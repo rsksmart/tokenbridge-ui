@@ -7,14 +7,14 @@
       <button type="button" class="close mr-2" aria-label="Close" @click="handleCloseModal">
         <span aria-hidden="true">&times;</span>
       </button>
-      <component :is="currentModal" v-bind="modalProps" @close-modal="handleCloseModal"></component>
+      <component :is="currentModal" @close-modal="handleCloseModal"></component>
     </div>
   </div>
 </template>
 
 <script>
 import ErrorModal from '@/components/commons/Modals/ErrorModal'
-import { shallowRef } from 'vue'
+import { shallowRef, h } from 'vue'
 import SuccessModal from '@/components/commons/Modals/SuccessModal'
 
 export default {
@@ -52,13 +52,19 @@ export default {
         showCloseIcon: true,
         closeUsingKey: false,
         modalProps: {},
+        modalEvents: {},
         size: 'small',
       },
     }) {
       if (!this.isModalVisible) {
         this.modalType = type
         if (type === 'custom' && options.customModalComponent) {
-          this.customModalComponent = shallowRef(options.customModalComponent)
+          this.customModalComponent = h(options.customModalComponent, {
+            ...options.modalProps,
+            on: { ...options.modalEvents },
+          })
+          console.log('CMC', this.customModalComponent)
+          // this.customModalComponent = shallowRef(options.customModalComponent)
         }
         this.modalProps = options.modalProps
         this.modalSize = options.size

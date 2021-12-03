@@ -95,7 +95,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   explorer: 'https://explorer.testnet.rsk.co',
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
-  rpc: 'http://localhost:9090/https://public-node.testnet.rsk.co',
+  rpc: 'https://public-node.testnet.rsk.co',
   v2UpdateBlock: 1945524,
   feePercentageDivider: 10_000,
   crossToNetwork: TEST_NET_KOVAN_CONFIG,

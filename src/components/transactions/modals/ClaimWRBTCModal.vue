@@ -106,6 +106,7 @@ export default {
       required: true,
     },
   },
+  emits: ['onCloseClaimModal'],
   data() {
     return {
       sharedState: store.state,
@@ -249,7 +250,7 @@ export default {
       }
     },
     async callStandardType() {
-      // Call standard Type
+      await this.$attrs.on.onCloseClaimModal(CLAIM_TYPES.STANDARD)
     },
     async callSwapToRBTC() {
       try {
@@ -282,13 +283,14 @@ export default {
           }),
         })
         const responseObject = await response.json()
-        console.log('Response object: ', responseObject)
+        await this.$attrs.on.onCloseClaimModal(CLAIM_TYPES.CONVERT_TO_RBTC, responseObject)
         this.$parent.handleCloseModal()
       } catch (responseError) {
         this.errorMessage = responseError.message
       }
     },
     async handleClaimAction() {
+      this.errorMessage = ''
       switch (this.claimType) {
         case CLAIM_TYPES.STANDARD:
           await this.callStandardType()

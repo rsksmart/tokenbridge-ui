@@ -12,6 +12,7 @@ import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC72
 import { decodeCrossEvent } from '@/utils/decodeEvents'
 import { findNetworkByChainId } from '@/constants/networks'
 import ClaimWRBTCModal from '../modals/ClaimWRBTCModal'
+import { CLAIM_TYPES } from '@/constants/claimTypes'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -324,6 +325,32 @@ export default {
         console.error(error)
       }
     },
+    async updateRBTTransaction({ transactionHash }) {
+      await this.$services.TransactionService.saveTransaction({
+        ...this.transaction,
+        currentStep: CROSSING_STEPS.Processing,
+      })
+      this.$modal.value.showModal({
+        type: 'success',
+        options: {
+          modalProps: {
+            message: `Claimed transaction ${this.sharedState.currentConfig.explorer}/tx/${transactionHash}`,
+          },
+        },
+      })
+    },
+    async onCloseClaimModal(claimType, ...params) {
+      switch (claimType) {
+        case CLAIM_TYPES.STANDARD:
+          await this.claim()
+          break
+        case CLAIM_TYPES.CONVERT_TO_RBTC:
+          await this.updateRBTTransaction(...params)
+          break
+        default:
+          break
+      }
+    },
     async claimWBTC() {
       this.$modal.value.showModal({
         type: 'custom',
@@ -331,6 +358,9 @@ export default {
           customModalComponent: ClaimWRBTCModal,
           modalProps: {
             transaction: this.transaction,
+          },
+          modalEvents: {
+            onCloseClaimModal: this.onCloseClaimModal,
           },
           size: 'medium',
         },
