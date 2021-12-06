@@ -334,7 +334,7 @@ export default {
         type: 'success',
         options: {
           modalProps: {
-            message: `Claimed transaction ${this.sharedState.currentConfig.explorer}/tx/${transactionHash}`,
+            message: `Claimed transaction <a href="${this.sharedState.currentConfig.explorer}/tx/${transactionHash}">see the transaction</a>`,
           },
         },
       })
