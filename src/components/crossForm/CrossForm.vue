@@ -347,7 +347,7 @@ export default {
       }
     },
     accountConnected() {
-      return `${this.sharedState.chainId} ${this.sharedState.accountAddress} ${this.sharedState.sideConfig.networkId}`
+      return `${this.sharedState.chainId} ${this.sharedState.accountAddress} ${this.sharedState.sideConfig?.networkId}`
     },
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
@@ -617,7 +617,10 @@ export default {
       return true
     },
     setClaimCost() {
-      const { currentConfig: { isRsk } = {} } = this.sharedState
+      if (!this.sharedState.currentConfig) {
+        return
+      }
+      const { isRsk } = this.sharedState?.currentConfig || {}
       const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
       const networkConf = isRsk ? this.sharedState.sideConfig : this.sharedState.rskConfig
       web3.eth.getGasPrice().then(gasPrice => {
