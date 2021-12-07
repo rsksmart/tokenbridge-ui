@@ -1,12 +1,12 @@
 <template>
-  <div v-if="sharedState.isConnected" class="important-details mt-5 mb-5">
+  <div class="important-details mt-5 mb-5">
     <h2 id="important-details" class="subtitle">Important details</h2>
     <table class="table">
       <thead>
         <tr>
           <th scope="col"></th>
-          <th scope="col">{{ sharedState.rskConfig.name }}</th>
-          <th scope="col">{{ sharedState.sideConfig.name }}</th>
+          <th scope="col">{{ sharedState.rskConfig?.name }}</th>
+          <th scope="col">{{ sharedState.sideConfig?.name }}</th>
         </tr>
       </thead>
       <tbody>
@@ -17,8 +17,8 @@
         </tr>
         <tr>
           <th scope="row">Avarage seconds per block</th>
-          <td>~ {{ sharedState.rskConfig.secondsPerBlock }} seconds</td>
-          <td>~ {{ sharedState.sideConfig.secondsPerBlock }} seconds</td>
+          <td>~ {{ sharedState.rskConfig?.secondsPerBlock }} seconds</td>
+          <td>~ {{ sharedState.sideConfig?.secondsPerBlock }} seconds</td>
         </tr>
         <tr>
           <th scope="row">Confirmations needed for small amounts</th>
