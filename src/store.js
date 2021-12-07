@@ -72,6 +72,7 @@ export const store = {
     } else if (networks.length > 1) {
       state.preSettingsEnabled = true
       state.networksAvailable = networks
+      await store.initMainSettings(parsedChainId, rskConfig, sideConfig)
     }
   },
   handleDisconnect() {
