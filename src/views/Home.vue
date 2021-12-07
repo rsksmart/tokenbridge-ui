@@ -2,57 +2,51 @@
   <div>
     <section id="home">
       <div class="container">
-        <template v-if="!isConnected">
-          <MultiChain />
-        </template>
-        <template v-if="isConnected">
-          <Title />
-          <FormWrapper
-            :types-limits="typesLimits"
-            :rsk-fee="rskFee"
-            :side-fee="sideFee"
-            :rsk-confirmations="rskConfirmations"
-            :side-confirmations="sideConfirmations"
-            @new-transaction="newTransaction = $event"
-          />
+        <Title />
+        <FormWrapper
+          :types-limits="typesLimits"
+          :rsk-fee="rskFee"
+          :side-fee="sideFee"
+          :rsk-confirmations="rskConfirmations"
+          :side-confirmations="sideConfirmations"
+          @new-transaction="newTransaction = $event"
+        />
 
-          <Transactions
-            v-if="isLoadedAllInfo"
-            :types-limits="typesLimits"
-            :rsk-confirmations="rskConfirmations"
-            :side-confirmations="sideConfirmations"
-            :rsk-fed-members="rskFedMembers"
-            :side-fed-members="sideFedMembers"
-            :new-transaction="newTransaction"
-          />
+        <Transactions
+          :types-limits="typesLimits"
+          :rsk-confirmations="rskConfirmations"
+          :side-confirmations="sideConfirmations"
+          :rsk-fed-members="rskFedMembers"
+          :side-fed-members="sideFedMembers"
+          :new-transaction="newTransaction"
+        />
 
-          <ImportantDetailsErc20
-            v-if="globalState.currentTokenType === tokenTypeErc20"
-            :rsk-fee="rskFee"
-            :side-fee="sideFee"
-            :rsk-confirmations="rskConfirmations"
-            :side-confirmations="sideConfirmations"
-            :rsk-fed-members="rskFedMembers"
-            :side-fed-members="sideFedMembers"
-          />
-          <ImportantDetailsErc721
-            v-else
-            :rsk-fee-nft="rskFeeNft"
-            :side-fee-nft="sideFeeNft"
-            :rsk-confirmations-nft="rskConfirmationsNft"
-            :side-confirmations-nft="sideConfirmationsNft"
-            :rsk-fed-members="rskFedMembers"
-            :side-fed-members="sideFedMembers"
-          />
+        <ImportantDetailsErc20
+          v-if="globalState.currentTokenType === tokenTypeErc20"
+          :rsk-fee="rskFee"
+          :side-fee="sideFee"
+          :rsk-confirmations="rskConfirmations"
+          :side-confirmations="sideConfirmations"
+          :rsk-fed-members="rskFedMembers"
+          :side-fed-members="sideFedMembers"
+        />
+        <ImportantDetailsErc721
+          v-else
+          :rsk-fee-nft="rskFeeNft"
+          :side-fee-nft="sideFeeNft"
+          :rsk-confirmations-nft="rskConfirmationsNft"
+          :side-confirmations-nft="sideConfirmationsNft"
+          :rsk-fed-members="rskFedMembers"
+          :side-fed-members="sideFedMembers"
+        />
 
-          <TokenList
-            v-if="
-              globalState.currentTokenType === tokenTypeErc20 &&
-                sharedState.rskConfig?.tokens.length > 0
-            "
-            :types-limits="typesLimits"
-          />
-        </template>
+        <TokenList
+          v-if="
+            globalState.currentTokenType === tokenTypeErc20 &&
+              sharedState.rskConfig?.tokens.length > 0
+          "
+          :types-limits="typesLimits"
+        />
       </div>
       <!--- End Tab Content -->
     </section>
@@ -79,7 +73,6 @@ import globalStore from '@/stores/global.store'
 import FormWrapper from '@/components/formWrapper/FormWrapper'
 import HostNetwork from '@/modules/networks/HostNetwork'
 import SideNetwork from '@/modules/networks/SideNetwork'
-import MultiChain from '@/components/multiChain/MultiChain'
 import { isEmpty } from '@/utils/helpers'
 
 export default {
@@ -91,7 +84,6 @@ export default {
     ImportantDetailsErc721,
     TokenList,
     Transactions,
-    MultiChain,
   },
   data() {
     return {
