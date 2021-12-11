@@ -9,6 +9,9 @@ import { getNetworksAvailable, getNetworksConf } from '@/constants/networks.js'
 
 import { ALL_RPC } from '@/constants/rpc.js'
 import { convertToNumber } from '@/utils/text-helpers'
+import SideNetwork from '@/modules/networks/SideNetwork'
+import HostNetwork from '@/modules/networks/HostNetwork'
+import { blocksToTime } from '@/utils'
 
 export const store = {
   state: reactive({
@@ -28,6 +31,19 @@ export const store = {
     connectionError: '',
     networksAvailable: [],
     preSettingsEnabled: false,
+    networkSettings: {
+      typesLimits: [],
+      rskFee: 0,
+      sideFee: 0,
+      rskFeeNft: 0,
+      sideFeeNft: 0,
+      rskConfirmations: {},
+      sideConfirmations: {},
+      rskConfirmationsNft: {},
+      sideConfirmationsNft: {},
+      rskFedMembers: [],
+      sideFedMembers: [],
+    },
   }),
   accountsChanged(accounts) {
     if (accounts.length === 0) {
@@ -35,6 +51,50 @@ export const store = {
         'Nifty Wallet, Liquality or MetaMask is Locked, please unlock it and Reload the page to continue'
     }
     store.state.accountAddress = accounts[0]
+  },
+  async initNetworkSettings() {
+    const rskWeb3 = store.state.rskWeb3
+    const rskConfig = store.state.rskConfig
+    const sideWeb3 = store.state.sideWeb3
+    const sideConfig = store.state.sideConfig
+
+    const sideNetwork = new SideNetwork(sideConfig, sideWeb3)
+    const hostNetwork = new HostNetwork(rskConfig, rskWeb3)
+    const networkSettings = {}
+    networkSettings.rskFee = await hostNetwork.getFeePercentage()
+
+    networkSettings.sideFee = await sideNetwork.getFeePercentage()
+    // We have the premice that the limits will be equal in Side and in RSK
+    // And the tokens wil have the same type on both networks
+    const { limits, confirmations } = await hostNetwork.allowTokensActions()
+    networkSettings.typesLimits = limits
+    networkSettings.rskConfirmations = confirmations
+    networkSettings.rskFedMembers = await hostNetwork.getMembers()
+
+    const { confirmations: sideConfirmations } = await sideNetwork.allowTokensActions()
+    networkSettings.sideConfirmations = sideConfirmations
+
+    networkSettings.sideFedMembers = await sideNetwork.getMembers()
+
+    // NFT
+    if (!rskConfig.nftBridge || !sideConfig.nftBridge) {
+      return
+    }
+    networkSettings.rskFeeNft = await hostNetwork.getFixedFee()
+
+    networkSettings.sideFeeNft = await sideNetwork.getFixedFee()
+
+    const NFT_FIXED_CONFIRMATIONS_BLOCK = 3 // maybe we are going to define it into the nft bridge contract
+
+    networkSettings.rskConfirmationsNft = {
+      confirmations: NFT_FIXED_CONFIRMATIONS_BLOCK,
+      time: blocksToTime(NFT_FIXED_CONFIRMATIONS_BLOCK, rskConfig.secondsPerBlock),
+    }
+    networkSettings.sideConfirmationsNft = {
+      confirmations: NFT_FIXED_CONFIRMATIONS_BLOCK,
+      time: blocksToTime(NFT_FIXED_CONFIRMATIONS_BLOCK, sideConfig.secondsPerBlock),
+    }
+    this.networkSettings = networkSettings
   },
   async initMainSettings(chainId, rskConfig, sideConfig) {
     const state = store.state
@@ -57,6 +117,7 @@ export const store = {
     if (state.web3) {
       const accounts = await state.web3.eth.getAccounts()
       store.accountsChanged(accounts)
+      await this.initNetworkSettings()
     }
   },
   async chainChanged(chainId) {
