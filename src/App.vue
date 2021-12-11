@@ -14,7 +14,6 @@
 
 <script>
 import { provide, ref } from 'vue'
-// import Connection from '@/components/commons/Connection.vue'
 import NavBar from '@/components/layouts/NavBar.vue'
 import Footer from '@/components/layouts/Footer.vue'
 import Sider from '@/components/layouts/Sider'
