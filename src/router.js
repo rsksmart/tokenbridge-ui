@@ -3,6 +3,9 @@ import { createWebHistory, createRouter } from 'vue-router'
 // 1. Define route components.
 // These can be imported from other files
 import Home from '@/views/Home.vue'
+import TransactionsPage from '@/views/TransactionsPage'
+import TokenListPage from '@/views/TokenListPage'
+import NetworkInfoPage from '@/views/NetworkInfoPage'
 
 // 2. Define some routes
 // Each route should map to a component.
@@ -12,6 +15,18 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+  },
+  {
+    path: '/transactions',
+    component: TransactionsPage,
+  },
+  {
+    path: '/network-info',
+    component: NetworkInfoPage,
+  },
+  {
+    path: '/token-list',
+    component: TokenListPage,
   },
 ]
 
