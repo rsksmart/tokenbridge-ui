@@ -223,7 +223,7 @@ export default {
         transaction = await erc20TokenInstance.saveTransaction(
           receipt,
           token,
-          receiveAmount,
+          decodedEvent._amount,
           receiveAmount,
           decodedEvent._from,
           decodedEvent._to,
