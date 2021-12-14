@@ -9,6 +9,7 @@
       :side-confirmations="settings.sideConfirmations"
       @new-transaction="newTransaction = $event"
     />
+    <Transfer title="Origin" />
   </section>
 </template>
 
@@ -22,11 +23,14 @@ import Title from '@/components/title/Title.vue'
 import { store } from '@/store.js'
 import globalStore from '@/stores/global.store'
 import FormWrapper from '@/components/formWrapper/FormWrapper'
+import Transfer from '@/components/transfer/Transfer'
+
 export default {
   name: 'Home',
   components: {
     FormWrapper,
     Title,
+    Transfer,
   },
   data() {
     return {
