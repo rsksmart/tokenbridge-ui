@@ -151,7 +151,7 @@ export default {
     async handleChangeClaimType($event) {
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
-          this.amount = new BigNumber(this.transaction.amount).shiftedBy(-8).toString()
+          this.amount = this.transaction.amount
           this.receiveAmount = this.transaction.receiveAmount
           break
         }
