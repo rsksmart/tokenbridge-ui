@@ -265,6 +265,7 @@ export function getNetworksConf(selectedChainId, prevChainId = null) {
   return {
     rskConfig: network.isRsk ? network : network.crossToNetwork,
     sideConfig: network.isSide ? network : network.crossToNetwork,
+    networks,
   }
 }
 
@@ -276,4 +277,16 @@ export function getNetworksAvailable() {
   const networksOnEnvironment = getEnvironmentNetworks()
   const sideNetworks = networksOnEnvironment.map(network => network.crossToNetwork)
   return [...networksOnEnvironment, ...sideNetworks]
+}
+
+export function getNonDuplicateNetworks() {
+  const networks = getNetworksAvailable()
+  console.log('Networks', networks)
+  const reducedNetworks = networks.reduce((acc, network) => {
+    if (!acc.has(network.networkId)) {
+      acc.set(network.networkId, network)
+    }
+    return acc
+  }, new Map())
+  return [...reducedNetworks.values()]
 }

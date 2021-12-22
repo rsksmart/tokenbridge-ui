@@ -78,6 +78,7 @@ export const store = {
 
     // NFT
     if (!rskConfig.nftBridge || !sideConfig.nftBridge) {
+      store.state.networkSettings = { ...networkSettings }
       return
     }
     networkSettings.rskFeeNft = await hostNetwork.getFixedFee()
@@ -94,7 +95,7 @@ export const store = {
       confirmations: NFT_FIXED_CONFIRMATIONS_BLOCK,
       time: blocksToTime(NFT_FIXED_CONFIRMATIONS_BLOCK, sideConfig.secondsPerBlock),
     }
-    this.networkSettings = networkSettings
+    store.state.networkSettings = { ...networkSettings }
   },
   async initMainSettings(chainId, rskConfig, sideConfig) {
     const state = store.state
@@ -128,7 +129,7 @@ export const store = {
     const { rskConfig, sideConfig, networks } = getNetworksConf(parsedChainId, state.chainId)
     state.rskConfig = rskConfig
     state.sideConfig = sideConfig
-    if (rskConfig && sideConfig && !networks) {
+    if (rskConfig && sideConfig && (!networks || networks.length === 1)) {
       await store.initMainSettings(parsedChainId, rskConfig, sideConfig)
     } else if (networks.length > 1) {
       state.preSettingsEnabled = true

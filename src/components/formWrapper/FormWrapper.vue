@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div v-if="false">
       <button
         v-for="tab in tabs"
         :key="tab.label"
