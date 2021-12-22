@@ -46,6 +46,7 @@ class ERC20TokenTransaction extends Transaction {
   }
 
   async receiveTokensTo({ tokenToUse, to, amount }, transactionObject) {
+    console.log('receiveTokensTo', tokenToUse, to, amount)
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
     return new Promise((resolve, reject) => {
       bridgeContract.methods
