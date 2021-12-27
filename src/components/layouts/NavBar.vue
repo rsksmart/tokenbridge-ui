@@ -89,4 +89,9 @@ export default {
 .select-networks:focus {
   outline: none;
 }
+.fromNetwork {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>
