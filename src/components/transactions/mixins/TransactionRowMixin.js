@@ -329,7 +329,7 @@ export default {
     async updateRBTTransaction({ transactionHash }) {
       await this.$services.TransactionService.saveTransaction({
         ...this.transaction,
-        currentStep: CROSSING_STEPS.Processing,
+        currentStep: CROSSING_STEPS.ClaimedUsingSwap,
       })
       this.$modal.value.showModal({
         type: 'success',
