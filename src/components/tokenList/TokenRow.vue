@@ -93,7 +93,7 @@ export default {
       await navigator.clipboard.writeText(address)
       this[dataParam] = 'fas fa-clipboard-check'
       setTimeout(() => {
-        this.[dataParam] = DEFAULT_COPY_ICON
+        this[dataParam] = DEFAULT_COPY_ICON
       }, 1000)
     },
     async copyRskTransactionHash(event) {
