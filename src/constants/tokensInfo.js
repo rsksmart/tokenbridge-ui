@@ -146,7 +146,7 @@ export const TOKEN_UBI_INFO = {
 
 export const TOKEN_WBTC_INFO = {
   token: 'WBTC',
-  name: 'Wrapped Ethereum',
+  name: 'Wrapped BTC',
   typeId: 0,
   icon:
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
