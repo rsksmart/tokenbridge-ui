@@ -230,7 +230,11 @@
         :max-amount="maxAmount"
         @changeNetwork="handleChangeNetwork"
         @selectToken="selectToken"
-      />
+      >
+        <template #footer>
+          &nbsp;
+        </template>       
+      </Transfer>
     </div>
     <div class="col-2 flex align-self-center text-center">
       <button class="btn btn-link swap-btn" :disabled="disabled" @click="handleSwitchNetwork">
@@ -251,7 +255,7 @@
       >
         <template v-if="!disabled" #footer>
           You'll need <strong>{{ claimCost }}</strong> to claim the tokens
-        </template>
+        </template>       
       </Transfer>
     </div>
   </div>
