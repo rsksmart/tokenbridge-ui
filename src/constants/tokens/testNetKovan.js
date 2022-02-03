@@ -4,7 +4,7 @@ import * as methodType from '../methodType'
 
 export const TEST_NET_KOVAN_GAS_TOKEN = {
   ...tokensInfo.TOKEN_WETH_INFO,
-  symbol: 'tETH'
+  symbol: 'ETH'
 }
 
 export const TEST_NET_KOVAN_MAIN_TOKEN = {

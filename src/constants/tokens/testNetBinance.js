@@ -3,7 +3,7 @@ import * as methodType from '../methodType'
 
 export const TEST_NET_BINANCE_GAS_TOKEN = {
   ...tokensInfo.TOKEN_WBNB_INFO,
-  symbol: 'tBNB',
+  symbol: 'BNB',
 }
 
 export const TEST_NET_BINANCE_MAIN_TOKEN = {
