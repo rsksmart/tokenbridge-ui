@@ -1,6 +1,11 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
+export const TEST_NET_BINANCE_GAS_TOKEN = {
+  ...tokensInfo.TOKEN_WBNB_INFO,
+  symbol: 'tBNB',
+}
+
 export const TEST_NET_BINANCE_MAIN_TOKEN = {
   ...tokensInfo.TOKEN_WBNB_INFO,
   symbol: 'BNB',
