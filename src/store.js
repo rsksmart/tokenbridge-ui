@@ -15,7 +15,6 @@ import { blocksToTime } from '@/utils'
 
 export const store = {
   state: reactive({
-    gasToken: null,
     web3: null,
     provider: null,
     dataVault: null,
@@ -100,7 +99,6 @@ export const store = {
   },
   async initMainSettings(chainId, rskConfig, sideConfig) {
     const state = store.state
-    state.gasToken = 'BTC' // TODO: In the future, the UI will support other tokens to pay for the gas. Currently this is only possible using rBTC. 
     state.chainId = chainId
     state.rskConfig = rskConfig
     state.sideConfig = sideConfig
