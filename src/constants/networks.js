@@ -87,7 +87,7 @@ export const TEST_NET_RINKEBY_CONFIG = {
   gasToken: TEST_NET_KOVAN_GAS_TOKEN,
   isRsk: false,
   isSide: true,
-  tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
+  tokens: [],
 }
 
 export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
