@@ -9,7 +9,7 @@ export const MAIN_NET_RSK_CROSS_ETHEREUM_GAS_TOKEN = {
 
 export const MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN = {
   ...tokensInfo.TOKEN_WETH_INFO,
-  symbol: 'rETH',
+  symbol: 'ETH',
 }
 
 export const MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS = [
