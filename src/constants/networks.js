@@ -3,16 +3,19 @@ import { MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_MAIN_TOKEN } from './tokens
 import {
   MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS,
   MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN,
+  MAIN_NET_RSK_CROSS_ETHEREUM_GAS_TOKEN,
 } from './tokens/mainNetRskCrossEthereum'
 import { TEST_NET_BINANCE_TOKENS, TEST_NET_BINANCE_MAIN_TOKEN } from './tokens/testNetBinance'
 import { TEST_NET_KOVAN_TOKENS, TEST_NET_KOVAN_MAIN_TOKEN } from './tokens/testNetKovan'
 import {
   TEST_NET_RSK_CROSS_BINANCE_TOKENS,
   TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
+  TEST_NET_RSK_CROSS_BINANCE_GAS_TOKEN,
 } from './tokens/testNetRskCrossBinance'
 import {
   TEST_NET_RSK_CROSS_KOVAN_TOKENS,
   TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
+  TEST_NET_RSK_CROSS_KOVAN_GAS_TOKEN,
 } from './tokens/testNetRskCrossKovan'
 import ENVIRONMENTS from '@/constants/environments'
 
@@ -38,6 +41,7 @@ export const TEST_NET_BINANCE_CONFIG = {
   tokenPrefix: 'b',
   env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_BINANCE_MAIN_TOKEN,
+  gasToken: TEST_NET_BINANCE_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
   tokens: getTokensWithReceiveToken(TEST_NET_BINANCE_TOKENS, TEST_NET_RSK_CROSS_BINANCE_TOKENS),
@@ -59,6 +63,7 @@ export const TEST_NET_KOVAN_CONFIG = {
   tokenPrefix: 'e',
   env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
+  gasToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
   tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
@@ -79,9 +84,10 @@ export const TEST_NET_RINKEBY_CONFIG = {
   feePercentageDivider: 10_000,
   env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
+  gasToken: TEST_NET_KOVAN_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
-  tokens: [],
+  tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
 }
 
 export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
@@ -102,6 +108,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   tokenPrefix: 'r',
   env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
+  gasToken: TEST_NET_RSK_CROSS_KOVAN_GAS_TOKEN,
   isRsk: true,
   isSide: false,
   tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_KOVAN_TOKENS),
@@ -125,6 +132,7 @@ export const TEST_NET_RSK_CROSS_BINANCE_CONFIG = {
   tokenPrefix: 'b',
   env: ENVIRONMENTS.TESTNET,
   mainToken: TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
+  gasToken: TEST_NET_RSK_CROSS_BINANCE_GAS_TOKEN,
   isRsk: true,
   isSide: false,
   tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_BINANCE_TOKENS),
@@ -151,6 +159,7 @@ export const TEST_NET_RSK_CROSS_RINKEBY_CONFIG = {
   mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
   isRsk: true,
   isSide: false,
+  gasToken: TEST_NET_RSK_CROSS_KOVAN_GAS_TOKEN,
   tokens: [],
 }
 TEST_NET_RINKEBY_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_RINKEBY_CONFIG
@@ -171,6 +180,7 @@ export const MAIN_NET_ETH_CONFIG = {
   tokenPrefix: 'e',
   env: ENVIRONMENTS.MAINNET,
   mainToken: MAIN_NET_ETHEREUM_MAIN_TOKEN,
+  gasToken: MAIN_NET_ETHEREUM_MAIN_TOKEN,
   isRsk: false,
   isSide: true,
   tokens: getTokensWithReceiveToken(MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS),
@@ -193,6 +203,7 @@ export const MAIN_NET_RSK_CONFIG = {
   tokenPrefix: 'r',
   env: ENVIRONMENTS.MAINNET,
   mainToken: MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN,
+  gasToken: MAIN_NET_RSK_CROSS_ETHEREUM_GAS_TOKEN,
   isRsk: true,
   isSide: false,
   tokens: getTokensWithReceiveToken(MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_TOKENS),
@@ -281,7 +292,6 @@ export function getNetworksAvailable() {
 
 export function getNonDuplicateNetworks() {
   const networks = getNetworksAvailable()
-  console.log('Networks', networks)
   const reducedNetworks = networks.reduce((acc, network) => {
     if (!acc.has(network.networkId)) {
       acc.set(network.networkId, network)
