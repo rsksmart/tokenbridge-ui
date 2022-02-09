@@ -453,7 +453,8 @@ export default {
       return this.selectedToken?.receiveToken
     },
     receiveAmount() {
-      return this.amount - this.amount * this.fee
+      let bgAmount = new BigNumber(this.amount);
+      return bgAmount.minus(bgAmount.times(this.fee));
     },
     waitSeconds() {
       if (!this.sharedState.currentConfig || !this.selectedTokenMediumAmount || !this.amount) {
