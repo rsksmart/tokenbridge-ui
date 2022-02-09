@@ -453,7 +453,7 @@ export default {
       return this.selectedToken?.receiveToken
     },
     receiveAmount() {
-      let bgAmount = new BigNumber(this.amount);
+      const bgAmount = new BigNumber(this.amount);
       return bgAmount.minus(bgAmount.times(this.fee));
     },
     waitSeconds() {
