@@ -759,14 +759,15 @@ export default {
       }
       const { isRsk } = this.sharedState?.currentConfig || {}
       const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
-      const networkConf = isRsk ? this.sharedState.sideConfig : this.sharedState.rskConfig
+      const destinationNetworkConfig = isRsk ? this.sharedState.sideConfig : this.sharedState.rskConfig
+     
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG)
           .multipliedBy(gasPrice)
           .shiftedBy(-18)
           .toPrecision(6)
           .toString()
-        this.claimCost = `${costInWei} ${networkConf?.mainToken?.symbol}`
+        this.claimCost = `${costInWei} ${destinationNetworkConfig.gasToken?.symbol}`
       })
     },
   },
