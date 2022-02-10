@@ -22,6 +22,7 @@
 <script>
 import { store } from '@/store.js'
 import { blocksToTime } from '@/utils'
+import BigNumber from 'bignumber.js'
 
 export default {
   name: 'SuccessMsg',
@@ -35,7 +36,7 @@ export default {
       required: true,
     },
     receiveAmount: {
-      type: Number,
+      type: BigNumber,
       required: true,
     },
     receiveToken: {

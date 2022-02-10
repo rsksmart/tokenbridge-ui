@@ -281,7 +281,6 @@ export function getNetworksAvailable() {
 
 export function getNonDuplicateNetworks() {
   const networks = getNetworksAvailable()
-  console.log('Networks', networks)
   const reducedNetworks = networks.reduce((acc, network) => {
     if (!acc.has(network.networkId)) {
       acc.set(network.networkId, network)
