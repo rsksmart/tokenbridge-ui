@@ -141,7 +141,6 @@ export default {
   components: { RangeInput },
   props: {
     amount: {
-      type: [Number, String],
       required: true,
     },
     address: {

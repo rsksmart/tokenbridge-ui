@@ -384,6 +384,7 @@ export default {
       originNetworkSelected: null,
       originNetworks: [],
       destinationNetworks: [],
+      receiveAmount: new BigNumber(0)
     }
   },
   computed: {
@@ -452,10 +453,6 @@ export default {
     willReceiveToken() {
       return this.selectedToken?.receiveToken
     },
-    receiveAmount() {
-      const bgAmount = new BigNumber(this.amount);
-      return bgAmount.minus(bgAmount.times(this.fee));
-    },
     waitSeconds() {
       if (!this.sharedState.currentConfig || !this.selectedTokenMediumAmount || !this.amount) {
         return 0
@@ -469,6 +466,8 @@ export default {
       this.showSuccess = false
       this.amount =
         typeof value == 'string' ? value.replace(',', '.').replace(/[^0-9]\./gi, '') : value
+      const bgAmount = new BigNumber(this.amount);
+      this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
     },
     accountConnected(newValue, oldValue) {
       if (this.isMounted && newValue) {
