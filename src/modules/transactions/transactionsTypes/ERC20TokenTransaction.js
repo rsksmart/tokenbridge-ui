@@ -27,6 +27,7 @@ class ERC20TokenTransaction extends Transaction {
    * @returns {Promise<unknown>}
    */
   async approve(tokenAddress, transactionObject) {
+    // TODO MOVE THIS TO TRANSACTION ACTIONS
     const gasPrice = await this.getGasPriceHex()
     return new Promise((resolve, reject) => {
       const tokenContract = new this.web3.eth.Contract(ERC20_ABI, tokenAddress)
@@ -36,21 +37,23 @@ class ERC20TokenTransaction extends Transaction {
     })
   }
 
-  depositTo(receiverAddress, transactionObject) {
+  depositTo(destionationChainId, receiverAddress, transactionObject) {
+     // TODO MOVE THIS TO TRANSACTION ACTIONS
     return new Promise((resolve, reject) => {
       const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
       bridgeContract.methods
-        .depositTo(receiverAddress)
+        .depositTo(destionationChainId, receiverAddress)
         .send(transactionObject, this.callback({ resolve, reject }))
     })
   }
 
-  async receiveTokensTo({ tokenToUse, to, amount }, transactionObject) {
+  async receiveTokensTo({ destionationChainId, tokenToUse, to, amount }, transactionObject) {
+     // TODO MOVE THIS TO TRANSACTION ACTIONS
     console.log('receiveTokensTo', tokenToUse, to, amount)
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
     return new Promise((resolve, reject) => {
       bridgeContract.methods
-        .receiveTokensTo(tokenToUse, to, amount)
+        .receiveTokensTo(destionationChainId, tokenToUse, to, amount)
         .send(transactionObject, this.callback({ resolve, reject }))
     })
   }
@@ -92,9 +95,11 @@ class ERC20TokenTransaction extends Transaction {
 
     const gasPrice = await this.getGasPriceHex()
     let receipt = null
+    const destionationChainId = await this.web3.eth.net.getId() // TODO obtain it from another source to avoid the async call,
     switch (token.methodType) {
       case methodType.DEPOSITOR:
-        receipt = await this.depositTo(receiverAddress, {
+         // TODO MOVE THIS TO TRANSACTION ACTIONS
+        receipt = await this.depositTo(destionationChainId, receiverAddress, {
           from: accountAddress,
           gasPrice,
           gas: ESTIMATED_GAS_AVG,
@@ -102,9 +107,10 @@ class ERC20TokenTransaction extends Transaction {
         })
         break
       default:
+         // TODO MOVE THIS TO TRANSACTION ACTIONS
         receipt = await this.receiveTokensTo(
           {
-            tokenToUse: address,
+            destionationChainId: destionationChainId,
             to: receiverAddress,
             amount: amountWithDecimals,
           },
@@ -131,13 +137,14 @@ class ERC20TokenTransaction extends Transaction {
       blockHash: event.blockHash,
       transactionHash: event.transactionHash,
       logIndex: event.logIndex,
+      originChainId: event.chainId, // TODO check if correct
     }
   }
 
   async claim(claimData, transactionObject) {
     const gasPrice = await this.getGasPriceHex()
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
-
+    // USE TRANSACTION ACTIONS INSTEAD
     return new Promise((resolve, reject) => {
       bridgeContract.methods
         .claim(claimData)
@@ -146,11 +153,13 @@ class ERC20TokenTransaction extends Transaction {
   }
 
   transactionDataHashes(transactionHash, toNetwork) {
+    // MOVE IT TO TRANSACTION ACTIONS
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, toNetwork.bridge)
     return retry3Times(bridgeContract.methods.transactionsDataHashes(transactionHash).call)
   }
 
   claimed(transactionDataHash, toNetwork) {
+     // MOVE IT TO TRANSACTION ACTIONS
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, toNetwork.bridge)
     return retry3Times(bridgeContract.methods.claimed(transactionDataHash).call)
   }
