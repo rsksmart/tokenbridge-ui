@@ -2,6 +2,7 @@ import BRIDGE_ABI_V2 from '@/constants/abis/bridge.json'
 import BRIDGE_ABI_V1 from '@/constants/abis/bridge_v1.json'
 import BRIDGE_ABI_V0 from '@/constants/abis/bridge_v0.json'
 import NFT_BRIDGE from '@/constants/abis/nft-bridge.json'
+import BRIDGE_ABI_V4 from '@/constants/abis/bridge.json'
 import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 
 export function decodeCrossEvent(web3, receipt, tokenType) {
@@ -18,7 +19,11 @@ export function decodeCrossEvent(web3, receipt, tokenType) {
 }
 
 function decodeERC20CrossEvent(web3, receipt) {
-  let result = getEventForAbi(web3, receipt, BRIDGE_ABI_V2, 'Cross')
+  let result = getEventForAbi(web3, receipt, BRIDGE_ABI_V4, 'Cross')
+  if (result) {
+    return result
+  }
+  result = getEventForAbi(web3, receipt, BRIDGE_ABI_V2, 'Cross')
   if (result) {
     return result
   }

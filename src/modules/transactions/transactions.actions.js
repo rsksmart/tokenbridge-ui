@@ -67,8 +67,15 @@ export const receiveTokensTo = (
 ) =>
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
+    console.log(config.crossToNetwork.networkId)
+    // TODO ADD CHAIND FROM THE DDROPDOWN SELECTED BY THE USER
     bridgeContract.methods
-      .receiveTokensTo(address, receiverAddress, amountWithDecimals)
+      .receiveTokensTo(
+        config.crossToNetwork.networkId,
+        address,
+        receiverAddress,
+        amountWithDecimals,
+      )
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 
@@ -80,7 +87,7 @@ export const depositTo = (
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
     bridgeContract.methods
-      .depositTo(receiverAddress)
+      .depositTo( config.crossToNetwork.networkId, receiverAddress)
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 
@@ -91,9 +98,10 @@ export const claim = (
 ) =>
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
-    bridgeContract.methods
-      .claim({ to, amount, blockHash, transactionHash, logIndex })
-      .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
+      // TODO USE THE CORRECT ORIGIN CHAIN ID
+      bridgeContract.methods
+        .claim({ to, amount, blockHash, transactionHash, logIndex, originChainId: config.networkId })
+        .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 /**
  * CrossToken Call
