@@ -41,7 +41,6 @@ class ERC20TokenTransaction extends Transaction {
 
   depositTo(destinationChainId, receiverAddress, transactionObject) {
      // TODO MOVE THIS TO TRANSACTION ACTIONS    
-     console.log('depositTo', destinationChainId, receiverAddress, transactionObject)
     return new Promise((resolve, reject) => {
       const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
       bridgeContract.methods
@@ -52,7 +51,6 @@ class ERC20TokenTransaction extends Transaction {
 
   async receiveTokensTo({ destinationChainId, tokenToUse, to, amount }, transactionObject) {
      // TODO MOVE THIS TO TRANSACTION ACTIONS
-    console.log('receiveTokensTo', destinationChainId, tokenToUse, to, amount)
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
     return new Promise((resolve, reject) => {
       bridgeContract.methods
