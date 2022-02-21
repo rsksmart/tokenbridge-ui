@@ -133,14 +133,15 @@ class ERC20TokenTransaction extends Transaction {
     )
   }
 
-  getClaimData(decodedEvent, event, originChainId) {
+  getClaimData(decodedEvent, event) {
     return {
       to: decodedEvent._to,
       amount: decodedEvent._amount,
       blockHash: event.blockHash,
       transactionHash: event.transactionHash,
       logIndex: event.logIndex,
-      originChainId: originChainId
+      originChainId: parseInt(decodedEvent._originChainId, 10),
+      destinationChainId: parseInt(decodedEvent._destinationChainId, 10)
     }
   }
 

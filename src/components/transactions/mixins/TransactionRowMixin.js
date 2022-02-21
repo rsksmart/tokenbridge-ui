@@ -305,8 +305,8 @@ export default {
       const tokenInstance = this.getTokenTypeInstance({ config: data.toNetwork })
 
       try {
-        const claimData  = tokenInstance.getClaimData(decodedEvent, event, data.fromNetwork.networkId)
-        console.log(claimData)
+        const claimData  = tokenInstance.getClaimData(decodedEvent, event)
+        
         const claimReceipt = await tokenInstance.claim(
           claimData,
           { from: sharedState.accountAddress, gas: ESTIMATED_GAS_AVG },
