@@ -264,7 +264,7 @@
       v-if="!hasAllowance"
       id="approve"
       class="btn btn-primary mr-3"
-      :disabled="disabled"
+      :disabled="disabledApproveButton"
       @click="approveClick"
     >
       Approve
@@ -438,6 +438,9 @@ export default {
     disabled() {
       return !this.sharedState.isConnected || this.showSpinner
     },
+    disabledApproveButton() {
+      return !this.sharedState.isConnected || this.showSpinner || this.receiverAddress === ''
+    },
     currentNetworkTokens() {
       return this.originNetwork?.tokens
     },
@@ -564,6 +567,7 @@ export default {
       const web3 = this.sharedState.web3
       const config = this.sharedState.currentConfig
       const token = this.selectedToken
+      
       if (!token?.address || !web3 || !config) {
         return
       }
@@ -642,6 +646,7 @@ export default {
         : ''
     },
     async approveClick(event) {
+      console.log(this.receiverAddress);
       this.error = ''
       this.showSuccess = false
       event.preventDefault()
