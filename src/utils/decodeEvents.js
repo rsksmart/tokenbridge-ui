@@ -1,4 +1,4 @@
-import BRIDGE_ABI_V2 from '@/constants/abis/bridge.json'
+import BRIDGE_ABI_V2 from '@/constants/abis/bridge_v2.json'
 import BRIDGE_ABI_V1 from '@/constants/abis/bridge_v1.json'
 import BRIDGE_ABI_V0 from '@/constants/abis/bridge_v0.json'
 import NFT_BRIDGE from '@/constants/abis/nft-bridge.json'
