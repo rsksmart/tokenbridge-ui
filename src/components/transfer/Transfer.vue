@@ -210,7 +210,6 @@ export default {
   },
   watch: {
     amount(newAmount, prevAmount) {
-      console.log('Amount change', newAmount)
       this.$emit('update:amount', newAmount)
     },
     percentage(newPercentage, prevPercentage) {

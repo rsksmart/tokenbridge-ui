@@ -63,7 +63,6 @@ export default {
             ...options.modalProps,
             on: { ...options.modalEvents },
           })
-          console.log('CMC', this.customModalComponent)
           // this.customModalComponent = shallowRef(options.customModalComponent)
         }
         this.modalProps = options.modalProps
