@@ -202,7 +202,7 @@
         v-if="!hasAllowance"
         id="approved"
         class="btn btn-primary mr-3"
-        :disabled="disabled"
+        :disabled="disabledActionButtons"
         @click="approveClick"
       >
         Approve
@@ -211,7 +211,7 @@
         id="deposits"
         type="submit"
         class="btn btn-primary"
-        :disabled="disabled || !hasAllowance"
+        :disabled="disabledActionButtons || !hasAllowance"
       >
         Cross tokens
       </button>
@@ -264,7 +264,7 @@
       v-if="!hasAllowance"
       id="approve"
       class="btn btn-primary mr-3"
-      :disabled="disabledApproveButton"
+      :disabled="disabledActionButtons"
       @click="approveClick"
     >
       Approve
@@ -272,7 +272,7 @@
     <button
       id="deposit"
       class="btn btn-primary"
-      :disabled="disabled || !hasAllowance"
+      :disabled="disabledActionButtons || !hasAllowance"
       @click="onSubmit"
     >
       Cross tokens
@@ -438,8 +438,8 @@ export default {
     disabled() {
       return !this.sharedState.isConnected || this.showSpinner
     },
-    disabledApproveButton() {
-      return !this.sharedState.isConnected || this.showSpinner || this.receiverAddress === ''
+    disabledActionButtons() {
+      return !this.sharedState.isConnected || this.showSpinner || this.receiverAddress === '' || this.amount <= 0 || !this.selectedToken?.symbol
     },
     currentNetworkTokens() {
       return this.originNetwork?.tokens
@@ -465,10 +465,10 @@ export default {
   },
   watch: {
     amount: function(newValue, oldValue) {
+      newValue = Math.abs(parseFloat(newValue));
       this.error = ''
       this.showSuccess = false
-      this.amount =
-        typeof newValue === 'string' ? Math.abs(parseFloat(newValue.replace(',', '.').replace(/[^0-9]\./gi, ''))) : newValue
+      this.amount =  newValue;
       const bgAmount = new BigNumber(this.amount);
       this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
     },
@@ -560,7 +560,7 @@ export default {
     },
     resetForm() {
       this.selectedToken = {}
-      this.amount = ''
+      this.amount = 0
       // this.$refs.crossForm.resetForm()
     },
     async refreshBalanceAndAllowance() {
@@ -733,7 +733,6 @@ export default {
       }
     },
     validateAmount(value) {
-      console.log('Validation');
       if (!value) {
         return 'amount is required'
       }
