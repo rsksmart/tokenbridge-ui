@@ -113,7 +113,7 @@ export default {
     )
     this.$watch(
       () => this.sharedState.sideConfig,
-      (sideConfig, prevSideConfig) => {
+      () => {
         this.refreshTransactions({ limit: this.limit, offset: 0 })
       },
     )
