@@ -733,6 +733,7 @@ export default {
       }
     },
     validateAmount(value) {
+      console.log('Validation');
       if (!value) {
         return 'amount is required'
       }
