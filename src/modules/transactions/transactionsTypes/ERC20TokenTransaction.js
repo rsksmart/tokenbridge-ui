@@ -19,7 +19,7 @@ class ERC20TokenTransaction extends Transaction {
       event.transactionHash,
       event.logIndex,
       originChainId,
-      destinationChainId
+      destinationChainId,
     ]
   }
   /**
@@ -40,7 +40,7 @@ class ERC20TokenTransaction extends Transaction {
   }
 
   depositTo(destinationChainId, receiverAddress, transactionObject) {
-     // TODO MOVE THIS TO TRANSACTION ACTIONS    
+    // TODO MOVE THIS TO TRANSACTION ACTIONS
     return new Promise((resolve, reject) => {
       const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
       bridgeContract.methods
@@ -50,7 +50,7 @@ class ERC20TokenTransaction extends Transaction {
   }
 
   async receiveTokensTo({ destinationChainId, tokenToUse, to, amount }, transactionObject) {
-     // TODO MOVE THIS TO TRANSACTION ACTIONS
+    // TODO MOVE THIS TO TRANSACTION ACTIONS
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
     return new Promise((resolve, reject) => {
       bridgeContract.methods
@@ -139,7 +139,7 @@ class ERC20TokenTransaction extends Transaction {
       transactionHash: event.transactionHash,
       logIndex: event.logIndex,
       originChainId: parseInt(decodedEvent._originChainId, 10),
-      destinationChainId: parseInt(decodedEvent._destinationChainId, 10)
+      destinationChainId: parseInt(decodedEvent._destinationChainId, 10),
     }
   }
 
@@ -155,13 +155,13 @@ class ERC20TokenTransaction extends Transaction {
   }
 
   transactionDataHashes(transactionHash, toNetwork) {
-    // MOVE IT TO TRANSACTION ACTIONS    
+    // MOVE IT TO TRANSACTION ACTIONS
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, toNetwork.bridge)
     return retry3Times(bridgeContract.methods.transactionsDataHashes(transactionHash).call)
   }
 
   claimed(transactionDataHash, toNetwork) {
-    // MOVE IT TO TRANSACTION ACTIONS    
+    // MOVE IT TO TRANSACTION ACTIONS
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, toNetwork.bridge)
     return retry3Times(bridgeContract.methods.claimed(transactionDataHash).call)
   }

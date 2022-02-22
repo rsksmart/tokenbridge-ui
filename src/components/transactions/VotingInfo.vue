@@ -98,7 +98,12 @@ export default {
     getParamsByTokenType(decodedEvent, event) {
       switch (this.globalState.currentTokenType) {
         case TOKEN_TYPE_ERC_20:
-          return ERC20TokenTransaction.getParamsForGetTransactionId(decodedEvent, event, this.fromNetwork.networkId, this.toNetwork.networkId)
+          return ERC20TokenTransaction.getParamsForGetTransactionId(
+            decodedEvent,
+            event,
+            this.fromNetwork.networkId,
+            this.toNetwork.networkId,
+          )
         case TOKEN_TYPE_ERC_721:
           // TODO: Add origin and destination network to the params..
           return ERC721NFTTransaction.getParamsForGetTransactionId(decodedEvent, event)

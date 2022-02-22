@@ -96,7 +96,9 @@ export const clone = obj => {
 export async function retry(fn, args = [], config = {}) {
   const retriesMax = config.retriesMax || 3
   let interval = config.interval || 0
-  const exponential = config.hasOwnProperty('exponential') ? config.exponential : true
+  const exponential = Object.prototype.hasOwnProperty.call(config, 'exponential')
+    ? config.exponential
+    : true
   const factor = config.factor || 2
 
   for (let i = 0; i < retriesMax; i++) {
@@ -109,7 +111,10 @@ export async function retry(fn, args = [], config = {}) {
         return val
       }
     } catch (error) {
-      if (retriesMax === i + 1 || (error.hasOwnProperty('retryable') && !error.retryable))
+      if (
+        retriesMax === i + 1 ||
+        (Object.prototype.hasOwnProperty.call(error, 'retryable') && !error.retryable)
+      )
         throw error
 
       interval = exponential ? interval * factor : interval

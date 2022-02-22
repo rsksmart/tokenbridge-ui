@@ -25,8 +25,8 @@ export class TXN_Storage {
           // Firefox
           e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
         // acknowledge QuotaExceededError only if there's something already stored
-        storage &&
-        storage.length !== 0
+        this.Storage &&
+        this.Storage.length !== 0
       )
     }
   }
@@ -38,7 +38,7 @@ export class TXN_Storage {
 
   static getAllTxns4Address(accountAddress = '', networkName = '') {
     let key = `${accountAddress}-${networkName.replace(' ', '-')}`
-    let { _, txns } = this.unserializeTxns(key)
+    let { txns } = this.unserializeTxns(key)
     return txns
   }
 
