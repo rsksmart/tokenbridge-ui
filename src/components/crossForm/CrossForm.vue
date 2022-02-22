@@ -464,11 +464,11 @@ export default {
     },
   },
   watch: {
-    amount(value) {
+    amount: function(newValue, oldValue) {
       this.error = ''
       this.showSuccess = false
       this.amount =
-        typeof value == 'string' ? value.replace(',', '.').replace(/[^0-9]\./gi, '') : value
+        typeof newValue === 'string' ? Math.abs(parseFloat(newValue.replace(',', '.').replace(/[^0-9]\./gi, ''))) : newValue
       const bgAmount = new BigNumber(this.amount);
       this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
     },
@@ -646,7 +646,6 @@ export default {
         : ''
     },
     async approveClick(event) {
-      console.log(this.receiverAddress);
       this.error = ''
       this.showSuccess = false
       event.preventDefault()
@@ -736,6 +735,9 @@ export default {
     validateAmount(value) {
       if (!value) {
         return 'amount is required'
+      }
+      if (value < 0) {
+        return 'amount need to be greater than 0';
       }
       const amount = new BigNumber(value)
       if (!this.selectedToken?.symbol) return true
