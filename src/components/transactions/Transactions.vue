@@ -1,5 +1,5 @@
 <template>
-  <div class="transactions">
+  <div id="home" class="transactions">
     <SearchTransaction
       v-if="sharedState.isConnected"
       :types-limits="typesLimits"
@@ -78,7 +78,7 @@ export default {
       rskBlockNumber: 0,
       sideBlockNumber: 0,
       pollingBlockNumber: null,
-      limit: 10,
+      limit: 5,
       totalTransactions: 0,
     }
   },
