@@ -202,7 +202,7 @@
         v-if="!hasAllowance"
         id="approved"
         class="btn btn-primary mr-3"
-        :disabled="disabled"
+        :disabled="disabledActionButtons"
         @click="approveClick"
       >
         Approve
@@ -211,7 +211,7 @@
         id="deposits"
         type="submit"
         class="btn btn-primary"
-        :disabled="disabled || !hasAllowance"
+        :disabled="disabledActionButtons || !hasAllowance"
       >
         Cross tokens
       </button>
@@ -264,7 +264,7 @@
       v-if="!hasAllowance"
       id="approve"
       class="btn btn-primary mr-3"
-      :disabled="disabled"
+      :disabled="disabledActionButtons"
       @click="approveClick"
     >
       Approve
@@ -272,7 +272,7 @@
     <button
       id="deposit"
       class="btn btn-primary"
-      :disabled="disabled || !hasAllowance"
+      :disabled="disabledActionButtons || !hasAllowance"
       @click="onSubmit"
     >
       Cross tokens
@@ -438,6 +438,9 @@ export default {
     disabled() {
       return !this.sharedState.isConnected || this.showSpinner
     },
+    disabledActionButtons() {
+      return !this.sharedState.isConnected || this.showSpinner || this.receiverAddress === '' || this.amount <= 0 || !this.selectedToken?.symbol
+    },
     currentNetworkTokens() {
       return this.originNetwork?.tokens
     },
@@ -461,13 +464,13 @@ export default {
     },
   },
   watch: {
-    amount(value) {
+    amount: function(newValue, oldValue) {
+      newValue = Math.abs(parseFloat(newValue));
       this.error = ''
       this.showSuccess = false
-      this.amount =
-        typeof value == 'string' ? value.replace(',', '.').replace(/[^0-9]\./gi, '') : value
-      const bgAmount = new BigNumber(this.amount)
-      this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee))
+      this.amount =  newValue;
+      const bgAmount = new BigNumber(this.amount);
+      this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
     },
     accountConnected(newValue) {
       if (this.isMounted && newValue) {
@@ -557,13 +560,14 @@ export default {
     },
     resetForm() {
       this.selectedToken = {}
-      this.amount = ''
+      this.amount = 0
       // this.$refs.crossForm.resetForm()
     },
     async refreshBalanceAndAllowance() {
       const web3 = this.sharedState.web3
       const config = this.sharedState.currentConfig
       const token = this.selectedToken
+      
       if (!token?.address || !web3 || !config) {
         return
       }
@@ -731,6 +735,9 @@ export default {
     validateAmount(value) {
       if (!value) {
         return 'amount is required'
+      }
+      if (value < 0) {
+        return 'amount need to be greater than 0';
       }
       const amount = new BigNumber(value)
       if (!this.selectedToken?.symbol) return true
