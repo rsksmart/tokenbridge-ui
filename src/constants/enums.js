@@ -3,5 +3,5 @@ export const CROSSING_STEPS = {
   Voting: 1,
   ToClaim: 2,
   Claimed: 3,
-  Processing: 4,
+  ClaimedUsingSwap: 4,
 }
