@@ -1,14 +1,21 @@
 const { version } = require('./package.json')
 const webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
-  lintOnSave: true,
-  chainWebpack: config => {
-    const types = ['vue-modules', 'vue', 'normal-modules', 'normal']
-    types.forEach(type => addStyleResource(config.module.rule('stylus').oneOf(type)))
+  lintOnSave: false,
+  chainWebpack: (config) => {
+    config.module
+      .rule("images")
+      .use("url-loader");
   },
+
   configureWebpack: {
     resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+      },
+      extensions: ['.png'],
       fallback: { 
         "os": require.resolve("os-browserify/browser"),
         "https": require.resolve("https-browserify"),
@@ -36,14 +43,4 @@ module.exports = {
       // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader
     },
   },
-}
-
-function addStyleResource (rule) {
-  rule.use('style-resource')
-    .loader('style-resources-loader')
-    .options({
-      patterns: [
-        path.resolve(__dirname, './src/styles/imports.styl'),
-      ],
-    })
 }
