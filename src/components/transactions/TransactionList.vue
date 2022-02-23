@@ -1,5 +1,5 @@
 <template>
-  <div class="transaction-list mt-5 mb-5">
+  <div class="transaction-list mb-5">
     <h2 id="account-transactions" class="subtitle">Account transactions</h2>
     <p class="text-center">
       Please note that all transactions listed here will not appear if you use another device
@@ -25,7 +25,8 @@
               aria-label="Number of records on page"
               @change="changeLimit($event)"
             >
-              <option :value="10" selected>10</option>
+              <option :value="5" selected>5</option>
+              <option :value="10">10</option>
               <option :value="20">20</option>
               <option :value="30">30</option>
             </select>
@@ -113,7 +114,7 @@ export default {
     },
     limit: {
       type: Number,
-      default: 10,
+      default: 5,
     },
     totalTransactions: {
       type: Number,
@@ -126,7 +127,7 @@ export default {
       sharedState: store.state,
       globalState: globalStore.state,
       offset: 0,
-      limitSelect: 10,
+      limitSelect: 5,
     }
   },
   computed: {
@@ -152,7 +153,7 @@ export default {
   },
   methods: {
     changeLimit(event) {
-      this.$emit('changeLimit', parseInt(event.target.value, 10))
+      this.$emit('changeLimit', parseInt(event.target.value, 5))
     },
     nextPage() {
       this.offset += this.limit
