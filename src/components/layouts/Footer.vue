@@ -4,8 +4,8 @@
         <v-row justify="center" align="start" class="mx-0 py-md-0 py-xl-6">
           <v-col>
               <v-row class="footer-logo mx-0" align="end">
-                <span>Built by</span>
-                <v-col class="pa-0">
+                <span class="pb-2">Built by</span>
+                <v-col class="pl-0 pb-2">
                   <v-img position="center left"
                          src="@/assets/logo-iov.svg"
                          alt="IOV Labs"
@@ -31,7 +31,7 @@
               <a href="https://twitter.com/rsksmart" target="_blank">
                 <v-icon>mdi-twitter</v-icon>
               </a>
-              <a href="https://github.com/rsksmart/2wp-app" target="_blank">
+              <a href="https://github.com/rsksmart/tokenbridge-ui" target="_blank">
                 <v-icon>mdi-github</v-icon>
               </a>
               <a href="https://open-rsk-dev.slack.com/messages/support" target="_blank">
