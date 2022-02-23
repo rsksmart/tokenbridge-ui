@@ -5,7 +5,7 @@
         <a class="navbar-brand" href="https://rsk.co">
           <img
             id="logo"
-            src="../../assets/img/bridge-logo.png"
+            src="./assets/img/bridge-logo.png"
             class="logo"
             alt="RSK Token Bridge"
           />

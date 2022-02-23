@@ -6,7 +6,7 @@ import router from './router'
 
 import { loadFonts } from './plugins/webfontloader'
 import { rules } from './validators/transactions'
-import '@/styles/main.css'
+import '@/styles/main.scss'
 import ServicesPlugin from '@/plugins/ServicesPlugin'
 import { TransactionService } from '@/modules/transactions/transactions.service'
 
