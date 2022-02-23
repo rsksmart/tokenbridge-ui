@@ -49,6 +49,7 @@ class ERC20TokenTransaction extends Transaction {
     })
   }
 
+  async receiveTokensTo({ tokenToUse, to, amount }, transactionObject) {
   async receiveTokensTo({ destinationChainId, tokenToUse, to, amount }, transactionObject) {
      // TODO MOVE THIS TO TRANSACTION ACTIONS
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
