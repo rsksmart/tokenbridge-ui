@@ -6,7 +6,7 @@
           <v-img id="logo"
             alt="RSK Token Bridge"
             class="logo" 
-            src="@/assets/img/bridge-logo.svg" />
+            src="@/assets/img/bridge-logo.png" />
         </a>
       </div>
       <Menu />
