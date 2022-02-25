@@ -81,7 +81,7 @@
               @input="handleChangeAmount"
             />
             <div v-if="isOrigin">
-              <RangeInput v-model:value="percentage" step="25" :disabled="!currentNetwork" />
+              <RangeInput v-model:value="percentage" step="1" :disabled="!currentNetwork" />
             </div>
           </div>
         </div>
