@@ -467,7 +467,12 @@ export default {
     },
   },
   watch: {
-    amount: function(newValue, oldValue) {
+    amount: function(newValue) {
+      debugger;
+      console.log(newValue);
+      if (newValue === "0") {
+        return
+      }
       const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
       newValue = Math.abs(parseFloat(newValue));
       this.error = ''
@@ -483,6 +488,7 @@ export default {
     },
     async receiverAddress(address) {
       try {
+        console.log(address);
         this.error = '';
         const web3 = this.sharedState.web3
         const code = await web3.eth.getCode(address);
