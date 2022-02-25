@@ -468,17 +468,16 @@ export default {
   },
   watch: {
     amount: function(newValue) {
-      debugger;
-      console.log(newValue);
       if (newValue === "0") {
         return
       }
       const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
-      newValue = Math.abs(parseFloat(newValue));
+      newValue = newValue.replace('-', '');
       this.error = ''
       this.showSuccess = false
-      this.amount =  Math.min(newValue, maxValue);
-      const bgAmount = new BigNumber(this.amount);
+      const minValue =  Math.min(newValue, maxValue);
+      const bgAmount = new BigNumber(minValue);
+      this.amount = bgAmount.toString();
       this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
     },
     accountConnected(newValue) {
@@ -488,11 +487,9 @@ export default {
     },
     async receiverAddress(address) {
       try {
-        console.log(address);
         this.error = '';
         const web3 = this.sharedState.web3
         const code = await web3.eth.getCode(address);
-        console.log(code);
         if (code !== "0x") {
           this.error = 'Sending directly to smart contracts may result in the lose of funds';
         }
@@ -518,8 +515,7 @@ export default {
         });
         const networksConf = getNetworksConf(network.networkId)
         this.originNetworkSelected = network
-        this.destinationNetworks = networksConf?.networks.map(record => record.crossToNetwork)
-        this.resetForm();
+        this.destinationNetworks = networksConf?.networks.map(record => record.crossToNetwork) 
       } catch (error) {
         if (error.code === 4902) {
           await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
@@ -566,6 +562,7 @@ export default {
     },
     async handleSwitchNetwork() {
       try {
+        this.resetForm();
         const chainId = numToHex(this.sharedState.currentConfig.crossToNetwork.networkId)
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
@@ -595,7 +592,7 @@ export default {
       this.originNetworks = getNonDuplicateNetworks()
     },
     resetForm() {
-      this.selectedToken = {}
+      this.selectedToken = {};
       this.amount = 0
       // this.$refs.crossForm.resetForm()
     },
