@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { waitForReceipt } from '@/utils'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
-import Web3 from 'web3'
 import * as methodType from '@/constants/methodType'
 /**
  * Global types
@@ -86,7 +85,7 @@ export const depositTo = (
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
     bridgeContract.methods
-      .depositTo( config.crossToNetwork.networkId, receiverAddress)
+      .depositTo(config.crossToNetwork.networkId, receiverAddress)
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 
