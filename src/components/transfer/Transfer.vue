@@ -77,7 +77,7 @@
               min="0"
               :max="maxAmount"
               :value="amount"
-              :disabled="!currentNetwork || !isOrigin"
+              :disabled="!currentNetwork || !isOrigin || !selectedToken?.token"
               @input="handleChangeAmount"
             />
             <div v-if="isOrigin">
@@ -232,7 +232,7 @@ export default {
   },
   methods: {
     changeNetwork() {
-      this.tokens = this.currentNetwork.tokens
+      this.tokens = this.currentNetwork.tokens;
       this.$emit('changeNetwork', this.currentNetwork)
     },
     selectToken(token, $event) {
@@ -254,8 +254,9 @@ export default {
       this.$emit('update:address', $event.target.value)
     },
     handleChangeAmount($event) {
-      const value = $event.target.value
-      if (this.maxAmountBigNumber.isLessThan(value)) {
+      const value = $event.target.value;
+      if (this.maxAmountBigNumber.isLessThan(value) || this.maxAmountBigNumber.toString() === "0") {
+        this.$emit('update:amount', this.maxAmountBigNumber.toString());
         $event.preventDefault()
       } else {
         this.$emit('update:amount', $event.target.value)
