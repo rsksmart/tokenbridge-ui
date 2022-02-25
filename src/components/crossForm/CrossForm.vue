@@ -73,7 +73,7 @@
               class="outline form-control text-center"
               :class="{ disabled: disabled }"
               placeholder="Amount"
-              :disabled="disabled"
+              :disabled="disabled || disabledAmount"
               :rules="validateAmount"
               required
             />
@@ -227,7 +227,7 @@
         transfer-type="origin"
         :disabled="disabled"
         :chain-id="originNetwork?.networkId"
-        :max-amount="maxAmount"
+        v-model:max-amount="maxAmount"
         @changeNetwork="handleChangeNetwork"
         @selectToken="selectToken"
       >
@@ -364,7 +364,7 @@ export default {
     return {
       sharedState: store.state,
       receiverAddress: '',
-      maxAmount: '',
+      maxAmount: 0,
       amount: 0,
       selectedToken: {},
       selectedTokenError: '',
@@ -439,7 +439,10 @@ export default {
       return !this.sharedState.isConnected || this.showSpinner
     },
     disabledActionButtons() {
-      return !this.sharedState.isConnected || this.showSpinner || this.receiverAddress === '' || this.amount <= 0 || !this.selectedToken?.symbol
+      return !this.sharedState.isConnected || this.showSpinner || this.receiverAddress === '' || this.amount <= 0 || !this.selectedToken?.symbol || this.receiveAmount === 0
+    },
+    disabledAmount() {
+      return !this.sharedState.isConnected || this.showSpinner || !this.selectedToken?.token;
     },
     currentNetworkTokens() {
       return this.originNetwork?.tokens
@@ -465,10 +468,11 @@ export default {
   },
   watch: {
     amount: function(newValue, oldValue) {
+      const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
       newValue = Math.abs(parseFloat(newValue));
       this.error = ''
       this.showSuccess = false
-      this.amount =  newValue;
+      this.amount =  Math.min(newValue, maxValue);
       const bgAmount = new BigNumber(this.amount);
       this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
     },
@@ -477,6 +481,20 @@ export default {
         this.handleOnAccountConnected()
       }
     },
+    async receiverAddress(address) {
+      try {
+        this.error = '';
+        const web3 = this.sharedState.web3
+        const code = await web3.eth.getCode(address);
+        console.log(code);
+        if (code !== "0x") {
+          this.error = 'Sending directly to smart contracts may result in the lose of funds';
+        }
+      } catch(err) {
+
+      }
+      
+    }
   },
   mounted() {
     if (!this.erc20TokenInstance) {
@@ -485,10 +503,22 @@ export default {
     this.isMounted = true
   },
   methods: {
-    handleChangeNetwork(network) {
-      const networksConf = getNetworksConf(network.networkId)
-      this.originNetworkSelected = network
-      this.destinationNetworks = networksConf?.networks.map(record => record.crossToNetwork)
+    async handleChangeNetwork(network) {
+      try {
+        const chainId = numToHex(network.networkId)
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId }],
+        });
+        const networksConf = getNetworksConf(network.networkId)
+        this.originNetworkSelected = network
+        this.destinationNetworks = networksConf?.networks.map(record => record.crossToNetwork)
+        this.resetForm();
+      } catch (error) {
+        if (error.code === 4902) {
+          await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
+        }
+      }
     },
     handleChangeDestinationNetwork(network) {
       const originNetwork = findNetworkByChainId(
