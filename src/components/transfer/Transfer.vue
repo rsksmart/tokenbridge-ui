@@ -256,8 +256,10 @@ export default {
     handleChangeAmount($event) {
       const value = $event.target.value;
       if (this.maxAmountBigNumber.isLessThan(value) || this.maxAmountBigNumber.toString() === "0") {
+        console.log('Entered here', this.maxAmountBigNumber.toString());
+        console.log(value);
+        $event.preventDefault();
         this.$emit('update:amount', this.maxAmountBigNumber.toString());
-        $event.preventDefault()
       } else {
         this.$emit('update:amount', $event.target.value)
       }
