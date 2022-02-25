@@ -1,12 +1,24 @@
 import * as chainId from './chainId'
-import { MAIN_NET_ETHEREUM_TOKENS, MAIN_NET_ETHEREUM_MAIN_TOKEN, MAIN_NET_ETHEREUM_GAS_TOKEN } from './tokens/mainNetEthereum'
+import {
+  MAIN_NET_ETHEREUM_TOKENS,
+  MAIN_NET_ETHEREUM_MAIN_TOKEN,
+  MAIN_NET_ETHEREUM_GAS_TOKEN,
+} from './tokens/mainNetEthereum'
 import {
   MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS,
   MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN,
   MAIN_NET_RSK_CROSS_ETHEREUM_GAS_TOKEN,
 } from './tokens/mainNetRskCrossEthereum'
-import { TEST_NET_BINANCE_TOKENS, TEST_NET_BINANCE_MAIN_TOKEN, TEST_NET_BINANCE_GAS_TOKEN } from './tokens/testNetBinance'
-import { TEST_NET_KOVAN_TOKENS, TEST_NET_KOVAN_MAIN_TOKEN, TEST_NET_KOVAN_GAS_TOKEN } from './tokens/testNetKovan'
+import {
+  TEST_NET_BINANCE_TOKENS,
+  TEST_NET_BINANCE_MAIN_TOKEN,
+  TEST_NET_BINANCE_GAS_TOKEN,
+} from './tokens/testNetBinance'
+import {
+  TEST_NET_KOVAN_TOKENS,
+  TEST_NET_KOVAN_MAIN_TOKEN,
+  TEST_NET_KOVAN_GAS_TOKEN,
+} from './tokens/testNetKovan'
 import {
   TEST_NET_RSK_CROSS_BINANCE_TOKENS,
   TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
@@ -20,9 +32,6 @@ import {
 import ENVIRONMENTS from '@/constants/environments'
 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
-const sideChainIdStr = process.env.VUE_APP_SIDE_CHAIN_ID
-
-const sideChainId = sideChainIdStr ? parseInt(sideChainIdStr, 10) : chainId.MAIN_NET_ETHEREUM
 
 // --------- CONFIGS ----------
 export const TEST_NET_BINANCE_CONFIG = {

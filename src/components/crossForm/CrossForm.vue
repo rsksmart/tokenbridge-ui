@@ -233,7 +233,7 @@
       >
         <template #footer>
           &nbsp;
-        </template>       
+        </template>
       </Transfer>
     </div>
     <div class="col-2 flex align-self-center text-center">
@@ -255,7 +255,7 @@
       >
         <template v-if="!disabled" #footer>
           You'll need <strong>{{ claimCost }}</strong> to claim the tokens
-        </template>       
+        </template>
       </Transfer>
     </div>
   </div>
@@ -384,7 +384,7 @@ export default {
       originNetworkSelected: null,
       originNetworks: [],
       destinationNetworks: [],
-      receiveAmount: new BigNumber(0)
+      receiveAmount: new BigNumber(0),
     }
   },
   computed: {
@@ -472,7 +472,7 @@ export default {
       const bgAmount = new BigNumber(this.amount);
       this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
     },
-    accountConnected(newValue, oldValue) {
+    accountConnected(newValue) {
       if (this.isMounted && newValue) {
         this.handleOnAccountConnected()
       }
@@ -766,8 +766,10 @@ export default {
       }
       const { isRsk } = this.sharedState?.currentConfig || {}
       const web3 = isRsk ? this.sharedState.sideWeb3 : this.sharedState.rskWeb3
-      const destinationNetworkConfig = isRsk ? this.sharedState.sideConfig : this.sharedState.rskConfig
-     
+      const destinationNetworkConfig = isRsk
+        ? this.sharedState.sideConfig
+        : this.sharedState.rskConfig
+
       web3.eth.getGasPrice().then(gasPrice => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG)
           .multipliedBy(gasPrice)

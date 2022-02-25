@@ -81,7 +81,7 @@
               @input="handleChangeAmount"
             />
             <div v-if="isOrigin">
-              <RangeInput v-model:value="percentage" step="25" :disabled="!currentNetwork" />
+              <RangeInput v-model:value="percentage" step="1" :disabled="!currentNetwork" />
             </div>
           </div>
         </div>
@@ -209,17 +209,17 @@ export default {
     },
   },
   watch: {
-    amount(newAmount, prevAmount) {
+    amount(newAmount) {
       this.$emit('update:amount', newAmount)
     },
-    percentage(newPercentage, prevPercentage) {
+    percentage(newPercentage) {
       const percentage = newPercentage / 100
       const amount = this.maxAmountBigNumber.multipliedBy(percentage).toNumber()
       this.$emit('update:amount', amount)
     },
     networks: {
       deep: true,
-      handler(newValue, oldValue) {
+      handler(newValue) {
         if (newValue.length > 0) {
           this.currentNetwork = newValue.find(network => network.networkId === this.chainId)
           if (this.currentNetwork) {
@@ -251,7 +251,7 @@ export default {
       }
     },
     handleChangeAddress($event) {
-      this.$emit('update:address', $event.target.value);
+      this.$emit('update:address', $event.target.value)
     },
     handleChangeAmount($event) {
       const value = $event.target.value

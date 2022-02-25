@@ -3,12 +3,10 @@
     <div class="h-100">
       <div class="sider-logo">
         <a class="navbar-brand" href="https://rsk.co">
-          <img
-            id="logo"
-            src="../../assets/img/bridge-logo.png"
-            class="logo"
+          <v-img id="logo"
             alt="RSK Token Bridge"
-          />
+            class="logo" 
+            src="@/assets/img/bridge-logo.png" />
         </a>
       </div>
       <Menu />
