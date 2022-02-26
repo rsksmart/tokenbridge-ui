@@ -1,6 +1,16 @@
 <template>
-  <v-slider ref="rangeInput" v-model="value" :tick-labels="labels" :max="max" :min="min" thumb-color="green"
-            :step="step" :ticks="labels" show-ticks="always" tick-size="4" :disabled="disabled" track-fill-color="green" track-color="grey"/>
+  <v-slider ref="rangeInput" 
+    v-model="value" 
+    :tick-labels="labels" 
+    :max="max" 
+    :min="min" 
+    thumb-color="green"
+    :step="step" 
+    :ticks="labels" 
+    show-ticks="always" 
+    :disabled="disabled" 
+    track-fill-color="green" 
+    track-color="grey" />
 </template>
 
 <script>
@@ -57,7 +67,6 @@ export default {
         .fill(0)
         .map((value, index) => value + index * this.step)
     }
-    // this.handleInputValue({ target: this.$refs.rangeInput })
   },
 }
 </script>
