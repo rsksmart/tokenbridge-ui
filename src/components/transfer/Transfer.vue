@@ -215,7 +215,6 @@ export default {
     percentage(newPercentage) {
       const percentage = newPercentage / 100
       const amount = this.maxAmountBigNumber.multipliedBy(percentage).toNumber()
-      console.log(amount)
       this.$emit('update:amount', amount)
     },
     networks: {
