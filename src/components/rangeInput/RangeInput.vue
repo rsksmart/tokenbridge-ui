@@ -57,7 +57,6 @@ export default {
   },
   methods: {
     handleInputValue(value) {
-
       console.log(value)
       $event.target.style.backgroundSize =
         ((value - this.min) * 100) / (this.max - this.min) + '% 100%'
