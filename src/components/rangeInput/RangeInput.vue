@@ -1,19 +1,17 @@
 <template>
-  <input
-    ref="rangeInput"
-    type="range"
-    :min="min"
-    :max="max"
-    :step="step"
-    :value="value"
-    :disabled="disabled"
-    list="input-range"
-    class="range-input"
-    @input="handleInputValue"
-  />
-  <datalist v-if="showMarks" id="input-range">
-    <option v-for="mark in marks" :key="mark" :value="mark" :label="`${mark}%`"></option>
-  </datalist>
+  <v-slider class="range-input" ref="rangeInput" 
+    v-model="value" 
+    :tick-labels="labels"
+    hide-details="true"
+    :max="max" 
+    :min="min" 
+    thumb-color="var(--primary)"
+    :step="step" 
+    :ticks="labels" 
+    show-ticks="always" 
+    :readonly="disabled" 
+    track-fill-color="var(--primary)" 
+    track-color="#B2B2B2" />
 </template>
 
 <script>
@@ -49,7 +47,19 @@ export default {
   data() {
     return {
       marks: [],
+      labels: {
+        0: '0',
+        25: '25',
+        50: '50',
+        75: '75',
+        100: '100',
+      },
     }
+  },
+  watch: {
+    value(newPercentage) {
+      this.$emit('update:value', newPercentage)
+    },    
   },
   mounted() {
     if (this.showMarks) {
@@ -58,55 +68,15 @@ export default {
         .fill(0)
         .map((value, index) => value + index * this.step)
     }
-    this.handleInputValue({ target: this.$refs.rangeInput })
-  },
-  methods: {
-    handleInputValue($event) {
-      const value = Number($event.target.value)
-      $event.target.style.backgroundSize =
-        ((value - this.min) * 100) / (this.max - this.min) + '% 100%'
-      this.$emit('update:value', value)
-    },
   },
 }
 </script>
-
 <style scoped>
-.range-input {
-  -webkit-appearance: none;
-  margin-right: 15px;
-  width: 100%;
-  height: 7px;
-  border-radius: 5px;
-  background-size: 70% 100%;
-  background: rgba(0, 0, 0, 0.1) linear-gradient(var(--primary), var(--primary)) no-repeat;
-}
+  .range-input {
+    margin-bottom: 0;
+  }
 
-/* Input Thumb */
-.range-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: var(--primary);
-  cursor: ew-resize;
-  box-shadow: 0 0 2px 0 #555;
-  transition: background 0.3s ease-in-out;
-}
-
-.range-input::-webkit-slider-thumb:hover,
-.range-input::-moz-range-thumb:hover,
-.range-input::-ms-thumb:hover {
-  background: var(--primary);
-}
-
-/* Input Track */
-.range-input::-webkit-slider-runnable-track,
-.range-input::-moz-range-track,
-.range-input::-ms-track {
-  -webkit-appearance: none;
-  box-shadow: none;
-  border: none;
-  background: transparent;
-}
+</style>
+<style lang="scss" scoped>
+  $slider-vertical-margin-top: 2vh;
 </style>
