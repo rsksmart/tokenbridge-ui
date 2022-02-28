@@ -218,6 +218,22 @@
     </div>
   </Form>
 
+  <div class="row">
+    <div class="offset-md-2 col-md-8 col-12">
+      <p v-if="showSendToContractWarning" class="alert alert-warning" role="alert">
+        Sending directly to smart contracts may result in the lose of funds
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="offset-md-2 col-md-8 col-12">
+      <p v-if="showAddressWarning" class="alert alert-warning" role="alert">
+        Sending founds directly to exchange may result in loses if they don't support transactions
+        sent by smart contracts
+      </p>
+    </div>
+  </div>
+
   <div class="row mt-5">
     <div class="col-5">
       <Transfer
@@ -245,6 +261,7 @@
       <Transfer
         v-model:amount="receiveAmount"
         v-model:address="receiverAddress"
+        v-model:switchNetwork="switchNetwork"
         title="Destination"
         :networks="destinationNetworks"
         transfer-type="destination"
@@ -377,6 +394,7 @@ export default {
       showSpinner: false,
       showSuccess: false,
       showModal: false,
+      switchNetwork: false,
       error: '',
       claimCost: null,
       erc20TokenInstance: null,
@@ -385,6 +403,8 @@ export default {
       originNetworks: [],
       destinationNetworks: [],
       receiveAmount: new BigNumber(0),
+      showAddressWarning: false,
+      showSendToContractWarning: false,
     }
   },
   computed: {
@@ -457,7 +477,7 @@ export default {
       return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.sideConfig
     },
     willReceiveToken() {
-      return this.selectedToken?.receiveToken
+      return this.selectedToken?.receiveToken;
     },
     waitSeconds() {
       if (!this.sharedState.currentConfig || !this.selectedTokenMediumAmount || !this.amount) {
@@ -472,13 +492,14 @@ export default {
         return
       }
       const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
-      newValue = newValue.replace('-', '');
       this.error = ''
       this.showSuccess = false
       const minValue =  Math.min(newValue, maxValue);
       const bgAmount = new BigNumber(minValue);
-      this.amount = bgAmount.toString();
-      this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
+      this.$nextTick(() => {
+        this.amount = bgAmount.toString();
+        this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
+      });
     },
     accountConnected(newValue) {
       if (this.isMounted && newValue) {
@@ -487,11 +508,17 @@ export default {
     },
     async receiverAddress(address) {
       try {
-        this.error = '';
-        const web3 = this.sharedState.web3
+        if (address === '' || address !== this.sharedState.accountAddress) {
+          this.showAddressWarning = true;
+        } else {
+          this.showAddressWarning = false;
+        }
+        const web3 = this.sharedState.sideWeb3
         const code = await web3.eth.getCode(address);
         if (code !== "0x") {
-          this.error = 'Sending directly to smart contracts may result in the lose of funds';
+          this.showSendToContractWarning = true;
+        } else {
+          this.showSendToContractWarning = false;
         }
       } catch(err) {
 
@@ -561,18 +588,21 @@ export default {
       }
     },
     async handleSwitchNetwork() {
+      this.switchNetwork = true;
       try {
-        this.resetForm();
+        this.willReceiveToken = null;
         const chainId = numToHex(this.sharedState.currentConfig.crossToNetwork.networkId)
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId }],
         })
       } catch (error) {
+        console.log(error);
         if (error.code === 4902) {
           await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
         }
       }
+      this.switchNetwork = false;
     },
     handleOnAccountConnected() {
       this.refreshBalanceAndAllowance().then(() => {
@@ -593,6 +623,7 @@ export default {
     },
     resetForm() {
       this.selectedToken = {};
+      this.willReceiveToken();
       this.amount = 0
       // this.$refs.crossForm.resetForm()
     },
