@@ -348,7 +348,7 @@ input.transfer-different-address:focus {
 }
 
 .holder {
-  height: 6.8vh;
+  height: 3.7em;
 }
 
 </style>
