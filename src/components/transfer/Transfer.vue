@@ -304,7 +304,8 @@ export default {
   cursor: pointer;
   color: white;
   border: 1px solid white;
-  min-height: 15vh;
+  min-height: 7em;
+  max-height: 7em;
 }
 .transfer-address > .address-container:first-child {
   border-top-left-radius: 10px;
