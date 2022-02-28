@@ -1,16 +1,17 @@
 <template>
-  <v-slider ref="rangeInput" 
+  <v-slider class="range-input" ref="rangeInput" 
     v-model="value" 
-    :tick-labels="labels" 
+    :tick-labels="labels"
+    hide-details="true"
     :max="max" 
     :min="min" 
-    thumb-color="green"
+    thumb-color="var(--primary)"
     :step="step" 
     :ticks="labels" 
     show-ticks="always" 
-    :disabled="disabled" 
-    track-fill-color="green" 
-    track-color="grey" />
+    :readonly="disabled" 
+    track-fill-color="var(--primary)" 
+    track-color="#B2B2B2" />
 </template>
 
 <script>
@@ -70,8 +71,12 @@ export default {
   },
 }
 </script>
+<style scoped>
+  .range-input {
+    margin-bottom: 0;
+  }
 
+</style>
 <style lang="scss" scoped>
-$slider-vertical-margin-top: 2vh;
-$slider-thumb-focused-size-increase: undefined !important;
+  $slider-vertical-margin-top: 2vh;
 </style>
