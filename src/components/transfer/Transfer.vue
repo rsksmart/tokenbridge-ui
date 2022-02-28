@@ -75,13 +75,12 @@
               class="form-control text-center align-center"
               type="number"
               min="0"
-              :max="maxAmount"
               :value="amount"
               :disabled="!currentNetwork || !isOrigin || !selectedToken?.token"
               @input="handleChangeAmount"
             />
             <div v-if="isOrigin">
-              <RangeInput v-model:value="percentage" step="1" :disabled="!currentNetwork" />
+              <RangeInput v-model:value="percentage" step="1" :disabled="!currentNetwork || !isOrigin || !selectedToken?.token" />
             </div>
           </div>
         </div>
@@ -122,6 +121,7 @@
               </div>
             </div>
           </div>
+          
         </div>
       </div>
     </div>
@@ -178,6 +178,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    switchNetwork: {
+      type: Boolean,
+      required: false
+    },
   },
   emits: ['changeNetwork', 'selectToken', 'update:amount', 'update:address'],
   data() {
@@ -209,9 +213,6 @@ export default {
     },
   },
   watch: {
-    amount(newAmount) {
-      this.$emit('update:amount', newAmount)
-    },
     percentage(newPercentage) {
       const percentage = newPercentage / 100
       const amount = this.maxAmountBigNumber.multipliedBy(percentage).toNumber()
@@ -229,16 +230,25 @@ export default {
         }
       },
     },
+    switchNetwork(value) {
+      if (value) {
+        this.resetSelectedToken();
+      }
+    }
   },
   methods: {
     changeNetwork() {
       this.tokens = this.currentNetwork.tokens;
-      this.selectedToken = null;
+      this.resetSelectedToken();
       this.$emit('changeNetwork', this.currentNetwork)
+    },
+    resetSelectedToken() {
+      this.selectedToken = null;
+      this.selectToken(null, null);
     },
     selectToken(token, $event) {
       this.selectedToken = token
-      this.$emit('selectToken', token, $event)
+      this.$emit('selectToken', token, $event);
     },
     selectAddressType(type) {
       if (this.disabled) {
@@ -246,6 +256,7 @@ export default {
       }
       this.typeDestinationAddress = type
       if (type === 'connected') {
+        this.error = '';
         this.$emit('update:address', this.connectedAddress)
       } else {
         this.$emit('update:address', '')
@@ -255,13 +266,10 @@ export default {
       this.$emit('update:address', $event.target.value)
     },
     handleChangeAmount($event) {
-      const value = $event.target.value;
-      if (this.maxAmountBigNumber.isLessThan(value) || this.maxAmountBigNumber.toString() === "0") {
-        this.$emit('update:amount', this.maxAmountBigNumber.toString());
-        $event.preventDefault()
-      } else {
-        this.$emit('update:amount', $event.target.value)
-      }
+      this.$nextTick(function() {
+        const value = $event.target.value;
+        this.$emit('update:amount', value);
+      });
     },
   },
 }
