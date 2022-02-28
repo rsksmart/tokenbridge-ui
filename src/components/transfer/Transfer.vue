@@ -83,6 +83,8 @@
             <div v-if="isOrigin">
               <RangeInput v-model:value="percentage" step="1" :disabled="!currentNetwork" />
             </div>
+            <div v-else class="holder">
+            </div>
           </div>
         </div>
       </div>
@@ -302,6 +304,7 @@ export default {
   cursor: pointer;
   color: white;
   border: 1px solid white;
+  min-height: 15vh;
 }
 .transfer-address > .address-container:first-child {
   border-top-left-radius: 10px;
@@ -343,35 +346,9 @@ input.transfer-different-address:focus {
   outline: none;
   box-shadow: none;
 }
-input.range-slider {
-  appearance: none;
-  width: 100%;
-  height: 12px;
-  outline: none;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-  border-radius: 5px;
-  background-size: 70% 100%;
-  background: rgba(255, 255, 255, 0.6) linear-gradient(var(--primary), var(--primary)) no-repeat;
+
+.holder {
+  height: 6.8vh;
 }
-input.range-slider:hover {
-  opacity: 1;
-}
-input.range-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  background: var(--primary);
-  cursor: ew-resize;
-  border-radius: 50%;
-  box-shadow: 0 0 2px 0 #555;
-  transition: background 0.3s ease-in-out;
-}
-input.range-slider::-webkit-slider-runnable-track {
-  -webkit-appearance: none;
-  box-shadow: none;
-  border: none;
-  background: transparent;
-}
+
 </style>
