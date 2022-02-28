@@ -231,8 +231,8 @@
         @changeNetwork="handleChangeNetwork"
         @selectToken="selectToken"
       >
-        <template #footer>
-          &nbsp;
+        <template v-if="!disabled" #footer>
+          <div class="alert alert-secondary text-span">Transaction will require at least <strong>{{ this.confirmations.blocks ?? '0' }}</strong> confirmations</div>
         </template>
       </Transfer>
     </div>
@@ -254,7 +254,7 @@
         @changeNetwork="handleChangeDestinationNetwork"
       >
         <template v-if="!disabled" #footer>
-          You'll need <strong>{{ claimCost }}</strong> to claim the tokens
+          <div class="alert alert-danger text-span">You'll need <strong>{{ claimCost }}</strong> to claim the tokens</div>
         </template>
       </Transfer>
     </div>
@@ -779,6 +779,10 @@ export default {
         this.claimCost = `${costInWei} ${destinationNetworkConfig.gasToken?.symbol}`
       })
     },
+    getRequiredConfirmations(){
+      const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations
+
+    }
   },
 }
 </script>
@@ -794,5 +798,8 @@ export default {
 }
 .swap-btn:hover {
   color: var(--primary);
+}
+.text-span{
+  border-radius: 20px;
 }
 </style>
