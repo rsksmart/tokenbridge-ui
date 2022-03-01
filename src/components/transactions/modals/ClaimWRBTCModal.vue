@@ -151,12 +151,13 @@ export default {
     async handleChangeClaimType($event) {
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
-          this.amount = new BigNumber(this.transaction.amount).shiftedBy(-8).toString()
+          this.amount = this.transaction.receiveAmount
           this.receiveAmount = this.transaction.receiveAmount
           break
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
-          this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amount)
+          const weiAmount = new BigNumber(this.receiveAmount).shiftedBy(-8).toString()
+          this.responseEstimatedGas = await this.getEstimatedGasPrice(weiAmount)
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amountEstimatedGas)
             .shiftedBy(-8)
             .toString()
