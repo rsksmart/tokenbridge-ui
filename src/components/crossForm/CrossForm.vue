@@ -276,7 +276,7 @@
       </Transfer>
     </div>
   </div>
-  <div class="row justify-content-center mb-3 mt-5">
+  <div class="row justify-content-center mt-4">
     <button
       v-if="!hasAllowance"
       id="approve"
