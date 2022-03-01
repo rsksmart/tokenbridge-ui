@@ -623,7 +623,7 @@ export default {
     },
     resetForm() {
       this.selectedToken = {};
-      this.willReceiveToken();
+      this.willReceiveToken = null;
       this.amount = 0
       // this.$refs.crossForm.resetForm()
     },
