@@ -33,4 +33,7 @@ export default {
   text-align: center;
   margin-bottom: 5px;
 }
+#title{
+  margin-bottom: 0;
+}
 </style>
