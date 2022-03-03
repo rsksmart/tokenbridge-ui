@@ -1,5 +1,5 @@
 <template>
-  <div id="home" class="important-details">
+  <div class="important-details main-div">
     <h2 id="important-details" class="subtitle">Important details</h2>
     <table class="table">
       <thead>

@@ -1,5 +1,5 @@
 <template>
-  <div id="home" class="transactions">
+  <div class="transactions main-div">
     <SearchTransaction
       v-if="sharedState.isConnected"
       :types-limits="typesLimits"
