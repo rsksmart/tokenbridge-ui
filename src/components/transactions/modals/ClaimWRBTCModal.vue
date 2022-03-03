@@ -84,8 +84,10 @@
       </div>
       <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
       <div class="d-flex justify-content-center">
-        <button class="btn btn-primary mx-4" @click="handleClaimAction">OK</button>
-        <button class="btn btn-danger mx-4" @click="handleCancelAction">Cancel</button>
+        <button class="btn btn-primary mx-4" @click="handleClaimAction" :class="{ disabled: processing }"
+              :disabled="processing">OK</button>
+        <button class="btn btn-danger mx-4" @click="handleCancelAction" :class="{ disabled: processing }"
+              :disabled="processing">Cancel</button>
       </div>
     </div>
   </div>
@@ -117,6 +119,7 @@ export default {
       amountToken: '',
       errorMessage: '',
       responseEstimatedGas: {},
+      processing: false,
     }
   },
   computed: {
@@ -291,21 +294,26 @@ export default {
       }
     },
     async handleClaimAction() {
-      this.errorMessage = ''
-      switch (this.claimType) {
-        case CLAIM_TYPES.STANDARD:
-          await this.callStandardType()
-          break
-        case CLAIM_TYPES.CONVERT_TO_RBTC:
-          await this.callSwapToRBTC()
-          break
-        case CLAIM_TYPES.PAY_WITH_TOKENS:
-          await this.callStandardType()
-          break
-        default:
-          break
+      try {
+        this.processing = true;
+        this.errorMessage = ''
+        switch (this.claimType) {
+          case CLAIM_TYPES.STANDARD:
+            await this.callStandardType()
+            break
+          case CLAIM_TYPES.CONVERT_TO_RBTC:
+            await this.callSwapToRBTC()
+            break
+          case CLAIM_TYPES.PAY_WITH_TOKENS:
+            await this.callStandardType()
+            break
+          default:
+            break
+        }
+        this.$parent.handleCloseModal();
+      } catch(err) {
+        console.log(err);
       }
-      this.$parent.handleCloseModal();
     },
   },
 }
