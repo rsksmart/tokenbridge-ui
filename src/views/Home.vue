@@ -1,5 +1,5 @@
 <template>
-  <section id="home" class="container">
+  <section class="container main-div">
     <Title />
     <FormWrapper
       :types-limits="settings.typesLimits"
