@@ -305,6 +305,7 @@ export default {
         default:
           break
       }
+      this.$parent.handleCloseModal();
     },
   },
 }
