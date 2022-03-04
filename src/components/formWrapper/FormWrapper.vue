@@ -1,17 +1,5 @@
 <template>
   <div>
-    <div v-if="false">
-      <button
-        v-for="tab in tabs"
-        :key="tab.label"
-        :class="
-          `btn mx-2 ${currentTab.label === tab.label ? 'btn-primary' : 'btn-outline-primary'}`
-        "
-        @click="changeTab(tab)"
-      >
-        {{ tab.label }}
-      </button>
-    </div>
     <component
       :is="currentTabComponent"
       :types-limits="typesLimits"
