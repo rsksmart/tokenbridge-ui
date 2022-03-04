@@ -63,7 +63,6 @@ class ERC721NFTTransaction extends Transaction {
     if (!receipt) {
       throw new Error('Failed to recover receipt information')
     } else {
-      console.log('%cTransaction Receipt is: ', 'color: purple; font-weight: bold')
       console.table(receipt)
     }
 

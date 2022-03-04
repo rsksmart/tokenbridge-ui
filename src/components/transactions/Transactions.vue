@@ -1,5 +1,5 @@
 <template>
-  <div class="transactions">
+  <div class="transactions main-div">
     <SearchTransaction
       v-if="sharedState.isConnected"
       :types-limits="typesLimits"
@@ -78,7 +78,7 @@ export default {
       rskBlockNumber: 0,
       sideBlockNumber: 0,
       pollingBlockNumber: null,
-      limit: 10,
+      limit: 5,
       totalTransactions: 0,
     }
   },
@@ -113,7 +113,7 @@ export default {
     )
     this.$watch(
       () => this.sharedState.sideConfig,
-      (sideConfig, prevSideConfig) => {
+      () => {
         this.refreshTransactions({ limit: this.limit, offset: 0 })
       },
     )
