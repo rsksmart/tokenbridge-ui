@@ -1,5 +1,5 @@
 <template>
-  <div class="token-list mt-5 mb-5">
+  <div class="token-list main-div">
     <h2 id="token-list" class="subtitle">Token list</h2>
     <p class="text-center">
       {{ sharedState.sideConfig.name }} native tokens will transform into

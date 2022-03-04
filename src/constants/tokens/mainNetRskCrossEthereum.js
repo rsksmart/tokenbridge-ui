@@ -1,9 +1,14 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
-export const MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN = {
+export const MAIN_NET_RSK_CROSS_ETHEREUM_GAS_TOKEN = {
   ...tokensInfo.TOKEN_RBTC_INFO,
-  symbol: 'RBTC',
+  symbol: 'rBTC',
+}
+
+export const MAIN_NET_RSK_CROSS_ETHEREUM_MAIN_TOKEN = {
+  ...tokensInfo.TOKEN_WETH_INFO,
+  symbol: 'ETH',
 }
 
 export const MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS = [

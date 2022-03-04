@@ -242,7 +242,6 @@ export default {
           block.timestamp * 1000,
         )
       }
-      console.log('%cTransaction: ', 'color: white; background-color: purple; font-weight: bold')
       console.table(transaction)
 
       // await this.$services.TransactionService.saveTransaction(newTransaction)

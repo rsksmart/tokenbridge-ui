@@ -305,10 +305,12 @@ export default {
       const tokenInstance = this.getTokenTypeInstance({ config: data.toNetwork })
 
       try {
-        const claimReceipt = await tokenInstance.claim(
-          tokenInstance.getClaimData(decodedEvent, event),
-          { from: sharedState.accountAddress, gas: ESTIMATED_GAS_AVG },
-        )
+        const claimData = tokenInstance.getClaimData(decodedEvent, event)
+
+        const claimReceipt = await tokenInstance.claim(claimData, {
+          from: sharedState.accountAddress,
+          gas: ESTIMATED_GAS_AVG,
+        })
         if (claimReceipt) {
           data.currentStep = data.steps.Claimed
           data.loading = false
@@ -329,7 +331,7 @@ export default {
     async updateRBTTransaction({ transactionHash }) {
       await this.$services.TransactionService.saveTransaction({
         ...this.transaction,
-        currentStep: CROSSING_STEPS.Processing,
+        currentStep: CROSSING_STEPS.ClaimedUsingSwap,
       })
       this.$modal.value.showModal({
         type: 'success',

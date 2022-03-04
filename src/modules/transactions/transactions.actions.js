@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { waitForReceipt } from '@/utils'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
-import Web3 from 'web3'
 import * as methodType from '@/constants/methodType'
 /**
  * Global types
@@ -67,8 +66,14 @@ export const receiveTokensTo = (
 ) =>
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
+
     bridgeContract.methods
-      .receiveTokensTo(address, receiverAddress, amountWithDecimals)
+      .receiveTokensTo(
+        config.crossToNetwork.networkId,
+        address,
+        receiverAddress,
+        amountWithDecimals,
+      )
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 
@@ -80,7 +85,7 @@ export const depositTo = (
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
     bridgeContract.methods
-      .depositTo(receiverAddress)
+      .depositTo(config.crossToNetwork.networkId, receiverAddress)
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 
@@ -92,7 +97,7 @@ export const claim = (
   new Promise((resolve, reject) => {
     const bridgeContract = new web3.eth.Contract(BRIDGE_ABI, config.bridge)
     bridgeContract.methods
-      .claim({ to, amount, blockHash, transactionHash, logIndex })
+      .claim({ to, amount, blockHash, transactionHash, logIndex, originChainId: config.networkId })
       .send(transactionObject, transactionCallback(web3, txExplorerLink, { resolve, reject }))
   })
 /**
