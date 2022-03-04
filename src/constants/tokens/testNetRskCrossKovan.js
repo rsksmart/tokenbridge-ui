@@ -1,6 +1,11 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
+export const TEST_NET_RSK_CROSS_KOVAN_GAS_TOKEN = {
+  ...tokensInfo.TOKEN_RBTC_INFO,
+  symbol: 'rBTC',
+}
+
 export const TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN = {
   ...tokensInfo.TOKEN_WETH_INFO,
   symbol: 'rETH',

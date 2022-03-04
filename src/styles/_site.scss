@@ -10,6 +10,12 @@
 @import url('https://developers.rsk.co/assets/css/styles_dark.css');
 @import url('https://developers.rsk.co/assets/css/code.css');
 
+@font-face {
+  font-family: "Objective";
+  src: local("Objective"),
+       url(./fonts/Objective-Regular.woff2) format("woff2");
+}
+
 :root {
   --primary: #00b520;
 }
@@ -143,8 +149,9 @@ input.form-control {
   font-size: 1rem;
   line-height: 22px;
 }
-#home {
-  padding-top: 20px;
+.main-div {
+  min-height: 80vh;
+  padding-top: 0;
   padding-bottom: 20px;
 }
 #footer {
