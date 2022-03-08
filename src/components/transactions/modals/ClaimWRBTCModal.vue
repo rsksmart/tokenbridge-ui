@@ -31,7 +31,8 @@
             />
             <label class="form-check-label" for="claim-standard">Standard</label>
           </div>
-          <div class="form-check form-check-inline">
+          <!-- TODO: Enable only when the swap is allowed for other tokens  -->
+          <!-- <div class="form-check form-check-inline">
             <input
               id="claim-pay-with-tokens"
               v-model="claimType"
@@ -43,8 +44,8 @@
               @change="handleChangeClaimType($event)"
             />
             <label class="form-check-label" for="claim-pay-with-tokens">Pay gas with tokens</label>
-          </div>
-          <div class="form-check form-check-inline">
+          </div> -->
+          <div v-if="this.toNetwork.isRsk" class="form-check form-check-inline">
             <input
               id="claim-convert-rbtc"
               v-model="claimType"
@@ -96,6 +97,7 @@
 <script>
 import { store } from '@/store'
 import { CLAIM_TYPES } from '@/constants/claimTypes'
+import { findNetworkByChainId } from '@/constants/networks'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
@@ -132,6 +134,9 @@ export default {
     claimTypes() {
       return CLAIM_TYPES
     },
+    toNetwork() {
+      return findNetworkByChainId(this.transaction.destinationChainId, this.transaction.networkId)
+    },
   },
   mounted() {
     this.handleChangeClaimType({ target: { value: this.claimTypes.STANDARD } })
@@ -159,12 +164,21 @@ export default {
           break
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
-          const weiAmount = new BigNumber(this.receiveAmount).shiftedBy(-8).toString()
+          const weiAmount = new BigNumber(this.receiveAmount).shiftedBy(8).toFixed(0)
+
           this.responseEstimatedGas = await this.getEstimatedGasPrice(weiAmount)
-          const estimatedGas = new BigNumber(this.responseEstimatedGas?.amountEstimatedGas)
+          const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
             .shiftedBy(-8)
             .toString()
-          this.receiveAmount = new BigNumber(this.amount).minus(estimatedGas).toString()
+
+          this.sharedState.web3.eth.getGasPrice().then(gasPrice => {
+            const costInWei = new BigNumber(estimatedGas)
+              .multipliedBy(gasPrice)
+              .shiftedBy(-18)
+              .toPrecision(6)
+              .toString()
+            this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
+          })
           break
         }
         default: {
@@ -193,7 +207,7 @@ export default {
           nonce: parseInt(nonce, 10) + 1,
           deadline: moment()
             .add(3, 'days')
-            .unix(),
+            .unix().toString(),
         },
         primaryType: 'Claim',
         types: {
@@ -247,6 +261,7 @@ export default {
         const nonce = await contract.methods.nonces(this.sharedState.accountAddress).call()
         const msgObject = this.getDataTypeObject(nonce)
         const params = [this.sharedState.accountAddress, JSON.stringify(msgObject)]
+
         const signedData = await this.getSignedData(params)
         return { ...signedData, nonce }
       } catch (error) {
@@ -260,8 +275,14 @@ export default {
       try {
         const signedData = await this.signWithMetamask()
         if (!signedData) {
-          return null
+          return null // TODO: add an error message to display
         }
+        const sideToken = this.toNetwork.tokens.filter(x => x.token == "WBTC")
+        if(sideToken.length === 0){
+          return null // TODO: add an error message
+        }
+        const sideBtcTokenAddress = sideToken[0].address
+
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
           method: 'POST',
           headers: {
@@ -278,15 +299,17 @@ export default {
             },
             deadline: moment()
               .add(3, 'days')
-              .unix(),
-            relayerAddress: this.sharedState.currentConfig.relayer, // env or network setting
+              .unix().toString(),
+            relayerAddress: this.sharedState.currentConfig.relayer,
             v: signedData.v,
             r: signedData.r,
             s: signedData.s,
             estimatedGasFee: this.responseEstimatedGas,
+            sideTokenBtcContractAddress: sideBtcTokenAddress,
           }),
         })
         const responseObject = await response.json()
+        console.log(responseObject)
         await this.$attrs.on.onCloseClaimModal(CLAIM_TYPES.CONVERT_TO_RBTC, responseObject)
         this.$parent.handleCloseModal()
       } catch (responseError) {
