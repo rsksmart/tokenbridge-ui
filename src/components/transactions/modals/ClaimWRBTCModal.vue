@@ -164,6 +164,7 @@ export default {
           break
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
+          this.processing = true
           const weiAmount = new BigNumber(this.receiveAmount).shiftedBy(8).toFixed(0)
 
           this.responseEstimatedGas = await this.getEstimatedGasPrice(weiAmount)
@@ -174,11 +175,15 @@ export default {
           this.sharedState.web3.eth.getGasPrice().then(gasPrice => {
             const costInWei = new BigNumber(estimatedGas)
               .multipliedBy(gasPrice)
-              .shiftedBy(-18)
-              .toPrecision(6)
-              .toString()
-            this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
+              .shiftedBy(-16)
+
+            const costWithGap =  costInWei.multipliedBy(1.5).toPrecision(7).toString()
+              console.log(costInWei.toString())
+              console.log(costWithGap)
+
+              this.receiveAmount = new BigNumber(this.amount).minus(costWithGap).toString()
           })
+          this.processing = false
           break
         }
         default: {
@@ -272,6 +277,8 @@ export default {
       await this.$attrs.on.onCloseClaimModal(CLAIM_TYPES.STANDARD)
     },
     async callSwapToRBTC() {
+      this.processing = true;
+      this.errorMessage = ''
       try {
         const signedData = await this.signWithMetamask()
         if (!signedData) {
