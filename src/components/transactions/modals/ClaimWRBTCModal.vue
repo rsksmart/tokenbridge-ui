@@ -101,6 +101,7 @@ import { findNetworkByChainId } from '@/constants/networks'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
+const ethUtil = require('ethereumjs-util');
 
 export default {
   name: 'ClaimWRBTCModal',
@@ -198,14 +199,13 @@ export default {
       this.deadline = moment()
             .add(3, 'hours')
             .unix().toString()
-      console.log(this.deadline)
 
       return {
         domain: {
-          chainId: this.transaction.destinationChainId,
           name: 'RSK Token Bridge',
-          verifyingContract: this.sharedState.currentConfig.bridge.toLowerCase(),
           version: '1',
+          chainId: this.transaction.destinationChainId,
+          verifyingContract: this.sharedState.currentConfig.bridge,
         },
         message: {
           to: this.transaction.receiverAddress,
@@ -217,7 +217,7 @@ export default {
           nonce: parseInt(nonce, 10) + 1,
           deadline: this.deadline,
         },
-        primaryType: 'Claim',
+        primaryType: 'Claim', 
         types: {
           Claim: [
             { name: 'to', type: 'address' },
@@ -232,7 +232,63 @@ export default {
         },
       }
     },
-    getSignedData(params) {
+    async getClaimDigest(
+        bridge,
+        claim, //{address _to,uint256 _amount,bytes32 _transactionHash,uint256 originChainId,address _relayer,uint256 _fee},
+        nonce,
+        deadline
+    ) {
+        const CLAIM_TYPEHASH = await bridge.methods.CLAIM_TYPEHASH().call();
+        const DOMAIN_SEPARATOR = await bridge.methods.domainSeparator().call();
+
+      console.log("acaaaa")
+
+        return this.sharedState.web3.utils.soliditySha3(
+            {t:'bytes1', v:'0x19'},
+            {t:'bytes1', v:'0x01'},
+            {t:'bytes32', v:DOMAIN_SEPARATOR},
+            {t:'bytes32', v:this.sharedState.web3.utils.keccak256(
+                    this.sharedState.web3.eth.abi.encodeParameters(
+                        ['bytes32', 'address', 'uint256', 'bytes32', 'uint256', 'address', 'uint256', 'uint256', 'uint256'],
+                        [CLAIM_TYPEHASH, claim.to, claim.amount, claim.transactionHash, claim.originChainId, claim.relayer, claim.fee, nonce, deadline]
+                    )
+                )
+            }
+        )
+    },    
+    async getSignedData(params) {
+      const contract = new this.sharedState.web3.eth.Contract(
+        BRIDGE_ABI,
+        this.sharedState.currentConfig.bridge,
+      )      
+      
+      const theNonce = await contract.methods.nonces(this.sharedState.accountAddress).call()
+
+      const msgObject = this.getDataTypeObject(theNonce)
+
+      const digest = await this.getClaimDigest(
+          contract,
+          {
+              to: msgObject.message.to,
+              amount: msgObject.message.amount,
+              transactionHash: msgObject.message.transactionHash,
+              relayer: msgObject.message.relayer,
+              fee: msgObject.message.fee,
+              originChainId: msgObject.message.originChainId
+          },
+          msgObject.message.nonce,
+          msgObject.message.deadline
+      )
+      console.log(digest)
+      const { v, r, s } = ethUtil.ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from('2032339e5099535077bacb21cd259a5aa3a390db8ef33e009554b016f65ddadd', 'hex'));
+     
+      const rString = `0x${r.toString('hex')}`
+      const sString = `0x${s.toString('hex')}`
+      console.log(v)
+      console.log(rString)
+      console.log(sString)
+      return Promise.resolve({ r: rString, s: sString, v })
+
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
           {
@@ -254,7 +310,9 @@ export default {
             const r = `0x${signature.substring(0, 64)}`
             const s = `0x${signature.substring(64, 128)}`
             const v = parseInt(signature.substring(128, 130), 16)
-
+            console.log(v, "v1")
+            console.log(r, "r1")
+            console.log(s, "s1")
             resolve({ r, s, v })
           },
         )
