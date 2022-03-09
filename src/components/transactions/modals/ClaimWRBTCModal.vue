@@ -122,6 +122,7 @@ export default {
       errorMessage: '',
       responseEstimatedGas: {},
       processing: false,
+      deadline: '',
     }
   },
   computed: {
@@ -168,6 +169,8 @@ export default {
           const weiAmount = new BigNumber(this.receiveAmount).shiftedBy(8).toFixed(0)
 
           this.responseEstimatedGas = await this.getEstimatedGasPrice(weiAmount)
+          // TODO: check if response is not null otherwise show an error
+          
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
             .shiftedBy(-8)
             .toString()
@@ -175,13 +178,10 @@ export default {
           this.sharedState.web3.eth.getGasPrice().then(gasPrice => {
             const costInWei = new BigNumber(estimatedGas)
               .multipliedBy(gasPrice)
-              .shiftedBy(-16)
+              .shiftedBy(-10)
+              .toPrecision(8).toString()
 
-            const costWithGap =  costInWei.multipliedBy(1.5).toPrecision(7).toString()
-              console.log(costInWei.toString())
-              console.log(costWithGap)
-
-              this.receiveAmount = new BigNumber(this.amount).minus(costWithGap).toString()
+              this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
           })
           this.processing = false
           break
@@ -195,6 +195,11 @@ export default {
       this.$parent.handleCloseModal()
     },
     getDataTypeObject(nonce) {
+      this.deadline = moment()
+            .add(3, 'hours')
+            .unix().toString()
+      console.log(this.deadline)
+
       return {
         domain: {
           chainId: this.transaction.destinationChainId,
@@ -210,9 +215,7 @@ export default {
           relayer: this.sharedState.currentConfig.relayer,
           fee: this.transaction.amount,
           nonce: parseInt(nonce, 10) + 1,
-          deadline: moment()
-            .add(3, 'days')
-            .unix().toString(),
+          deadline: this.deadline,
         },
         primaryType: 'Claim',
         types: {
@@ -289,6 +292,7 @@ export default {
           return null // TODO: add an error message
         }
         const sideBtcTokenAddress = sideToken[0].address
+        console.log(this.deadline)
 
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
           method: 'POST',
@@ -304,9 +308,7 @@ export default {
               logIndex: parseInt(signedData.nonce, 10) + 1,
               originChainId: this.transaction.networkId,
             },
-            deadline: moment()
-              .add(3, 'days')
-              .unix().toString(),
+            deadline: this.deadline,
             relayerAddress: this.sharedState.currentConfig.relayer,
             v: signedData.v,
             r: signedData.r,
