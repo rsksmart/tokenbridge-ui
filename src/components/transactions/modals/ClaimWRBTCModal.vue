@@ -167,6 +167,7 @@ export default {
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
           this.processing = true
+          
           const weiAmount = new BigNumber(this.receiveAmount).shiftedBy(8).toFixed(0)
 
           this.responseEstimatedGas = await this.getEstimatedGasPrice(weiAmount)
@@ -196,10 +197,6 @@ export default {
       this.$parent.handleCloseModal()
     },
     getDataTypeObject(nonce) {
-      this.deadline = moment()
-            .add(3, 'hours')
-            .unix().toString()
-
       return {
         domain: {
           name: 'RSK Token Bridge',
@@ -214,11 +211,17 @@ export default {
           originChainId: this.transaction.networkId,
           relayer: this.sharedState.currentConfig.relayer,
           fee: this.transaction.amount,
-          nonce: parseInt(nonce, 10) + 1,
+          nonce: nonce,
           deadline: this.deadline,
         },
         primaryType: 'Claim', 
         types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "version", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },        
+          ],
           Claim: [
             { name: 'to', type: 'address' },
             { name: 'amount', type: 'uint256' },
@@ -232,62 +235,63 @@ export default {
         },
       }
     },
-    async getClaimDigest(
-        bridge,
-        claim, //{address _to,uint256 _amount,bytes32 _transactionHash,uint256 originChainId,address _relayer,uint256 _fee},
-        nonce,
-        deadline
-    ) {
-        const CLAIM_TYPEHASH = await bridge.methods.CLAIM_TYPEHASH().call();
-        const DOMAIN_SEPARATOR = await bridge.methods.domainSeparator().call();
+    // async getClaimDigest(
+    //     bridge,
+    //     claim, //{address _to,uint256 _amount,bytes32 _transactionHash,uint256 originChainId,address _relayer,uint256 _fee},
+    //     nonce,
+    //     deadline
+    // ) {
+    //     const CLAIM_TYPEHASH = await bridge.methods.CLAIM_TYPEHASH().call();
+    //     const DOMAIN_SEPARATOR = await bridge.methods.domainSeparator().call();
 
-      console.log("acaaaa")
+    //     const keccak256 = this.sharedState.web3.utils.keccak256;
 
-        return this.sharedState.web3.utils.soliditySha3(
-            {t:'bytes1', v:'0x19'},
-            {t:'bytes1', v:'0x01'},
-            {t:'bytes32', v:DOMAIN_SEPARATOR},
-            {t:'bytes32', v:this.sharedState.web3.utils.keccak256(
-                    this.sharedState.web3.eth.abi.encodeParameters(
-                        ['bytes32', 'address', 'uint256', 'bytes32', 'uint256', 'address', 'uint256', 'uint256', 'uint256'],
-                        [CLAIM_TYPEHASH, claim.to, claim.amount, claim.transactionHash, claim.originChainId, claim.relayer, claim.fee, nonce, deadline]
-                    )
-                )
-            }
-        )
-    },    
+    //     return this.sharedState.web3.utils.soliditySha3(
+    //         {t:'bytes1', v:'0x19'},
+    //         {t:'bytes1', v:'0x01'},
+    //         {t:'bytes32', v:DOMAIN_SEPARATOR},
+    //         {t:'bytes32', v:keccak256(
+    //                 this.sharedState.web3.eth.abi.encodeParameters(
+    //                     ['bytes32', 'address', 'uint256', 'bytes32', 'uint256', 'address', 'uint256', 'uint256', 'uint256'],
+    //                     [CLAIM_TYPEHASH, claim.to, claim.amount, claim.transactionHash, claim.originChainId, claim.relayer, claim.fee, nonce, deadline]
+    //                 )
+    //             )
+    //         }
+    //     )
+    // },    
     async getSignedData(params) {
-      const contract = new this.sharedState.web3.eth.Contract(
-        BRIDGE_ABI,
-        this.sharedState.currentConfig.bridge,
-      )      
-      
-      const theNonce = await contract.methods.nonces(this.sharedState.accountAddress).call()
+      // const contract = new this.sharedState.web3.eth.Contract(
+      //   BRIDGE_ABI,
+      //   this.sharedState.currentConfig.bridge,
+      // )      
+      // console.log(this.sharedState.accountAddress)
+      // const theNonce = await contract.methods.nonces(this.sharedState.accountAddress).call()
 
-      const msgObject = this.getDataTypeObject(theNonce)
-
-      const digest = await this.getClaimDigest(
-          contract,
-          {
-              to: msgObject.message.to,
-              amount: msgObject.message.amount,
-              transactionHash: msgObject.message.transactionHash,
-              relayer: msgObject.message.relayer,
-              fee: msgObject.message.fee,
-              originChainId: msgObject.message.originChainId
-          },
-          msgObject.message.nonce,
-          msgObject.message.deadline
-      )
-      console.log(digest)
-      const { v, r, s } = ethUtil.ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from('2032339e5099535077bacb21cd259a5aa3a390db8ef33e009554b016f65ddadd', 'hex'));
+      // const msgObject = this.getDataTypeObject(theNonce)
+      // console.log(msgObject)
+      // const digest = await this.getClaimDigest(
+      //     contract,
+      //     {
+      //         to: msgObject.message.to,
+      //         amount: msgObject.message.amount,
+      //         transactionHash: msgObject.message.transactionHash,
+      //         relayer: msgObject.message.relayer,
+      //         fee: msgObject.message.fee,
+      //         originChainId: msgObject.message.originChainId
+      //     },
+      //     msgObject.message.nonce,
+      //     msgObject.message.deadline
+      // )
+ 
+      //  const { v, r, s } = ethUtil.ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from('2032339e5099535077bacb21cd259a5aa3a390db8ef33e009554b016f65ddadd', 'hex'));
      
-      const rString = `0x${r.toString('hex')}`
-      const sString = `0x${s.toString('hex')}`
-      console.log(v)
-      console.log(rString)
-      console.log(sString)
-      return Promise.resolve({ r: rString, s: sString, v })
+      // const rString = `0x${r.toString('hex')}`
+      // const sString = `0x${s.toString('hex')}`
+      // console.log(v)
+      // console.log(rString)
+      // console.log(sString)
+
+      //return Promise.resolve({ r, s, v })
 
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
@@ -339,18 +343,46 @@ export default {
     },
     async callSwapToRBTC() {
       this.processing = true;
+      this.deadline = moment()
+            .add(3, 'hours')
+            .unix().toString()      
       this.errorMessage = ''
+
       try {
         const signedData = await this.signWithMetamask()
         if (!signedData) {
           return null // TODO: add an error message to display
         }
+
         const sideToken = this.toNetwork.tokens.filter(x => x.token == "WBTC")
         if(sideToken.length === 0){
           return null // TODO: add an error message
         }
         const sideBtcTokenAddress = sideToken[0].address
-        console.log(this.deadline)
+
+        // const contract = new this.sharedState.web3.eth.Contract(
+        //   BRIDGE_ABI,
+        //   this.sharedState.currentConfig.bridge,
+        // )
+
+        // const response = await contract.methods.claimGasless(
+        //     {
+        //         to: this.transaction.receiverAddress,
+        //         amount: this.transaction.amount,
+        //         blockHash: this.transaction.blockHash,
+        //         transactionHash: this.transaction.transactionHash,
+        //         logIndex: parseInt(signedData.nonce, 10) + 1,
+        //         originChainId: this.transaction.networkId
+        //     },
+        //     this.sharedState.currentConfig.relayer,
+        //     this.transaction.amount,
+        //     this.deadline,
+        //     signedData.v,
+        //     signedData.r,
+        //     signedData.s,
+        // ).call();
+
+        // console.log(response)
 
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
           method: 'POST',
