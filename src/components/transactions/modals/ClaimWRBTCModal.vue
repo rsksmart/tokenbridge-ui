@@ -101,7 +101,9 @@ import { findNetworkByChainId } from '@/constants/networks'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
-const ethUtil = require('ethereumjs-util');
+import { decodeCrossEvent } from '../../../utils/decodeEvents'
+import globalStore from '@/stores/global.store'
+
 
 export default {
   name: 'ClaimWRBTCModal',
@@ -235,63 +237,9 @@ export default {
         },
       }
     },
-    // async getClaimDigest(
-    //     bridge,
-    //     claim, //{address _to,uint256 _amount,bytes32 _transactionHash,uint256 originChainId,address _relayer,uint256 _fee},
-    //     nonce,
-    //     deadline
-    // ) {
-    //     const CLAIM_TYPEHASH = await bridge.methods.CLAIM_TYPEHASH().call();
-    //     const DOMAIN_SEPARATOR = await bridge.methods.domainSeparator().call();
-
-    //     const keccak256 = this.sharedState.web3.utils.keccak256;
-
-    //     return this.sharedState.web3.utils.soliditySha3(
-    //         {t:'bytes1', v:'0x19'},
-    //         {t:'bytes1', v:'0x01'},
-    //         {t:'bytes32', v:DOMAIN_SEPARATOR},
-    //         {t:'bytes32', v:keccak256(
-    //                 this.sharedState.web3.eth.abi.encodeParameters(
-    //                     ['bytes32', 'address', 'uint256', 'bytes32', 'uint256', 'address', 'uint256', 'uint256', 'uint256'],
-    //                     [CLAIM_TYPEHASH, claim.to, claim.amount, claim.transactionHash, claim.originChainId, claim.relayer, claim.fee, nonce, deadline]
-    //                 )
-    //             )
-    //         }
-    //     )
-    // },    
-    async getSignedData(params) {
-      // const contract = new this.sharedState.web3.eth.Contract(
-      //   BRIDGE_ABI,
-      //   this.sharedState.currentConfig.bridge,
-      // )      
-      // console.log(this.sharedState.accountAddress)
-      // const theNonce = await contract.methods.nonces(this.sharedState.accountAddress).call()
-
-      // const msgObject = this.getDataTypeObject(theNonce)
-      // console.log(msgObject)
-      // const digest = await this.getClaimDigest(
-      //     contract,
-      //     {
-      //         to: msgObject.message.to,
-      //         amount: msgObject.message.amount,
-      //         transactionHash: msgObject.message.transactionHash,
-      //         relayer: msgObject.message.relayer,
-      //         fee: msgObject.message.fee,
-      //         originChainId: msgObject.message.originChainId
-      //     },
-      //     msgObject.message.nonce,
-      //     msgObject.message.deadline
-      // )
  
-      //  const { v, r, s } = ethUtil.ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from('2032339e5099535077bacb21cd259a5aa3a390db8ef33e009554b016f65ddadd', 'hex'));
-     
-      // const rString = `0x${r.toString('hex')}`
-      // const sString = `0x${s.toString('hex')}`
-      // console.log(v)
-      // console.log(rString)
-      // console.log(sString)
+    async getSignedData(params) {
 
-      //return Promise.resolve({ r, s, v })
 
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
@@ -314,9 +262,7 @@ export default {
             const r = `0x${signature.substring(0, 64)}`
             const s = `0x${signature.substring(64, 128)}`
             const v = parseInt(signature.substring(128, 130), 16)
-            console.log(v, "v1")
-            console.log(r, "r1")
-            console.log(s, "s1")
+
             resolve({ r, s, v })
           },
         )
@@ -359,30 +305,14 @@ export default {
           return null // TODO: add an error message
         }
         const sideBtcTokenAddress = sideToken[0].address
-
-        // const contract = new this.sharedState.web3.eth.Contract(
-        //   BRIDGE_ABI,
-        //   this.sharedState.currentConfig.bridge,
-        // )
-
-        // const response = await contract.methods.claimGasless(
-        //     {
-        //         to: this.transaction.receiverAddress,
-        //         amount: this.transaction.amount,
-        //         blockHash: this.transaction.blockHash,
-        //         transactionHash: this.transaction.transactionHash,
-        //         logIndex: parseInt(signedData.nonce, 10) + 1,
-        //         originChainId: this.transaction.networkId
-        //     },
-        //     this.sharedState.currentConfig.relayer,
-        //     this.transaction.amount,
-        //     this.deadline,
-        //     signedData.v,
-        //     signedData.r,
-        //     signedData.s,
-        // ).call();
-
-        // console.log(response)
+        const receipt = await this.sharedState.sideWeb3.eth.getTransactionReceipt(this.transaction.transactionHash)
+        console.log(receipt)
+        const { event } = decodeCrossEvent(
+          this.sharedState.sideWeb3,
+          receipt,
+          globalStore.state.currentTokenType,
+        )        
+        console.log(event)
 
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
           method: 'POST',
@@ -395,8 +325,9 @@ export default {
               amount: this.transaction.amount,
               blockHash: this.transaction.blockHash,
               transactionHash: this.transaction.transactionHash,
-              logIndex: parseInt(signedData.nonce, 10) + 1,
+              logIndex: event.logIndex,
               originChainId: this.transaction.networkId,
+              destinationChainId: this.transaction.destinationChainId
             },
             deadline: this.deadline,
             relayerAddress: this.sharedState.currentConfig.relayer,
