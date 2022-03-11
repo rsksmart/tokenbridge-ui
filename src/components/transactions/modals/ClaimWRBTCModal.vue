@@ -54,9 +54,10 @@
               name="claimType"
               :value="claimTypes.CONVERT_TO_RBTC"
               @change="handleChangeClaimType($event)"
+              :disabled="transaction.tokenFrom !== 'WBTC'"
             />
             <label class="form-check-label" for="claim-convert-rbtc">Convert to RBTC</label>
-          </div> -->
+          </div>
         </div>
       </div>
       <div class="form-group row">
