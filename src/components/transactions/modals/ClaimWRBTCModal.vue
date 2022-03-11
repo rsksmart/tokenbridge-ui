@@ -31,7 +31,7 @@
             />
             <label class="form-check-label" for="claim-standard">Standard</label>
           </div>
-          <div class="form-check form-check-inline">
+          <!-- <div class="form-check form-check-inline">
             <input
               id="claim-pay-with-tokens"
               v-model="claimType"
@@ -55,7 +55,7 @@
               @change="handleChangeClaimType($event)"
             />
             <label class="form-check-label" for="claim-convert-rbtc">Convert to RBTC</label>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="form-group row">
