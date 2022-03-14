@@ -106,7 +106,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
   allowTokens: '0xc65bf0ae75dc1a5fc9e6f4215125692a548c773a',
   federation: '0x5d663981d930e8ec108280b9d80885658148ab0f',
-  relayer: '0x3cbec7a3ffed4153cb3610a08057264d87d7018b',
+  relayer: '0x7c77704007C9996Ee591C516f7319828BA49d91E',
   explorer: 'https://explorer.testnet.rsk.co',
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
