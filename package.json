@@ -46,6 +46,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-prettier": "^3.3.0",
     "eslint-plugin-vue": "^7.0.0",
+    "ethereumjs-util": "^7.1.4",
     "firebase-tools": "^9.18.0",
     "sass": "^1.38.0",
     "sass-loader": "^10.0.0",

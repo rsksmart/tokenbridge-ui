@@ -49,6 +49,9 @@
       <div v-else-if="currentStep === steps.Claimed">
         <span class="confirmed claimed">Claimed</span>
       </div>
+      <div v-else-if="currentStep === steps.ClaimedUsingSwap">
+        <span class="confirmed claimed">Claimed with Swap</span>
+      </div>
     </td>
     <Modal v-if="showResultModal" @close="showResultModal = false">
       <template #title>
