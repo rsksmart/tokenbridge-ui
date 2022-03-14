@@ -190,20 +190,23 @@ export default {
   },
   computed: {
     confirmations() {
+      let dataToReturn = {};
       if (
         !this.sharedState.currentConfig ||
-        !this.amount ||
-        !this.typesLimits?.length ||
-        !this.selectedToken?.typeId
-      )
-        return {}
+        isNaN(this.amount) ||
+        isNaN(this.typesLimits?.length) ||
+        isNaN(this.selectedToken?.typeId)
+      ) {
+        return dataToReturn;
+      }
+        
       const config = this.sharedState.currentConfig
       const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations
       // convert amount to wei to compare against limits
       const amount = new BigNumber(this.amount).shiftedBy(18)
       const limit = this.typesLimits[this.selectedToken?.typeId]
       if (amount.isLessThan(limit.mediumAmount)) {
-        return {
+        dataToReturn = {
           blocks: confirmations.smallAmount,
           time: moment
             .duration(confirmations.smallAmount * config.secondsPerBlock, 'seconds')
@@ -211,7 +214,7 @@ export default {
             .humanize(),
         }
       } else if (amount.isLessThan(limit.largeAmount)) {
-        return {
+        dataToReturn = {
           blocks: confirmations.mediumAmount,
           time: moment
             .duration(confirmations.mediumAmountTime * config.secondsPerBlock, 'seconds')
@@ -219,7 +222,7 @@ export default {
             .humanize(),
         }
       } else {
-        return {
+        dataToReturn = {
           blocks: confirmations.largeAmount,
           time: moment
             .duration(confirmations.largeAmountTime * config.secondsPerBlock, 'seconds')
@@ -227,6 +230,7 @@ export default {
             .humanize(),
         }
       }
+      return dataToReturn;
     },
     accountConnected() {
       return `${this.sharedState.chainId || ''} ${this.sharedState.accountAddress || ''} ${this
