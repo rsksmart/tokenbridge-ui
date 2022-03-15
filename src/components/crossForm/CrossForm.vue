@@ -330,7 +330,7 @@ export default {
         this.destinationNetworks = networksConf?.networks.map(record => record.crossToNetwork) 
       } catch (error) {
         if (error.code === 4902) {
-          await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
+          await this.handleAddNetwork(network)
         }
       }
     },
