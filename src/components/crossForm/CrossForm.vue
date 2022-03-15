@@ -273,18 +273,19 @@ export default {
   },
   watch: {
     amount: function(newValue) {
-      if (newValue === "0") {
-        return
+      if (newValue > 0) {
+        const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
+        this.error = ''
+        this.showSuccess = false
+        const minValue =  Math.min(newValue, maxValue);
+        const bgAmount = new BigNumber(minValue);
+        this.$nextTick(() => {
+          this.amount = bgAmount.toString();
+          this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
+        });
+      } else {
+        this.receiveAmount = 0;
       }
-      const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
-      this.error = ''
-      this.showSuccess = false
-      const minValue =  Math.min(newValue, maxValue);
-      const bgAmount = new BigNumber(minValue);
-      this.$nextTick(() => {
-        this.amount = bgAmount.toString();
-        this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
-      });
     },
     accountConnected(newValue) {
       if (this.isMounted && newValue) {
