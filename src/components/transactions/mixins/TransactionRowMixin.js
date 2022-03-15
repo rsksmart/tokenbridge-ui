@@ -14,6 +14,7 @@ import { findNetworkByChainId } from '@/constants/networks'
 import WrongNetwork from '@/components/transactions/modals/WrongNetwork'
 import ClaimWRBTCModal from '../modals/ClaimWRBTCModal'
 import { CLAIM_TYPES } from '@/constants/claimTypes'
+import { waitForReceipt } from '../../../utils'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -328,19 +329,37 @@ export default {
         console.error(error)
       }
     },
-    async updateRBTTransaction({ transactionHash }) {
-      await this.$services.TransactionService.saveTransaction({
-        ...this.transaction,
-        currentStep: CROSSING_STEPS.ClaimedUsingSwap,
-      })
-      this.$modal.value.showModal({
-        type: 'success',
-        options: {
-          modalProps: {
-            message: `Claimed transaction <a href="${this.sharedState.currentConfig.explorer}/tx/${transactionHash}">see the transaction</a>`,
+    async updateRBTCTransaction(responseObject) {
+      const data = this
+      data.loading = true
+      const { transactionHash } = responseObject
+      
+      try {
+        const receipt = await waitForReceipt(transactionHash, this.sharedState.rskWeb3)
+
+        await this.$services.TransactionService.saveTransaction({
+          ...data.transaction,
+          currentStep: CROSSING_STEPS.ClaimedUsingSwap,
+        })
+
+        data.loading = false
+        data.showResultModal = true
+        data.currentStep = CROSSING_STEPS.ClaimedUsingSwap
+        this.$modal.value.showModal({
+          type: 'success',
+          options: {
+            modalProps: {
+              message: `Claimed transaction <a href="${this.sharedState.currentConfig.explorer}/tx/${transactionHash}">see the transaction</a>`,
+            },
           },
-        },
-      })
+        })
+      }
+      catch (error) {
+        data.loading = false
+        data.error = error.message
+        data.showResultModal = true
+        console.error(error)
+      }
     },
     async onCloseClaimModal(claimType, ...params) {
       switch (claimType) {
@@ -348,12 +367,13 @@ export default {
           await this.claim()
           break
         case CLAIM_TYPES.CONVERT_TO_RBTC:
-          await this.updateRBTTransaction(...params)
+          await this.updateRBTCTransaction(...params)
           break
         default:
           break
       }
     },
+    
     async claimWBTC() {
       this.$modal.value.showModal({
         type: 'custom',
