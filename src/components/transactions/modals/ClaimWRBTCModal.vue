@@ -127,6 +127,9 @@ export default {
       responseEstimatedGas: {},
       processing: false,
       deadline: '',
+      amountInWei: 0,
+      logIndex: '',
+      sideTokenBtcContractAddress: '',
     }
   },
   computed: {
@@ -161,6 +164,23 @@ export default {
         this.errorMessage = requestError.message
       }
     },
+    async recoverTransactionAmount(){
+        const sideToken = this.toNetwork.tokens.filter(x => x.token == "WBTC")
+        if(sideToken.length === 0){
+          return null // TODO: add an error message
+        }
+        const receipt = await this.sharedState.sideWeb3.eth.getTransactionReceipt(this.transaction.transactionHash)
+
+        const { event, decodedEvent } = decodeCrossEvent(
+          this.sharedState.sideWeb3,
+          receipt,
+          globalStore.state.currentTokenType,
+        )
+
+        this.sideTokenBtcContractAddress = sideToken[0].address
+        this.logIndex = event.logIndex     
+        this.amountInWei = decodedEvent._amount   
+    },
     async handleChangeClaimType($event) {
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
@@ -170,10 +190,8 @@ export default {
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
           this.processing = true
-          
-          const weiAmount = new BigNumber(this.receiveAmount).shiftedBy(8).toFixed(0)
-
-          this.responseEstimatedGas = await this.getEstimatedGasPrice(weiAmount)
+          await this.recoverTransactionAmount()
+          this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
           // TODO: check if response is not null otherwise show an error
           
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
@@ -209,11 +227,11 @@ export default {
         },
         message: {
           to: this.transaction.receiverAddress,
-          amount: this.transaction.amount,
+          amount: this.amountInWei,
           transactionHash: this.transaction.transactionHash,
           originChainId: this.transaction.networkId,
           relayer: this.sharedState.currentConfig.relayer,
-          fee: this.transaction.amount,
+          fee: this.amountInWei,
           nonce: nonce,
           deadline: this.deadline,
         },
@@ -301,20 +319,6 @@ export default {
           return null // TODO: add an error message to display
         }
 
-        const sideToken = this.toNetwork.tokens.filter(x => x.token == "WBTC")
-        if(sideToken.length === 0){
-          return null // TODO: add an error message
-        }
-        const sideBtcTokenAddress = sideToken[0].address
-        const receipt = await this.sharedState.sideWeb3.eth.getTransactionReceipt(this.transaction.transactionHash)
-        console.log(receipt)
-        const { event } = decodeCrossEvent(
-          this.sharedState.sideWeb3,
-          receipt,
-          globalStore.state.currentTokenType,
-        )        
-        console.log(event)
-
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
           method: 'POST',
           headers: {
@@ -323,10 +327,10 @@ export default {
           body: JSON.stringify({
             claimData: {
               toAddress: this.transaction.receiverAddress,
-              amount: this.transaction.amount,
+              amount: this.amountInWei,
               blockHash: this.transaction.blockHash,
               transactionHash: this.transaction.transactionHash,
-              logIndex: event.logIndex,
+              logIndex: this.logIndex,
               originChainId: this.transaction.networkId,
               destinationChainId: this.transaction.destinationChainId
             },
@@ -336,7 +340,7 @@ export default {
             r: signedData.r,
             s: signedData.s,
             estimatedGasFee: this.responseEstimatedGas,
-            sideTokenBtcContractAddress: sideBtcTokenAddress,
+            sideTokenBtcContractAddress: this.sideTokenBtcContractAddress,
           }),
         })
         const responseObject = await response.json()
