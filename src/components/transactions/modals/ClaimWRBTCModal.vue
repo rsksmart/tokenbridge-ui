@@ -143,7 +143,7 @@ export default {
       return CLAIM_TYPES
     },
     toNetwork() {
-      return findNetworkByChainId(this.transaction.destinationChainId, this.transaction.networkId)
+      return findNetworkByChainId(this.transaction.destinationChainId, this.transaction.networkId);
     },
   },
   mounted() {
@@ -182,6 +182,7 @@ export default {
         this.amountInWei = decodedEvent._amount   
     },
     async handleChangeClaimType($event) {
+      const decimals = -1 * this.toNetwork.tokens.filter(x => x.token == "WBTC")[0].decimals;
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
           this.amount = this.transaction.receiveAmount
@@ -195,13 +196,13 @@ export default {
           // TODO: check if response is not null otherwise show an error
           
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
-            .shiftedBy(-8)
+            .shiftedBy(decimals)
             .toString()
 
           this.sharedState.web3.eth.getGasPrice().then(gasPrice => {
             const costInWei = new BigNumber(estimatedGas)
               .multipliedBy(gasPrice)
-              .shiftedBy(-10)
+              .shiftedBy(decimals)
               .toPrecision(8).toString()
 
               this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
@@ -258,8 +259,6 @@ export default {
     },
  
     async getSignedData(params) {
-
-
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
           {
