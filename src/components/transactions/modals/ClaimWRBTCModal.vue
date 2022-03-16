@@ -143,7 +143,7 @@ export default {
       return CLAIM_TYPES
     },
     toNetwork() {
-      return findNetworkByChainId(this.transaction.destinationChainId, this.transaction.networkId);;
+      return findNetworkByChainId(this.transaction.destinationChainId, this.transaction.networkId);
     },
   },
   mounted() {
