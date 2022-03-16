@@ -44,7 +44,12 @@
           :side-block-number="sideBlockNumber"
         />
       </table>
-      <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+      <div
+        v-if="totalPages !== 1"
+        class="btn-toolbar"
+        role="toolbar"
+        aria-label="Toolbar with button groups"
+      >
         <div class="btn-group mr-2 btn-group-sm" role="group" aria-label="First group">
           <button
             id="txn-previous"
