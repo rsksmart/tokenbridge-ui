@@ -98,7 +98,7 @@
 <script>
 import { store } from '@/store'
 import { CLAIM_TYPES } from '@/constants/claimTypes'
-import { findNetworkByChainId } from '@/constants/networks'
+import { findNetworkByChainId, findNetworkById } from '@/constants/networks'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
@@ -164,6 +164,20 @@ export default {
         this.errorMessage = requestError.message
       }
     },
+    async getTokenDetails(network, token) {
+      try {
+        const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/network`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ network, token }),
+        })
+        return response.json();
+      } catch (requestError) {
+        this.errorMessage = requestError.message
+      }
+    },
     async recoverTransactionAmount(){
         const sideToken = this.toNetwork.tokens.filter(x => x.token == "WBTC")
         if(sideToken.length === 0){
@@ -182,6 +196,7 @@ export default {
         this.amountInWei = decodedEvent._amount   
     },
     async handleChangeClaimType($event) {
+      const network = findNetworkById(this.transaction.networkId);
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
           this.amount = this.transaction.receiveAmount
@@ -189,7 +204,9 @@ export default {
           break
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
-          this.processing = true
+          this.processing = true;
+          console.log(this.transaction);
+          const originToken = await this.getTokenDetails(this.transaction.networkId, this.transaction.tokenFrom);
           await this.recoverTransactionAmount()
           this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
           // TODO: check if response is not null otherwise show an error
@@ -258,8 +275,6 @@ export default {
     },
  
     async getSignedData(params) {
-
-
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
           {
