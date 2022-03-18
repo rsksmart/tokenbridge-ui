@@ -98,7 +98,7 @@
 <script>
 import { store } from '@/store'
 import { CLAIM_TYPES } from '@/constants/claimTypes'
-import { findNetworkByChainId, findNetworkById } from '@/constants/networks'
+import { findNetworkByChainId } from '@/constants/networks'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
@@ -192,7 +192,7 @@ export default {
           this.processing = true;
           
           const wBtcOriginDecimals = 
-            findNetworkById(this.transaction.networkId).tokens.find(x => x.token === 'WBTC')?.decimals || 8;
+            findNetworkByChainId(this.transaction.networkId, this.transaction.destinationChainId).tokens.find(x => x.token === 'WBTC')?.decimals || 8;
           
           const weiDecimals = 18 - wBtcOriginDecimals;
 
