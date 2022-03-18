@@ -213,13 +213,6 @@ export function findNetworkByChainId(chainId, crossToNetworkId) {
   )
 }
 
-export function findNetworkById(id) {
-  const networks = getNetworksAvailable()
-  return networks.find(
-    net => net.networkId === id,
-  )
-}
-
 export function getNetworksConf(selectedChainId, prevChainId = null) {
   const networksAvailable = getNetworksAvailable()
   const networks = networksAvailable.filter(net => net.networkId === selectedChainId)
