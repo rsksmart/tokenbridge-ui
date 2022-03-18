@@ -164,20 +164,6 @@ export default {
         this.errorMessage = requestError.message
       }
     },
-    async getTokenDetails(network, token) {
-      try {
-        const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/network`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ network, token }),
-        })
-        return response.json();
-      } catch (requestError) {
-        this.errorMessage = requestError.message
-      }
-    },
     async recoverTransactionAmount(){
         const sideToken = this.toNetwork.tokens.filter(x => x.token == "WBTC")
         if(sideToken.length === 0){
@@ -196,7 +182,6 @@ export default {
         this.amountInWei = decodedEvent._amount   
     },
     async handleChangeClaimType($event) {
-      const network = findNetworkById(this.transaction.networkId);
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
           this.amount = this.transaction.receiveAmount
@@ -205,20 +190,24 @@ export default {
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
           this.processing = true;
-          console.log(this.transaction);
-          const originToken = await this.getTokenDetails(this.transaction.networkId, this.transaction.tokenFrom);
+          
+          const wBtcOriginDecimals = 
+            findNetworkById(this.transaction.networkId).tokens.find(x => x.token === 'WBTC')?.decimals || 8;
+          
+          const weiDecimals = 18 - wBtcOriginDecimals;
+
           await this.recoverTransactionAmount()
           this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
           // TODO: check if response is not null otherwise show an error
           
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
-            .shiftedBy(-8)
+            .shiftedBy(-1 * wBtcOriginDecimals)
             .toString()
 
           this.sharedState.web3.eth.getGasPrice().then(gasPrice => {
             const costInWei = new BigNumber(estimatedGas)
               .multipliedBy(gasPrice)
-              .shiftedBy(-10)
+              .shiftedBy(-1 * weiDecimals)
               .toPrecision(8).toString()
 
               this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
