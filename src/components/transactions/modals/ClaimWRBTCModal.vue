@@ -84,10 +84,10 @@
           />
         </div>
       </div>
-      <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="text-danger box-error">{{ errorMessage }}</p>
       <div class="d-flex justify-content-center">
         <button class="btn btn-primary mx-4" @click="handleClaimAction" :class="{ disabled: processing }"
-              :disabled="processing">OK</button>
+              :disabled="processing || requestError">OK</button>
         <button class="btn btn-danger mx-4" @click="handleCancelAction" :class="{ disabled: processing }"
               :disabled="processing">Cancel</button>
       </div>
@@ -130,6 +130,7 @@ export default {
       amountInWei: 0,
       logIndex: '',
       sideTokenBtcContractAddress: '',
+      requestError: false,
     }
   },
   computed: {
@@ -159,8 +160,12 @@ export default {
           },
           body: JSON.stringify({ amount: amount, unitType: 'wei' }),
         })
+        if (!response.ok) {
+          throw new Error('Error processing your request, please try again');
+        }
         return response.json()
       } catch (requestError) {
+        this.requestError = true;
         this.errorMessage = requestError.message
       }
     },
@@ -182,6 +187,8 @@ export default {
         this.amountInWei = decodedEvent._amount   
     },
     async handleChangeClaimType($event) {
+      this.requestError = false;
+      this.errorMessage = '';
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
           this.amount = this.transaction.receiveAmount
@@ -380,5 +387,8 @@ export default {
 <style scoped>
 .claim-wrbtc-modal .btn {
   min-width: 120px;
+}
+.box-error {
+  text-align: center;
 }
 </style>
