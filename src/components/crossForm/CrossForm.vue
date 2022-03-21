@@ -85,6 +85,9 @@
     :receive-token="willReceiveToken?.symbol || ''"
   />
   <ErrorMsg :error="error" />
+  <div class="successMessage" v-if="showSuccess">
+    Transaction crossed successfully!
+  </div>
 
   <Modal v-if="showModal" @close="showModal = false">
     <template #title>
@@ -189,6 +192,12 @@ export default {
     }
   },
   computed: {
+    mined() {
+      const config = this.sharedState.currentConfig;
+      console.log(this.sharedState);
+      const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations;
+      return confirmations;
+    },
     confirmations() {
       let dataToReturn = {};
       if (
@@ -272,6 +281,9 @@ export default {
     },
   },
   watch: {
+    mined: function(newValue) {
+      console.log(newValue);
+    },
     amount: function(newValue) {
       if (newValue > 0) {
         const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
@@ -568,7 +580,7 @@ export default {
           token,
           this.sharedState.accountAddress.toLowerCase(),
           receiverAddress.toLowerCase(),
-        )
+        );
         this.showSpinner = false
         this.showSuccess = true
         console.info('Transaction Saved')
@@ -651,5 +663,14 @@ export default {
 }
 .text-span{
   border-radius: 20px;
+}
+.successMessage {
+  width: 90%;
+  margin: auto;
+  color: #fff;
+  background-color: #00b520;
+  border-radius: 50px;
+  padding: 10px;
+  text-align: center;
 }
 </style>
