@@ -81,13 +81,10 @@
   <SuccessMsg
     :show="showSuccess"
     :confirmations="confirmations"
-    :receive-amount="receiveAmount"
-    :receive-token="willReceiveToken?.symbol || ''"
+    :receiveAmount="receiveAmount"
+    :receiveToken="willReceiveToken?.symbol || ''"
   />
   <ErrorMsg :error="error" />
-  <div class="successMessage" v-if="showSuccess">
-    Transaction crossed successfully!
-  </div>
 
   <Modal v-if="showModal" @close="showModal = false">
     <template #title>
@@ -192,12 +189,6 @@ export default {
     }
   },
   computed: {
-    mined() {
-      const config = this.sharedState.currentConfig;
-      console.log(this.sharedState);
-      const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations;
-      return confirmations;
-    },
     confirmations() {
       let dataToReturn = {};
       if (
