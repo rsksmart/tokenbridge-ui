@@ -7,10 +7,13 @@
     <div class="outline-rounded">
       <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
       <div>
-        You will receive
+        You will be able to claim for your 
         <span id="receive" class="black"> {{ valueAmount }} {{ tokenName }} </span>
-        in your wallet in {{ blocks }} blocks
+        after {{ blocks }} blocks
         <span id="confirmationTime"> aproximately {{ time }}</span>
+       <router-link to="transactions">
+        <p>Your transactions</p>
+      </router-link>
       </div>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
