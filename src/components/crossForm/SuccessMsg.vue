@@ -3,15 +3,17 @@
     v-if="show"
     id="success"
     class="mt-3 align-center text-center alert alert-dismissible fade show"
-    style="display:none;"
   >
     <div class="outline-rounded">
       <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
       <div>
-        You will receive
-        <span id="receive" class="black"> {{ receiveAmount }} {{ receiveToken }} </span>
-        in your wallet in {{ confirmations.block }} blocks
-        <span id="confirmationTime"> aproximately {{ confirmations.time }}</span>
+        You will be able to claim for your 
+        <span id="receive" class="black"> {{ valueAmount }} {{ tokenName }} </span>
+        after {{ blocks }} blocks
+        <span id="confirmationTime"> aproximately {{ time }}</span>
+       <router-link to="transactions">
+        <p>Your transactions</p>
+      </router-link>
       </div>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -33,20 +35,24 @@ export default {
     },
     confirmations: {
       type: Object,
-      required: true,
+      required: false,
     },
     receiveAmount: {
       type: BigNumber,
-      required: true,
+      required: false,
     },
     receiveToken: {
       type: String,
-      required: true,
+      required: false,
     },
   },
   data() {
     return {
       sharedState: store.state,
+      tokenName: '',
+      blocks: 0,
+      time: 0,
+      valueAmount: 0
     }
   },
   computed: {
@@ -54,5 +60,23 @@ export default {
       return blocksToTime(this.confirmations, this.sharedState.currentConfig?.secondsPerBlock)
     },
   },
+  watch: {
+    confirmations: function(newValue) {
+      if ('blocks' in newValue) {
+        this.blocks = newValue.blocks;
+        this.time = newValue.time;
+      }
+    },
+    receiveAmount: function(newValue) {
+      if (newValue.toString() !== '0') {
+        this.valueAmount = newValue.toString();
+      }
+    },
+    receiveToken: function(newValue) {
+      if (newValue !== '') {
+        this.tokenName = newValue;
+      }
+    },
+  }
 }
 </script>
