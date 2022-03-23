@@ -81,8 +81,8 @@
   <SuccessMsg
     :show="showSuccess"
     :confirmations="confirmations"
-    :receive-amount="receiveAmount"
-    :receive-token="willReceiveToken?.symbol || ''"
+    :receiveAmount="receiveAmount"
+    :receiveToken="willReceiveToken?.symbol || ''"
   />
   <ErrorMsg :error="error" />
 
@@ -651,5 +651,14 @@ export default {
 }
 .text-span{
   border-radius: 20px;
+}
+.successMessage {
+  width: 90%;
+  margin: auto;
+  color: #fff;
+  background-color: #00b520;
+  border-radius: 50px;
+  padding: 10px;
+  text-align: center;
 }
 </style>
