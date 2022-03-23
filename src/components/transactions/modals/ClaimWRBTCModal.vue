@@ -191,17 +191,20 @@ export default {
         case this.claimTypes.CONVERT_TO_RBTC: {
           this.processing = true;
           
-          const wBtcOriginDecimals = 
-            findNetworkByChainId(this.transaction.networkId, this.transaction.destinationChainId).tokens.find(x => x.token === 'WBTC')?.decimals || 8;
+          const wBtcDest = this.toNetwork.tokens.find(x => x.token === 'WBTC');
+          if (!wBtcDest) {
+            throw new Error('Unable to get decimals');
+          }
+
           
-          const weiDecimals = 18 - wBtcOriginDecimals;
+          const weiDecimals = 18 - wBtcDest.decimals;
 
           await this.recoverTransactionAmount()
           this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
           // TODO: check if response is not null otherwise show an error
           
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
-            .shiftedBy(-1 * wBtcOriginDecimals)
+            .shiftedBy(-1 * wBtcDest.decimals)
             .toString()
 
           this.sharedState.web3.eth.getGasPrice().then(gasPrice => {
