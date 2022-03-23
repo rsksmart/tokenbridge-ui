@@ -272,9 +272,6 @@ export default {
     },
   },
   watch: {
-    mined: function(newValue) {
-      console.log(newValue);
-    },
     amount: function(newValue) {
       if (newValue > 0) {
         const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
@@ -571,7 +568,7 @@ export default {
           token,
           this.sharedState.accountAddress.toLowerCase(),
           receiverAddress.toLowerCase(),
-        );
+        )
         this.showSpinner = false
         this.showSuccess = true
         console.info('Transaction Saved')
