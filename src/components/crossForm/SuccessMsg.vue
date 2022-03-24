@@ -5,15 +5,15 @@
     class="mt-3 align-center text-center alert alert-dismissible fade show"
   >
     <div class="outline-rounded">
-      <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
+      <div style="font-size: 32px"><i class="fas fa-check"></i></div>
       <div>
-        You will be able to claim for your 
+        You will be able to claim for your
         <span id="receive" class="black"> {{ valueAmount }} {{ tokenName }} </span>
         after {{ blocks }} blocks
         <span id="confirmationTime"> aproximately {{ time }}</span>
-       <router-link to="transactions">
-        <p>Your transactions</p>
-      </router-link>
+        <router-link to="transactions">
+          <p>Your transactions</p>
+        </router-link>
       </div>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -52,7 +52,7 @@ export default {
       tokenName: '',
       blocks: 0,
       time: 0,
-      valueAmount: 0
+      valueAmount: 0,
     }
   },
   computed: {
@@ -61,22 +61,22 @@ export default {
     },
   },
   watch: {
-    confirmations: function(newValue) {
+    confirmations: function (newValue) {
       if ('blocks' in newValue) {
-        this.blocks = newValue.blocks;
-        this.time = newValue.time;
+        this.blocks = newValue.blocks
+        this.time = newValue.time
       }
     },
-    receiveAmount: function(newValue) {
+    receiveAmount: function (newValue) {
       if (newValue.toString() !== '0') {
-        this.valueAmount = newValue.toString();
+        this.valueAmount = newValue.toString()
       }
     },
-    receiveToken: function(newValue) {
+    receiveToken: function (newValue) {
       if (newValue !== '') {
-        this.tokenName = newValue;
+        this.tokenName = newValue
       }
     },
-  }
+  },
 }
 </script>

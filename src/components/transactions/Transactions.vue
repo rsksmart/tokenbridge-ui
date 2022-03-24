@@ -106,7 +106,7 @@ export default {
     this.refreshBlockNumber()
 
     this.pollingBlockNumber = setInterval(
-      function() {
+      function () {
         this.refreshBlockNumber()
       }.bind(this),
       20_000,
@@ -133,12 +133,12 @@ export default {
       const rskWeb3 = this.sharedState.rskWeb3
       const sideWeb3 = this.sharedState.sideWeb3
       if (rskWeb3) {
-        retry3Times(rskWeb3.eth.getBlockNumber).then(blockNumber => {
+        retry3Times(rskWeb3.eth.getBlockNumber).then((blockNumber) => {
           data.rskBlockNumber = blockNumber
         })
       }
       if (sideWeb3) {
-        retry3Times(sideWeb3.eth.getBlockNumber).then(blockNumber => {
+        retry3Times(sideWeb3.eth.getBlockNumber).then((blockNumber) => {
           data.sideBlockNumber = blockNumber
         })
       }

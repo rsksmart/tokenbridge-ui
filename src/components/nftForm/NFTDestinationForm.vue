@@ -6,9 +6,7 @@
     <div class="form-row">
       <div class="form-group col-md-6">
         <label for="nftReceiverAddress" class="form-label">
-          <a id="same-address" class="same-address" @click="useSameAddress">
-            Receiver address
-          </a>
+          <a id="same-address" class="same-address" @click="useSameAddress"> Receiver address </a>
         </label>
         <Field
           id="nftReceiverAddress"
@@ -24,7 +22,7 @@
           <ErrorMessage class="invalid-feedback" name="nftReceiverAddress" />
         </div>
       </div>
-      <div class="form-group col-md-3  text-center">
+      <div class="form-group col-md-3 text-center">
         <label for="feePrice" class="form-label">Fee Amount</label>
         <Field
           id="feePrice"

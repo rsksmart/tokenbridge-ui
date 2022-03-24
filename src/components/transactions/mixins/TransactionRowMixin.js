@@ -135,7 +135,7 @@ export default {
       return this.fromNetwork.isRsk ? this.rskFedMembers : this.sideFedMembers
     },
     token() {
-      return this.fromNetwork.tokens.find(token => token?.symbol === this.transaction.tokenFrom)
+      return this.fromNetwork.tokens.find((token) => token?.symbol === this.transaction.tokenFrom)
     },
     neededConfirmations() {
       if (!this.token) {
@@ -333,9 +333,10 @@ export default {
       const data = this
       data.loading = true
       const { transactionHash } = responseObject
-      
+
       try {
         const receipt = await waitForReceipt(transactionHash, this.sharedState.rskWeb3)
+        console.trace(receipt)
 
         await this.$services.TransactionService.saveTransaction({
           ...data.transaction,
@@ -353,8 +354,7 @@ export default {
             },
           },
         })
-      }
-      catch (error) {
+      } catch (error) {
         data.loading = false
         data.error = error.message
         data.showResultModal = true
@@ -373,7 +373,7 @@ export default {
           break
       }
     },
-    
+
     async claimWBTC() {
       this.$modal.value.showModal({
         type: 'custom',

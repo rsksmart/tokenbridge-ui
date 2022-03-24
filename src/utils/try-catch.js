@@ -1,4 +1,4 @@
-const checkFunction = fn => {
+const checkFunction = (fn) => {
   if (typeof fn !== 'function') {
     throw new Error('First argument should be a function')
   }

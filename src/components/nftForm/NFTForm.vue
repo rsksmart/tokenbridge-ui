@@ -177,7 +177,7 @@ export default {
         this.isLoading = false
       }
     },
-    formatTokenURI: function(tokenURI) {
+    formatTokenURI: function (tokenURI) {
       // TODO: check conversion from ipfs to https
       let match = tokenURI.match('ipfs://(ipfs/.+)')
       if (match?.length > 1) {

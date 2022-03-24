@@ -14,7 +14,7 @@ export class TransactionService {
       return
     }
     const transactions = TXN_Storage.getAllTxns4Address(accountAddress, hostConfig.localStorageName)
-    const migratedTransactions = transactions.map(transaction => {
+    const migratedTransactions = transactions.map((transaction) => {
       // Check if empty current step
       transaction.currentStep = transaction.currentStep ?? 0
       // Check if type is empty or old format
@@ -64,7 +64,7 @@ export class TransactionService {
   }
 
   async getTransactions(accountAddress, networkIds, tokenTypes, { limit, offset }) {
-    const transactionIncludeAddress = transaction => {
+    const transactionIncludeAddress = (transaction) => {
       const addressLowerCase = accountAddress.toLowerCase()
       if (Array.isArray(transaction.accountsAddresses)) {
         return transaction.accountsAddresses.includes(addressLowerCase)
@@ -81,18 +81,18 @@ export class TransactionService {
       .where('networkId')
       .anyOf(networkIds)
       // Should be enable for display transactions that respect the origin and destination selected
-      .and(transaction => networkIds.includes(transaction.destinationChainId))
-      .and(transaction => transactionIncludeAddress(transaction))
-      .and(transaction => tokenTypes.includes(transaction.tokenType))
+      .and((transaction) => networkIds.includes(transaction.destinationChainId))
+      .and((transaction) => transactionIncludeAddress(transaction))
+      .and((transaction) => tokenTypes.includes(transaction.tokenType))
       .count()
 
     const data = await dbInstance.transactions
       .where('networkId')
       .anyOf(networkIds)
       // Should be enable for display transactions that respect the origin and destination selected
-      .and(transaction => networkIds.includes(transaction.destinationChainId))
-      .and(transaction => transactionIncludeAddress(transaction))
-      .and(transaction => tokenTypes.includes(transaction.tokenType))
+      .and((transaction) => networkIds.includes(transaction.destinationChainId))
+      .and((transaction) => transactionIncludeAddress(transaction))
+      .and((transaction) => tokenTypes.includes(transaction.tokenType))
       .reverse()
       .sortBy('timestamp')
     return {
