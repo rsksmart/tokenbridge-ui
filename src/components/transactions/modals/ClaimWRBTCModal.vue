@@ -85,7 +85,6 @@
         </div>
       </div>
       <p v-if="errorMessage" class="text-danger box-error">{{ errorMessage }}</p>
-      <!--      <ErrorMsg :error="errorMessage" :show="!!errorMessage" />-->
       <div class="d-flex justify-content-center">
         <button
           class="btn btn-primary mx-4"
@@ -117,16 +116,11 @@ import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { decodeCrossEvent } from '../../../utils/decodeEvents'
 import globalStore from '@/stores/global.store'
-// import ErrorMsg from '@/components/crossForm/ErrorMsg'
-// import SuccessMsg from '@/components/crossForm/SuccessMsg'
 import { getProjectAddress } from '@/constants/networks'
 
 export default {
   name: 'ClaimWRBTCModal',
-  components: {
-    // ErrorMsg,
-    // SuccessMsg,
-  },
+  components: {},
   props: {
     transaction: {
       type: Object,
@@ -246,7 +240,7 @@ export default {
             this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
 
             if (this.receiveAmount > swap_balance_proxy_v1) {
-              this.errorMessage = 'Swap contract doesnt have enough balance to perform!'
+              this.errorMessage = "The Swap contract doesn't have enough balance."
             }
           })
           this.processing = false
