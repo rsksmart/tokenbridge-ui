@@ -190,6 +190,18 @@ export const defaultNetworks = {
   },
 }
 
+export const SWAP_RBTC_PROXY_ADDRESS = {
+  address: '0x48288D0e3079A03f6EC1846554CFc58C2696Aaee',
+  explorer: '0x74Ce26A2e4c1368C48A0157CE762944d282896Db',
+  network: 'rsk',
+  identifier: 'SWAP_RBTC_PROXY_V1',
+  name: 'SwapRbtcProxy v1',
+  tag: 'v1',
+  networkId: chainId.MAIN_NET_RSK,
+}
+
+export const defaultProjectsAddress = [SWAP_RBTC_PROXY_ADDRESS]
+
 function getReceiveToken(mainToken, sideTokens) {
   const receiveTokens = sideTokens.filter((token) => token.token == mainToken.token)
   if (receiveTokens.length == 0) {
@@ -261,4 +273,18 @@ export function getNonDuplicateNetworks() {
     return acc
   }, new Map())
   return [...reducedNetworks.values()]
+}
+
+export function getProjectsAddress(networkId = null) {
+  if (!networkId) return defaultProjectsAddress
+  return defaultProjectsAddress.filter((addr) =>
+    addr.network ? addr.network.networkId === networkId : false,
+  )
+}
+
+export function getProjectAddress(identifier = '') {
+  const config = getProjectsAddress().find((addr) => addr.identifier === identifier)
+
+  if (config) return config.address
+  return null
 }
