@@ -4,15 +4,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/test-setup.js'],
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  coveragePathIgnorePatterns: [
-    "/node_modules/"
-  ],
-  coverageReporters: [
-    "json",
-    "text",
-    "lcov",
-    "clover"
-  ],
+  coveragePathIgnorePatterns: ['/node_modules/'],
+  coverageReporters: ['json', 'text', 'lcov', 'clover'],
   transform: {
     '^.+\\.vue$': 'vue-jest',
   },

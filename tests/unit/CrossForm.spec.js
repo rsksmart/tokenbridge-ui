@@ -5,12 +5,10 @@ import CrossForm from '@/components/crossForm/CrossForm.vue'
 describe('CrossForm.vue Test', () => {
   let wrapper = null
   // SETUP
-  beforeEach(() => {
-  })
+  beforeEach(() => {})
 
   // TEAR DOWN
-  afterEach(() => {
-  })
+  afterEach(() => {})
 
   it('renders initial values when component is created', () => {
     // Update the props passed in to the Weather component

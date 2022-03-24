@@ -86,8 +86,8 @@
   <SuccessMsg
     :show="showSuccess"
     :confirmations="confirmations"
-    :receiveAmount="receiveAmount"
-    :receiveToken="willReceiveToken?.symbol || ''"
+    :receive-amount="receiveAmount"
+    :receive-token="willReceiveToken?.symbol || ''"
   />
   <ErrorMsg :error="error" />
 
