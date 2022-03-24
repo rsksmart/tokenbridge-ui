@@ -116,7 +116,6 @@ import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { decodeCrossEvent } from '../../../utils/decodeEvents'
 import globalStore from '@/stores/global.store'
-import { getProjectAddress } from '@/constants/networks'
 
 export default {
   name: 'ClaimWRBTCModal',
@@ -163,7 +162,6 @@ export default {
   },
   mounted() {
     this.handleChangeClaimType({ target: { value: this.claimTypes.STANDARD } })
-    this.swapRbtcProxyAddress = getProjectAddress('SWAP_RBTC_PROXY_V1')
   },
   methods: {
     async getEstimatedGasPrice(amount) {
@@ -227,7 +225,7 @@ export default {
             .toString()
 
           const swap_balance_proxy_v1 = await this.sharedState.web3.eth.getBalance(
-            this.swapRbtcProxyAddress,
+            this.sharedState.currentConfig.swapRbtcProxy,
           )
 
           this.sharedState.web3.eth.getGasPrice().then((gasPrice) => {
