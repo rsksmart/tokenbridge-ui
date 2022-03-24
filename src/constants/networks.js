@@ -191,7 +191,7 @@ export const defaultNetworks = {
 }
 
 function getReceiveToken(mainToken, sideTokens) {
-  const receiveTokens = sideTokens.filter(token => token.token == mainToken.token)
+  const receiveTokens = sideTokens.filter((token) => token.token == mainToken.token)
   if (receiveTokens.length == 0) {
     return {}
   }
@@ -200,7 +200,7 @@ function getReceiveToken(mainToken, sideTokens) {
 
 function getTokensWithReceiveToken(mainTokens, sideTokens) {
   const mainTokensSort = mainTokens.sort((first, second) => first.typeId - second.typeId)
-  return mainTokensSort.map(token => ({
+  return mainTokensSort.map((token) => ({
     ...token,
     receiveToken: getReceiveToken(token, sideTokens),
   }))
@@ -209,13 +209,13 @@ function getTokensWithReceiveToken(mainTokens, sideTokens) {
 export function findNetworkByChainId(chainId, crossToNetworkId) {
   const networks = getNetworksAvailable()
   return networks.find(
-    net => net.networkId === chainId && net.crossToNetwork.networkId === crossToNetworkId,
+    (net) => net.networkId === chainId && net.crossToNetwork.networkId === crossToNetworkId,
   )
 }
 
 export function getNetworksConf(selectedChainId, prevChainId = null) {
   const networksAvailable = getNetworksAvailable()
-  const networks = networksAvailable.filter(net => net.networkId === selectedChainId)
+  const networks = networksAvailable.filter((net) => net.networkId === selectedChainId)
   if (!networks || networks.length === 0) {
     throw new Error(`Network ${selectedChainId} not found`)
   }
@@ -243,12 +243,12 @@ export function getNetworksConf(selectedChainId, prevChainId = null) {
 }
 
 export function getEnvironmentNetworks() {
-  return rskNetworks.filter(network => network.env === process.env.VUE_APP_ENV)
+  return rskNetworks.filter((network) => network.env === process.env.VUE_APP_ENV)
 }
 
 export function getNetworksAvailable() {
   const networksOnEnvironment = getEnvironmentNetworks()
-  const sideNetworks = networksOnEnvironment.map(network => network.crossToNetwork)
+  const sideNetworks = networksOnEnvironment.map((network) => network.crossToNetwork)
   return [...networksOnEnvironment, ...sideNetworks]
 }
 

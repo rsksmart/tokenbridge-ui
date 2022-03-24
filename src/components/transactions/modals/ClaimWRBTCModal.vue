@@ -45,7 +45,7 @@
             />
             <label class="form-check-label" for="claim-pay-with-tokens">Pay gas with tokens</label>
           </div> -->
-          <div v-if="this.toNetwork.isRsk" class="form-check form-check-inline">
+          <div v-if="toNetwork.isRsk" class="form-check form-check-inline">
             <input
               id="claim-convert-rbtc"
               v-model="claimType"
@@ -53,8 +53,8 @@
               type="radio"
               name="claimType"
               :value="claimTypes.CONVERT_TO_RBTC"
-              @change="handleChangeClaimType($event)"
               :disabled="transaction.tokenFrom !== 'WBTC'"
+              @change="handleChangeClaimType($event)"
             />
             <label class="form-check-label" for="claim-convert-rbtc">Convert to RBTC</label>
           </div>
@@ -86,10 +86,22 @@
       </div>
       <p v-if="errorMessage" class="text-danger box-error">{{ errorMessage }}</p>
       <div class="d-flex justify-content-center">
-        <button class="btn btn-primary mx-4" @click="handleClaimAction" :class="{ disabled: processing }"
-              :disabled="processing || requestError">OK</button>
-        <button class="btn btn-danger mx-4" @click="handleCancelAction" :class="{ disabled: processing }"
-              :disabled="processing">Cancel</button>
+        <button
+          class="btn btn-primary mx-4"
+          :class="{ disabled: processing }"
+          :disabled="processing || requestError"
+          @click="handleClaimAction"
+        >
+          OK
+        </button>
+        <button
+          class="btn btn-danger mx-4"
+          :class="{ disabled: processing }"
+          :disabled="processing"
+          @click="handleCancelAction"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -104,7 +116,6 @@ import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { decodeCrossEvent } from '../../../utils/decodeEvents'
 import globalStore from '@/stores/global.store'
-
 
 export default {
   name: 'ClaimWRBTCModal',
@@ -161,34 +172,36 @@ export default {
           body: JSON.stringify({ amount: amount, unitType: 'wei' }),
         })
         if (!response.ok) {
-          throw new Error('Error processing your request, please try again');
+          throw new Error('Error processing your request, please try again')
         }
         return response.json()
       } catch (requestError) {
-        this.requestError = true;
+        this.requestError = true
         this.errorMessage = requestError.message
       }
     },
-    async recoverTransactionAmount(){
-        const sideToken = this.toNetwork.tokens.filter(x => x.token == "WBTC")
-        if(sideToken.length === 0){
-          return null // TODO: add an error message
-        }
-        const receipt = await this.sharedState.sideWeb3.eth.getTransactionReceipt(this.transaction.transactionHash)
+    async recoverTransactionAmount() {
+      const sideToken = this.toNetwork.tokens.filter((x) => x.token == 'WBTC')
+      if (sideToken.length === 0) {
+        return null // TODO: add an error message
+      }
+      const receipt = await this.sharedState.sideWeb3.eth.getTransactionReceipt(
+        this.transaction.transactionHash,
+      )
 
-        const { event, decodedEvent } = decodeCrossEvent(
-          this.sharedState.sideWeb3,
-          receipt,
-          globalStore.state.currentTokenType,
-        )
+      const { event, decodedEvent } = decodeCrossEvent(
+        this.sharedState.sideWeb3,
+        receipt,
+        globalStore.state.currentTokenType,
+      )
 
-        this.sideTokenBtcContractAddress = sideToken[0].address
-        this.logIndex = event.logIndex     
-        this.amountInWei = decodedEvent._amount   
+      this.sideTokenBtcContractAddress = sideToken[0].address
+      this.logIndex = event.logIndex
+      this.amountInWei = decodedEvent._amount
     },
     async handleChangeClaimType($event) {
-      this.requestError = false;
-      this.errorMessage = '';
+      this.requestError = false
+      this.errorMessage = ''
       switch ($event.target.value) {
         case this.claimTypes.STANDARD: {
           this.amount = this.transaction.receiveAmount
@@ -200,18 +213,19 @@ export default {
           await this.recoverTransactionAmount()
           this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
           // TODO: check if response is not null otherwise show an error
-          
+
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
             .shiftedBy(-8)
             .toString()
 
-          this.sharedState.web3.eth.getGasPrice().then(gasPrice => {
+          this.sharedState.web3.eth.getGasPrice().then((gasPrice) => {
             const costInWei = new BigNumber(estimatedGas)
               .multipliedBy(gasPrice)
               .shiftedBy(-10)
-              .toPrecision(8).toString()
+              .toPrecision(8)
+              .toString()
 
-              this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
+            this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
           })
           this.processing = false
           break
@@ -242,13 +256,13 @@ export default {
           nonce: nonce,
           deadline: this.deadline,
         },
-        primaryType: 'Claim', 
+        primaryType: 'Claim',
         types: {
           EIP712Domain: [
-            { name: "name", type: "string" },
-            { name: "version", type: "string" },
-            { name: "chainId", type: "uint256" },
-            { name: "verifyingContract", type: "address" },        
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
           ],
           Claim: [
             { name: 'to', type: 'address' },
@@ -263,10 +277,8 @@ export default {
         },
       }
     },
- 
+
     async getSignedData(params) {
-
-
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
           {
@@ -314,10 +326,8 @@ export default {
       await this.$attrs.on.onCloseClaimModal(CLAIM_TYPES.STANDARD)
     },
     async callSwapToRBTC() {
-      this.processing = true;
-      this.deadline = moment()
-            .add(3, 'hours')
-            .unix().toString()      
+      this.processing = true
+      this.deadline = moment().add(3, 'hours').unix().toString()
       this.errorMessage = ''
 
       try {
@@ -339,7 +349,7 @@ export default {
               transactionHash: this.transaction.transactionHash,
               logIndex: this.logIndex,
               originChainId: this.transaction.networkId,
-              destinationChainId: this.transaction.destinationChainId
+              destinationChainId: this.transaction.destinationChainId,
             },
             deadline: this.deadline,
             relayerAddress: this.sharedState.currentConfig.relayer,
@@ -360,7 +370,7 @@ export default {
     },
     async handleClaimAction() {
       try {
-        this.processing = true;
+        this.processing = true
         this.errorMessage = ''
         switch (this.claimType) {
           case CLAIM_TYPES.STANDARD:
@@ -375,9 +385,9 @@ export default {
           default:
             break
         }
-        this.$parent.handleCloseModal();
-      } catch(err) {
-        console.log(err);
+        this.$parent.handleCloseModal()
+      } catch (err) {
+        console.log(err)
       }
     },
   },

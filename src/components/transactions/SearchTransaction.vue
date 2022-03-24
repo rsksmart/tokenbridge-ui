@@ -205,7 +205,7 @@ export default {
       let transaction = null
       const block = await originWeb3.eth.getBlock(receipt.blockNumber)
       if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_20) {
-        const token = data.selectedNetwork.tokens.find(token => {
+        const token = data.selectedNetwork.tokens.find((token) => {
           return (
             token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
             // When crossing back uses the original token address

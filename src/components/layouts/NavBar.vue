@@ -16,7 +16,7 @@
             <div
               v-if="isConnected"
               class="wallet-status navbar-item badge-pill text-truncate"
-              style="width: 155px;"
+              style="width: 155px"
             >
               <span id="address">{{ sharedState.accountAddress }}</span>
             </div>
@@ -56,10 +56,10 @@ export default {
   },
   computed: {
     sideConfig: {
-      get: function() {
+      get: function () {
         return store.state.sideConfig
       },
-      set: function(value) {
+      set: function (value) {
         this.sideNetworkConfig = value
       },
     },

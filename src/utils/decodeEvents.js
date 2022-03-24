@@ -39,12 +39,12 @@ function decodeERC721CrossEvent(web3, receipt) {
 }
 
 export function getEventForAbi(web3, receipt, abi, eventName) {
-  let eventJsonInterface = abi.find(x => x.name === eventName && x.type === 'event')
+  let eventJsonInterface = abi.find((x) => x.name === eventName && x.type === 'event')
   if (!eventJsonInterface) {
     return null // can't fin the event
   }
   const eventSignature = web3.eth.abi.encodeEventSignature(eventJsonInterface)
-  const logIndex = receipt.logs.findIndex(x => x.topics[0] === eventSignature)
+  const logIndex = receipt.logs.findIndex((x) => x.topics[0] === eventSignature)
   const event = receipt.logs[logIndex]
   if (!event) {
     // No event

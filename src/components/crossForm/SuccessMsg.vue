@@ -3,10 +3,10 @@
     v-if="show"
     id="success"
     class="mt-3 align-center text-center alert alert-dismissible fade show"
-    style="display:none;"
+    style="display: none"
   >
     <div class="outline-rounded">
-      <div style="font-size: 32px;"><i class="fas fa-check"></i></div>
+      <div style="font-size: 32px"><i class="fas fa-check"></i></div>
       <div>
         You will receive
         <span id="receive" class="black"> {{ receiveAmount }} {{ receiveToken }} </span>
