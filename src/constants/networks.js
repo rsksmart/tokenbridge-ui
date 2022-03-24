@@ -86,6 +86,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   allowTokens: '0xc65bf0ae75dc1a5fc9e6f4215125692a548c773a',
   federation: '0x5d663981d930e8ec108280b9d80885658148ab0f',
   relayer: '0x7c77704007C9996Ee591C516f7319828BA49d91E',
+  swapRbtcProxy: '0x7c77704007C9996Ee591C516f7319828BA49d91E',
   explorer: 'https://explorer.testnet.rsk.co',
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
@@ -273,18 +274,4 @@ export function getNonDuplicateNetworks() {
     return acc
   }, new Map())
   return [...reducedNetworks.values()]
-}
-
-export function getProjectsAddress(networkId = null) {
-  if (!networkId) return defaultProjectsAddress
-  return defaultProjectsAddress.filter((addr) =>
-    addr.network ? addr.network.networkId === networkId : false,
-  )
-}
-
-export function getProjectAddress(identifier = '') {
-  const config = getProjectsAddress().find((addr) => addr.identifier === identifier)
-
-  if (config) return config.address
-  return null
 }
