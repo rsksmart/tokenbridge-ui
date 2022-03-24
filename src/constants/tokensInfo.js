@@ -17,16 +17,14 @@ export const TOKEN_DAI_INFO = {
   token: 'DAI',
   name: 'Dai Stablecoin',
   typeId: 4,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
 }
 
 export const TOKEN_SAI_INFO = {
   token: 'SAI',
   name: 'Sai Stablecoin',
   typeId: 4,
-  icon:
-    'https://raw.githubusercontent.com/rsksmart/rsk-testnet-contract-metadata/master/images/sai.png',
+  icon: 'https://raw.githubusercontent.com/rsksmart/rsk-testnet-contract-metadata/master/images/sai.png',
 }
 
 // export const INV_TOKEN = { token: 'INV', name: 'Invest', icon: 'https://raw.githubusercontent.com/rsksmart/rsk-contract-metadata/master/images/inv.png',
@@ -50,16 +48,14 @@ export const TOKEN_TUSD_INFO = {
   token: 'TUSD',
   name: 'True USD',
   typeId: 4,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x0000000000085d4780B73119b644AE5ecd22b376/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x0000000000085d4780B73119b644AE5ecd22b376/logo.png',
 }
 
 export const TOKEN_WETH_INFO = {
   token: 'WETH',
   name: 'Wrapped Ether',
   typeId: 1,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
 }
 
 export const TOKEN_WBNB_INFO = {
@@ -73,32 +69,28 @@ export const TOKEN_ZRX_INFO = {
   token: 'ZRX',
   name: '0x Protocol',
   typeId: 5,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xE41d2489571d322189246DaFA5ebDe1F4699F498/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xE41d2489571d322189246DaFA5ebDe1F4699F498/logo.png',
 }
 
 export const TOKEN_LINK_INFO = {
   token: 'LINK',
   name: 'Chainlink Token',
   typeId: 3,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x514910771AF9Ca656af840dff83E8264EcF986CA/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x514910771AF9Ca656af840dff83E8264EcF986CA/logo.png',
 }
 
 export const TOKEN_USDT_INFO = {
   token: 'USDT',
   name: 'Tether USD',
   typeId: 4,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png',
 }
 
 export const TOKEN_USDC_INFO = {
   token: 'USDC',
   name: 'USD Coin',
   typeId: 4,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
 }
 
 export const TOKEN_FLIXX_INFO = {
@@ -119,8 +111,7 @@ export const TOKEN_OLD_INFO = {
   token: 'Ω',
   name: 'Ω Old Mintable',
   typeId: 6,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xE41d2489571d322189246DaFA5ebDe1F4699F498/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xE41d2489571d322189246DaFA5ebDe1F4699F498/logo.png',
 }
 
 export const TOKEN_BUND_INFO = {
@@ -148,6 +139,5 @@ export const TOKEN_WBTC_INFO = {
   token: 'WBTC',
   name: 'Wrapped BTC',
   typeId: 0,
-  icon:
-    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
 }

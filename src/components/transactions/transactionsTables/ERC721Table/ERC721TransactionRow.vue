@@ -61,17 +61,13 @@
       </template>
     </Modal>
     <Modal v-if="showConnectionProblemModal" @close="showConnectionProblemModal = false">
-      <template #title>
-        Connection problem
-      </template>
+      <template #title> Connection problem </template>
       <template #body>
         <p>{{ connectionProblem }}</p>
       </template>
     </Modal>
     <Modal v-if="showMismatchAddressModal" @close="showMismatchAddressModal = false">
-      <template #title>
-        Receiver address is not the current account
-      </template>
+      <template #title> Receiver address is not the current account </template>
       <template #body>
         <p>
           The receiver address {{ transaction.receiverAddress }} is not your currently connected
@@ -86,9 +82,7 @@
         </p>
       </template>
       <template #footer>
-        <button class="btn btn-primary modal-default-button" @click="claim()">
-          Yes
-        </button>
+        <button class="btn btn-primary modal-default-button" @click="claim()">Yes</button>
         <button
           class="btn btn-danger modal-default-button"
           @click="showMismatchAddressModal = false"
