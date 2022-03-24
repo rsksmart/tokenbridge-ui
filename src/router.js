@@ -37,7 +37,7 @@ const router = createRouter({
   // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
   history: createWebHistory(),
   routes, // short for `routes: routes`
-  scrollBehavior: function(to) {
+  scrollBehavior: function (to) {
     if (to.hash) {
       return {
         selector: to.hash,

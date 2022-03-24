@@ -1,8 +1,10 @@
 module.exports = {
   root: true,
+
   env: {
     node: true,
   },
+
   extends: [
     'eslint:recommended',
     'plugin:vue/vue3-recommended',
@@ -10,10 +12,13 @@ module.exports = {
     'plugin:prettier/recommended',
     'prettier/vue',
   ],
+
   plugins: ['prettier'],
+
   parserOptions: {
     parser: 'babel-eslint',
   },
+
   rules: {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-warning-comments': 'warn',
@@ -26,4 +31,13 @@ module.exports = {
       },
     ],
   },
+
+  overrides: [
+    {
+      files: ['**/__tests__/*.{j,t}s?(x)', '**/tests/unit/**/*.spec.{j,t}s?(x)'],
+      env: {
+        jest: true,
+      },
+    },
+  ],
 }

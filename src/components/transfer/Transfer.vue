@@ -54,7 +54,7 @@
             >
               <li v-for="token in tokens" :key="token.token">
                 <a class="dropdown-item" href="#" @click="selectToken(token, $event)">
-                  <span><img :src="token.icon" class="token-logo"/></span>
+                  <span><img :src="token.icon" class="token-logo" /></span>
                   {{ token.symbol }}
                 </a>
               </li>
@@ -80,10 +80,13 @@
               @input="handleChangeAmount"
             />
             <div v-if="isOrigin">
-              <RangeInput v-model:value="percentage" step="1" :disabled="!currentNetwork || !isOrigin || !selectedToken?.token" />
+              <RangeInput
+                v-model:value="percentage"
+                step="1"
+                :disabled="!currentNetwork || !isOrigin || !selectedToken?.token"
+              />
             </div>
-            <div v-else class="holder">
-            </div>
+            <div v-else class="holder"></div>
           </div>
         </div>
       </div>
@@ -123,7 +126,6 @@
               </div>
             </div>
           </div>
-          
         </div>
       </div>
     </div>
@@ -182,7 +184,7 @@ export default {
     },
     switchNetwork: {
       type: Boolean,
-      required: false
+      required: false,
     },
   },
   emits: ['changeNetwork', 'selectToken', 'update:amount', 'update:address'],
@@ -211,7 +213,7 @@ export default {
       return new BigNumber(this.maxAmount)
     },
     defaultToken() {
-      return Object.keys(this.token).length > 0 ? this.token : this.selectedToken;
+      return Object.keys(this.token).length > 0 ? this.token : this.selectedToken
     },
   },
   watch: {
@@ -224,7 +226,7 @@ export default {
       deep: true,
       handler(newValue) {
         if (newValue.length > 0) {
-          this.currentNetwork = newValue.find(network => network.networkId === this.chainId)
+          this.currentNetwork = newValue.find((network) => network.networkId === this.chainId)
           if (this.currentNetwork) {
             this.changeNetwork()
             this.selectAddressType('connected')
@@ -234,23 +236,23 @@ export default {
     },
     switchNetwork(value) {
       if (value) {
-        this.resetSelectedToken();
+        this.resetSelectedToken()
       }
-    }
+    },
   },
   methods: {
     changeNetwork() {
-      this.tokens = this.currentNetwork.tokens;
-      this.resetSelectedToken();
+      this.tokens = this.currentNetwork.tokens
+      this.resetSelectedToken()
       this.$emit('changeNetwork', this.currentNetwork)
     },
     resetSelectedToken() {
-      this.selectedToken = null;
-      this.selectToken(null, null);
+      this.selectedToken = null
+      this.selectToken(null, null)
     },
     selectToken(token, $event) {
       this.selectedToken = token
-      this.$emit('selectToken', token, $event);
+      this.$emit('selectToken', token, $event)
     },
     selectAddressType(type) {
       if (this.disabled) {
@@ -258,7 +260,7 @@ export default {
       }
       this.typeDestinationAddress = type
       if (type === 'connected') {
-        this.error = '';
+        this.error = ''
         this.$emit('update:address', this.connectedAddress)
       } else {
         this.$emit('update:address', '')
@@ -268,10 +270,10 @@ export default {
       this.$emit('update:address', $event.target.value)
     },
     handleChangeAmount($event) {
-      this.$nextTick(function() {
-        const value = $event.target.value;
-        this.$emit('update:amount', value);
-      });
+      this.$nextTick(function () {
+        const value = $event.target.value
+        this.$emit('update:amount', value)
+      })
     },
   },
 }
@@ -360,5 +362,4 @@ input.transfer-different-address:focus {
 .holder {
   height: 3.7em;
 }
-
 </style>
