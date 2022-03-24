@@ -85,11 +85,12 @@
         </div>
       </div>
       <p v-if="errorMessage" class="text-danger box-error">{{ errorMessage }}</p>
+      <!--      <ErrorMsg :error="errorMessage" :show="!!errorMessage" />-->
       <div class="d-flex justify-content-center">
         <button
           class="btn btn-primary mx-4"
           :class="{ disabled: processing }"
-          :disabled="processing || requestError"
+          :disabled="processing || requestError || !!errorMessage"
           @click="handleClaimAction"
         >
           OK
@@ -116,9 +117,16 @@ import moment from 'moment'
 import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import { decodeCrossEvent } from '../../../utils/decodeEvents'
 import globalStore from '@/stores/global.store'
+// import ErrorMsg from '@/components/crossForm/ErrorMsg'
+// import SuccessMsg from '@/components/crossForm/SuccessMsg'
+import { getProjectAddress } from '@/constants/networks'
 
 export default {
   name: 'ClaimWRBTCModal',
+  components: {
+    // ErrorMsg,
+    // SuccessMsg,
+  },
   props: {
     transaction: {
       type: Object,
@@ -142,6 +150,7 @@ export default {
       logIndex: '',
       sideTokenBtcContractAddress: '',
       requestError: false,
+      swapRbtcProxyAddress: null,
     }
   },
   computed: {
@@ -160,6 +169,7 @@ export default {
   },
   mounted() {
     this.handleChangeClaimType({ target: { value: this.claimTypes.STANDARD } })
+    this.swapRbtcProxyAddress = getProjectAddress('SWAP_RBTC_PROXY_V1')
   },
   methods: {
     async getEstimatedGasPrice(amount) {
@@ -212,11 +222,19 @@ export default {
           this.processing = true
           await this.recoverTransactionAmount()
           this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
-          // TODO: check if response is not null otherwise show an error
+
+          if (!this.responseEstimatedGas) {
+            this.errorMessage = "Couldn't estimate gas fee for swap, please try again soon!"
+            return
+          }
 
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
             .shiftedBy(-8)
             .toString()
+
+          const swap_balance_proxy_v1 = await this.sharedState.web3.eth.getBalance(
+            this.swapRbtcProxyAddress,
+          )
 
           this.sharedState.web3.eth.getGasPrice().then((gasPrice) => {
             const costInWei = new BigNumber(estimatedGas)
@@ -226,6 +244,10 @@ export default {
               .toString()
 
             this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
+
+            if (this.receiveAmount > swap_balance_proxy_v1) {
+              this.errorMessage = 'Swap contract doesnt have enough balance to perform!'
+            }
           })
           this.processing = false
           break
@@ -333,7 +355,8 @@ export default {
       try {
         const signedData = await this.signWithMetamask()
         if (!signedData) {
-          return null // TODO: add an error message to display
+          // TODO: add an error message to display
+          return null
         }
 
         const response = await fetch(`${process.env.VUE_APP_RELAYER_API}/swap`, {
