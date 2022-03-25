@@ -86,6 +86,7 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
   allowTokens: '0xc65bf0ae75dc1a5fc9e6f4215125692a548c773a',
   federation: '0x5d663981d930e8ec108280b9d80885658148ab0f',
   relayer: '0x7c77704007C9996Ee591C516f7319828BA49d91E',
+  swapRbtcProxy: '0x7c77704007C9996Ee591C516f7319828BA49d91E',
   explorer: 'https://explorer.testnet.rsk.co',
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
@@ -189,6 +190,18 @@ export const defaultNetworks = {
     sideConfig: TEST_NET_KOVAN_CONFIG,
   },
 }
+
+export const SWAP_RBTC_PROXY_ADDRESS = {
+  address: '0x48288D0e3079A03f6EC1846554CFc58C2696Aaee',
+  explorer: '0x74Ce26A2e4c1368C48A0157CE762944d282896Db',
+  network: 'rsk',
+  identifier: 'SWAP_RBTC_PROXY_V1',
+  name: 'SwapRbtcProxy v1',
+  tag: 'v1',
+  networkId: chainId.MAIN_NET_RSK,
+}
+
+export const defaultProjectsAddress = [SWAP_RBTC_PROXY_ADDRESS]
 
 function getReceiveToken(mainToken, sideTokens) {
   const receiveTokens = sideTokens.filter((token) => token.token == mainToken.token)
