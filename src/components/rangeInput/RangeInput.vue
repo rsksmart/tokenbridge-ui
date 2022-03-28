@@ -1,17 +1,20 @@
 <template>
-  <v-slider class="range-input" ref="rangeInput" 
-    v-model="value" 
+  <v-slider
+    ref="rangeInput"
+    v-model="currentValue"
+    class="range-input"
     :tick-labels="labels"
     hide-details="true"
-    :max="max" 
-    :min="min" 
+    :max="max"
+    :min="min"
     thumb-color="var(--primary)"
-    :step="step" 
-    :ticks="labels" 
-    show-ticks="always" 
-    :readonly="disabled" 
-    track-fill-color="var(--primary)" 
-    track-color="#B2B2B2" />
+    :step="step"
+    :ticks="labels"
+    show-ticks="always"
+    :readonly="disabled"
+    track-fill-color="var(--primary)"
+    track-color="#B2B2B2"
+  />
 </template>
 
 <script>
@@ -56,10 +59,15 @@ export default {
       },
     }
   },
+  computed: {
+    currentValue() {
+      return this.value
+    },
+  },
   watch: {
     value(newPercentage) {
       this.$emit('update:value', newPercentage)
-    },    
+    },
   },
   mounted() {
     if (this.showMarks) {
@@ -72,11 +80,10 @@ export default {
 }
 </script>
 <style scoped>
-  .range-input {
-    margin-bottom: 0;
-  }
-
+.range-input {
+  margin-bottom: 0;
+}
 </style>
 <style lang="scss" scoped>
-  $slider-vertical-margin-top: 2vh;
+$slider-vertical-margin-top: 2vh;
 </style>

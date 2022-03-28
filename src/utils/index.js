@@ -62,7 +62,7 @@ export const getPromise = (fn, args) => {
   })
 }
 
-export const clone = obj => {
+export const clone = (obj) => {
   if (obj === null || typeof obj !== 'object') {
     return obj
   } else if (Array.isArray(obj)) {
@@ -119,7 +119,7 @@ export async function retry(fn, args = [], config = {}) {
 
       interval = exponential ? interval * factor : interval
       // if interval is set to zero, do not use setTimeout, gain 1 event loop tick
-      if (interval) await new Promise(r => setTimeout(r, interval))
+      if (interval) await new Promise((r) => setTimeout(r, interval))
     }
   }
 }

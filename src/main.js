@@ -10,14 +10,10 @@ import '@/styles/main.scss'
 import ServicesPlugin from '@/plugins/ServicesPlugin'
 import { TransactionService } from '@/modules/transactions/transactions.service'
 
-Object.keys(rules).forEach(rule => {
+Object.keys(rules).forEach((rule) => {
   defineRule(rule, rules[rule])
 })
 
 loadFonts()
 
-createApp(App)
-  .use(router)
-  .use(ServicesPlugin, { TransactionService })
-  .use(vuetify)
-  .mount('#app')
+createApp(App).use(router).use(ServicesPlugin, { TransactionService }).use(vuetify).mount('#app')
