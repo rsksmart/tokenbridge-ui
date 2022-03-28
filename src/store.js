@@ -149,7 +149,7 @@ export const store = {
     state.currentConfig = null
   },
   getRLogin() {
-    const supportedChains = [...new Set(getNetworksAvailable().map(network => network.networkId))]
+    const supportedChains = [...new Set(getNetworksAvailable().map((network) => network.networkId))]
     return new RLogin({
       cachedProvider: false,
       providerOptions: {
@@ -169,7 +169,7 @@ export const store = {
     const rLoginInstance = store.getRLogin()
     return rLoginInstance
       .connect()
-      .then(async function(rLoginResponse) {
+      .then(async function (rLoginResponse) {
         state.provider = rLoginResponse.provider
         state.dataVault = rLoginResponse.dataVault
         state.disconnect = rLoginResponse.disconnect
@@ -187,7 +187,7 @@ export const store = {
           store.accountsChanged(...params)
         })
       })
-      .catch(function(err) {
+      .catch(function (err) {
         console.error(err)
         store.handleDisconnect()
         if (!err.includes('Modal closed by user')) {

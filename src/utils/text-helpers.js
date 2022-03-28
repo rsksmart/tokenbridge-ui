@@ -1,6 +1,6 @@
 import { sanitizeTxHash } from '@/utils/index'
 
-export const isEmptyAddress = addressString => /(0x)[0]+/i.test(addressString)
+export const isEmptyAddress = (addressString) => /(0x)[0]+/i.test(addressString)
 
 export const txExplorerLink = (txHash, explorerLink) => {
   const sanitizedTxHash = sanitizeTxHash(txHash)
@@ -10,7 +10,7 @@ export const txExplorerLink = (txHash, explorerLink) => {
   return `<a target="_blank" href="${explorerLink}/tx/${sanitizedTxHash}">see Tx</a>`
 }
 
-export const convertToNumber = value => {
+export const convertToNumber = (value) => {
   if (typeof value === 'number') {
     return value
   }

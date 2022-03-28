@@ -19,17 +19,20 @@
     <div class="col-5">
       <Transfer
         v-model:amount="amount"
+        v-model:max-amount="maxAmount"
         title="Origin"
         :networks="originNetworks"
         transfer-type="origin"
         :disabled="disabled"
         :chain-id="originNetwork?.networkId"
-        v-model:max-amount="maxAmount"
         @changeNetwork="handleChangeNetwork"
         @selectToken="selectToken"
       >
         <template v-if="!disabled" #footer>
-          <div class="alert alert-secondary text-span">Transaction will require at least <strong>{{ this.confirmations.blocks ?? '0' }}</strong> confirmations</div>
+          <div class="alert alert-secondary text-span">
+            Transaction will require at least
+            <strong>{{ confirmations.blocks ?? '0' }}</strong> confirmations
+          </div>
         </template>
       </Transfer>
     </div>
@@ -52,7 +55,9 @@
         @changeNetwork="handleChangeDestinationNetwork"
       >
         <template v-if="!disabled" #footer>
-          <div class="alert alert-danger text-span">You'll need <strong>{{ claimCost }}</strong> to claim the tokens</div>
+          <div class="alert alert-danger text-span">
+            You'll need <strong>{{ claimCost }}</strong> to claim the tokens
+          </div>
         </template>
       </Transfer>
     </div>
@@ -87,9 +92,7 @@
   <ErrorMsg :error="error" />
 
   <Modal v-if="showModal" @close="showModal = false">
-    <template #title>
-      How to obtain the tokens
-    </template>
+    <template #title> How to obtain the tokens </template>
     <template #body>
       <p>When the transaction is mined you will see it like</p>
       <img src="pending-tx.png" alt="pending transaction" />
@@ -99,7 +102,6 @@
   </Modal>
 </template>
 <script>
-import { Field, Form, ErrorMessage } from 'vee-validate'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
@@ -129,9 +131,6 @@ export default {
     WaitSpinner,
     SuccessMsg,
     ErrorMsg,
-    Form,
-    Field,
-    ErrorMessage,
     Transfer,
   },
   inject: ['$services'],
@@ -190,16 +189,16 @@ export default {
   },
   computed: {
     confirmations() {
-      let dataToReturn = {};
+      let dataToReturn = {}
       if (
         !this.sharedState.currentConfig ||
         isNaN(this.amount) ||
         isNaN(this.typesLimits?.length) ||
         isNaN(this.selectedToken?.typeId)
       ) {
-        return dataToReturn;
+        return dataToReturn
       }
-        
+
       const config = this.sharedState.currentConfig
       const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations
       // convert amount to wei to compare against limits
@@ -230,11 +229,12 @@ export default {
             .humanize(),
         }
       }
-      return dataToReturn;
+      return dataToReturn
     },
     accountConnected() {
-      return `${this.sharedState.chainId || ''} ${this.sharedState.accountAddress || ''} ${this
-        .sharedState.sideConfig?.networkId || ''}`.trim()
+      return `${this.sharedState.chainId || ''} ${this.sharedState.accountAddress || ''} ${
+        this.sharedState.sideConfig?.networkId || ''
+      }`.trim()
     },
     fee() {
       if (!this.sharedState.currentConfig) return this.rskFee
@@ -244,10 +244,17 @@ export default {
       return !this.sharedState.isConnected || this.showSpinner
     },
     disabledActionButtons() {
-      return !this.sharedState.isConnected || this.showSpinner || this.receiverAddress === '' || this.amount <= 0 || !this.selectedToken?.symbol || this.receiveAmount === 0
+      return (
+        !this.sharedState.isConnected ||
+        this.showSpinner ||
+        this.receiverAddress === '' ||
+        this.amount <= 0 ||
+        !this.selectedToken?.symbol ||
+        this.receiveAmount === 0
+      )
     },
     disabledAmount() {
-      return !this.sharedState.isConnected || this.showSpinner || !this.selectedToken?.token;
+      return !this.sharedState.isConnected || this.showSpinner || !this.selectedToken?.token
     },
     currentNetworkTokens() {
       return this.originNetwork?.tokens
@@ -262,7 +269,7 @@ export default {
       return this.sharedState.currentConfig?.crossToNetwork || this.sharedState.sideConfig
     },
     willReceiveToken() {
-      return this.selectedToken?.receiveToken;
+      return this.selectedToken?.receiveToken
     },
     waitSeconds() {
       if (!this.sharedState.currentConfig || !this.selectedTokenMediumAmount || !this.amount) {
@@ -272,19 +279,22 @@ export default {
     },
   },
   watch: {
-    amount: function(newValue) {
+    amount: function (newValue) {
       if (newValue > 0) {
-        const maxValue = Math.min(this.selectedTokenMaxLimit.toString(), this.selectedTokenBalance.toString());
+        const maxValue = Math.min(
+          this.selectedTokenMaxLimit.toString(),
+          this.selectedTokenBalance.toString(),
+        )
         this.error = ''
         this.showSuccess = false
-        const minValue =  Math.min(newValue, maxValue);
-        const bgAmount = new BigNumber(minValue);
+        const minValue = Math.min(newValue, maxValue)
+        const bgAmount = new BigNumber(minValue)
         this.$nextTick(() => {
-          this.amount = bgAmount.toString();
-          this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee));
-        });
+          this.amount = bgAmount.toString()
+          this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee))
+        })
       } else {
-        this.receiveAmount = 0;
+        this.receiveAmount = 0
       }
     },
     accountConnected(newValue) {
@@ -295,22 +305,21 @@ export default {
     async receiverAddress(address) {
       try {
         if (address === '' || address !== this.sharedState.accountAddress) {
-          this.showAddressWarning = true;
+          this.showAddressWarning = true
         } else {
-          this.showAddressWarning = false;
+          this.showAddressWarning = false
         }
         const web3 = this.sharedState.sideWeb3
-        const code = await web3.eth.getCode(address);
-        if (code !== "0x") {
-          this.showSendToContractWarning = true;
+        const code = await web3.eth.getCode(address)
+        if (code !== '0x') {
+          this.showSendToContractWarning = true
         } else {
-          this.showSendToContractWarning = false;
+          this.showSendToContractWarning = false
         }
-      } catch(err) {
-
+      } catch (err) {
+        console.error(err)
       }
-      
-    }
+    },
   },
   mounted() {
     if (!this.erc20TokenInstance) {
@@ -325,10 +334,10 @@ export default {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId }],
-        });
+        })
         const networksConf = getNetworksConf(network.networkId)
         this.originNetworkSelected = network
-        this.destinationNetworks = networksConf?.networks.map(record => record.crossToNetwork) 
+        this.destinationNetworks = networksConf?.networks.map((record) => record.crossToNetwork)
       } catch (error) {
         if (error.code === 4902) {
           await this.handleAddNetwork(network)
@@ -344,7 +353,7 @@ export default {
       const sideConfig = rskConfig.crossToNetwork
       if (this.originNetworkSelected.crossToNetwork.networkId !== network.networkId) {
         const originNetworkIndex = this.originNetworks.findIndex(
-          net => net.networkId === originNetwork.networkId,
+          (net) => net.networkId === originNetwork.networkId,
         )
         this.originNetworks.splice(originNetworkIndex, 1, originNetwork)
       }
@@ -374,21 +383,21 @@ export default {
       }
     },
     async handleSwitchNetwork() {
-      this.switchNetwork = true;
+      this.switchNetwork = true
       try {
-        this.willReceiveToken = null;
+        this.willReceiveToken = null
         const chainId = numToHex(this.sharedState.currentConfig.crossToNetwork.networkId)
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId }],
         })
       } catch (error) {
-        console.log(error);
+        console.log(error)
         if (error.code === 4902) {
           await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
         }
       }
-      this.switchNetwork = false;
+      this.switchNetwork = false
     },
     handleOnAccountConnected() {
       this.refreshBalanceAndAllowance().then(() => {
@@ -408,8 +417,8 @@ export default {
       this.originNetworks = getNonDuplicateNetworks()
     },
     resetForm() {
-      this.selectedToken = {};
-      this.willReceiveToken = null;
+      this.selectedToken = {}
+      this.willReceiveToken = null
       this.amount = 0
       // this.$refs.crossForm.resetForm()
     },
@@ -417,7 +426,7 @@ export default {
       const web3 = this.sharedState.web3
       const config = this.sharedState.currentConfig
       const token = this.selectedToken
-      
+
       if (!token?.address || !web3 || !config) {
         return
       }
@@ -587,7 +596,7 @@ export default {
         return 'amount is required'
       }
       if (value < 0) {
-        return 'amount need to be greater than 0';
+        return 'amount need to be greater than 0'
       }
       const amount = new BigNumber(value)
       if (!this.selectedToken?.symbol) return true
@@ -620,7 +629,7 @@ export default {
         ? this.sharedState.sideConfig
         : this.sharedState.rskConfig
 
-      web3.eth.getGasPrice().then(gasPrice => {
+      web3.eth.getGasPrice().then((gasPrice) => {
         const costInWei = new BigNumber(ESTIMATED_GAS_AVG)
           .multipliedBy(gasPrice)
           .shiftedBy(-18)
@@ -629,10 +638,6 @@ export default {
         this.claimCost = `${costInWei} ${destinationNetworkConfig.gasToken?.symbol}`
       })
     },
-    getRequiredConfirmations(){
-      const confirmations = config.isRsk ? this.rskConfirmations : this.sideConfirmations
-
-    }
   },
 }
 </script>
@@ -649,7 +654,16 @@ export default {
 .swap-btn:hover {
   color: var(--primary);
 }
-.text-span{
+.text-span {
   border-radius: 20px;
+}
+.successMessage {
+  width: 90%;
+  margin: auto;
+  color: #fff;
+  background-color: #00b520;
+  border-radius: 50px;
+  padding: 10px;
+  text-align: center;
 }
 </style>
