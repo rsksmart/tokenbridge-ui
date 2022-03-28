@@ -29,22 +29,24 @@ import * as methodType from '@/constants/methodType'
  * @param {function(*=): void} promiseParams.reject
  * @returns {(function(*=, *=): Promise<*|undefined>)|*}
  */
-const transactionCallback = (web3, txExplorerLink, { resolve, reject }) => async (err, txHash) => {
-  const textExplorerLink = txExplorerLink(txHash)
-  if (err) {
-    return reject(new Error(`Execution failed ${err?.message} ${textExplorerLink}`))
-  }
-  try {
-    const receipt = await waitForReceipt(txHash, web3)
-    if (receipt.status) {
-      return resolve(receipt)
-    } else {
-      return reject(new Error(`Transaction status failed ${err?.message} ${textExplorerLink}`))
+const transactionCallback =
+  (web3, txExplorerLink, { resolve, reject }) =>
+  async (err, txHash) => {
+    const textExplorerLink = txExplorerLink(txHash)
+    if (err) {
+      return reject(new Error(`Execution failed ${err?.message} ${textExplorerLink}`))
     }
-  } catch (error) {
-    return reject(new Error(`${error} ${textExplorerLink}`))
+    try {
+      const receipt = await waitForReceipt(txHash, web3)
+      if (receipt.status) {
+        return resolve(receipt)
+      } else {
+        return reject(new Error(`Transaction status failed ${err?.message} ${textExplorerLink}`))
+      }
+    } catch (error) {
+      return reject(new Error(`${error} ${textExplorerLink}`))
+    }
   }
-}
 
 /**
  * Receive Tokens To

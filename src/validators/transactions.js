@@ -1,5 +1,5 @@
 export const rules = {
-  required: value => {
+  required: (value) => {
     if (!value || !value.length) {
       return 'This field is required'
     }

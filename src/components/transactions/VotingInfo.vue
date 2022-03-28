@@ -2,9 +2,7 @@
   <span class="voting-info pl-1 pr-1">
     <a @click="showModal = true"><i class="fas fa-info-circle"></i></a>
     <Modal v-if="showModal" @close="showModal = false">
-      <template #title>
-        Votes
-      </template>
+      <template #title> Votes </template>
       <template #body>
         <table class="table">
           <thead>
