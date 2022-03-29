@@ -211,7 +211,16 @@ export default {
           break
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
-          this.processing = true
+          this.processing = true;
+          
+          const wBtcDest = this.toNetwork.tokens.find(x => x.token === 'WBTC');
+          if (!wBtcDest) {
+            throw new Error('Unable to get decimals');
+          }
+
+          
+          const weiDecimals = 18 - wBtcDest.decimals;
+
           await this.recoverTransactionAmount()
           this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
 
@@ -221,7 +230,7 @@ export default {
           }
 
           const estimatedGas = new BigNumber(this.responseEstimatedGas?.amount)
-            .shiftedBy(-8)
+            .shiftedBy(-1 * wBtcDest.decimals)
             .toString()
 
           const swap_balance_proxy_v1 = await this.sharedState.web3.eth.getBalance(
@@ -231,9 +240,8 @@ export default {
           this.sharedState.web3.eth.getGasPrice().then((gasPrice) => {
             const costInWei = new BigNumber(estimatedGas)
               .multipliedBy(gasPrice)
-              .shiftedBy(-10)
-              .toPrecision(8)
-              .toString()
+              .shiftedBy(-1 * weiDecimals)
+              .toPrecision(8).toString()
 
             this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
 
@@ -291,7 +299,7 @@ export default {
         },
       }
     },
-
+ 
     async getSignedData(params) {
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
