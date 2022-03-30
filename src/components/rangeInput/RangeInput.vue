@@ -57,15 +57,12 @@ export default {
         75: '75',
         100: '100',
       },
+      currentValue: 0,
     }
   },
-  computed: {
-    currentValue() {
-      return this.value
-    },
-  },
   watch: {
-    value(newPercentage) {
+    currentValue(newPercentage) {
+      this.currentValue = newPercentage
       this.$emit('update:value', newPercentage)
     },
   },
