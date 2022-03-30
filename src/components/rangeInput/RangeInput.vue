@@ -1,7 +1,7 @@
 <template>
   <v-slider
     ref="rangeInput"
-    v-model="value"
+    v-model="currentValue"
     class="range-input"
     :tick-labels="labels"
     hide-details="true"
@@ -57,10 +57,12 @@ export default {
         75: '75',
         100: '100',
       },
+      currentValue: 0,
     }
   },
   watch: {
-    value(newPercentage) {
+    currentValue(newPercentage) {
+      this.currentValue = newPercentage
       this.$emit('update:value', newPercentage)
     },
   },
