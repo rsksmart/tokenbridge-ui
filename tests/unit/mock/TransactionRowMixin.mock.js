@@ -64,17 +64,23 @@ export const SENDER_ADDRESS = '0x39AC2e40a09192D1e96FB798B0D6bb7EC8C67572'
 export const RECEIVER_ADDRESS = '0x20246256AEB8eF33eAB258afb966b2F199f15961'
 
 export const RSK_BLOCK_NUMBER = 1
+
 export const SIDE_BLOCK_NUMBER = 2
+
 export const TUSD_TOKEN_SYMBOL = 'rKovTUSD'
+
+export const BLOCK_NUMBER = '0x18c52FAC35548D595F2f3b7640782eeB4b39896E'
+
+export const RECEIVE_AMOUNT = '10000'
 
 export const DEFAULT_TRANSACTION = {
   receiverAddress: RECEIVER_ADDRESS,
-  blockNumber: '0x18c52FAC35548D595F2f3b7640782eeB4b39896E',
+  blockNumber: BLOCK_NUMBER,
   transactionHash: TRANSACTION_HASH,
   senderAddress: SENDER_ADDRESS,
   tokenFrom: TUSD_TOKEN_SYMBOL,
   tokenTo: TUSD_TOKEN_SYMBOL,
-  receiveAmount: '10000',
+  receiveAmount: RECEIVE_AMOUNT,
 }
 
 const defaultProps = {
