@@ -17,7 +17,7 @@ jobs:
       run: yarn
     - name: Build site
       run: |
-        VUE_APP_INFURA_KEY=${{ secrets.VUE_APP_INFURA_KEY_TESTNET }} VUE_APP_OFFLINE_DB=tknbrgoff VUE_APP_MAIN_CHAIN_ID=31 VUE_APP_SIDE_CHAIN_ID=42 VUE_APP_NFT_AVAILABLE=false VUE_APP_PROXY_CORS_URI=https://cors-anywhere.herokuapp.com/ VUE_APP_RELAYER_API=https://backend.testnet.tokenbridge.rifcomputing.net/v1/relayer VUE_APP_ENV=testnet yarn build
+        VUE_APP_INFURA_KEY=${{ secrets.VUE_APP_INFURA_KEY_TESTNET }} VUE_APP_OFFLINE_DB=tknbrgoff VUE_APP_MAIN_CHAIN_ID=31 VUE_APP_SIDE_CHAIN_ID=42 VUE_APP_NFT_AVAILABLE=false VUE_APP_PROXY_CORS_URI=https://cors-anywhere.herokuapp.com/ VUE_APP_RELAYER_API=https://backend.testnet.ccbridge.rifgateways.com/v1/relayer VUE_APP_ENV=testnet yarn build
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
