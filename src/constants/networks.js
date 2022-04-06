@@ -10,20 +10,10 @@ import {
   MAIN_NET_RSK_CROSS_ETHEREUM_GAS_TOKEN,
 } from './tokens/mainNetRskCrossEthereum'
 import {
-  TEST_NET_BINANCE_TOKENS,
-  TEST_NET_BINANCE_MAIN_TOKEN,
-  TEST_NET_BINANCE_GAS_TOKEN,
-} from './tokens/testNetBinance'
-import {
   TEST_NET_KOVAN_TOKENS,
   TEST_NET_KOVAN_MAIN_TOKEN,
   TEST_NET_KOVAN_GAS_TOKEN,
 } from './tokens/testNetKovan'
-import {
-  TEST_NET_RSK_CROSS_BINANCE_TOKENS,
-  TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
-  TEST_NET_RSK_CROSS_BINANCE_GAS_TOKEN,
-} from './tokens/testNetRskCrossBinance'
 import {
   TEST_NET_RSK_CROSS_KOVAN_TOKENS,
   TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
@@ -34,28 +24,6 @@ import ENVIRONMENTS from '@/constants/environments'
 const infuraKey = process.env.VUE_APP_INFURA_KEY
 
 // --------- CONFIGS ----------
-export const TEST_NET_BINANCE_CONFIG = {
-  networkId: chainId.TEST_NET_BINANCE,
-  name: 'Binance Smartchain Testnet',
-  localStorageName: 'bsc-testnet',
-  bridge: '0xd9d2f9ee990ddb1147e595ae4f69ec468a0b58d0',
-  allowTokens: '0x9a64fc2416EE2157e19DC2C79B5B22D113a9E0C3',
-  federation: '0xD40F8613173E636D570c47dB3A6Ac57EA9ccac83',
-  explorer: 'https://testnet.bscscan.com/',
-  explorerTokenTab: '#tokentxns',
-  secondsPerBlock: 5,
-  rpc: 'https://data-seed-prebsc-2-s2.binance.org:8545/',
-  v2UpdateBlock: 1,
-  feePercentageDivider: 10_000,
-  tokenPrefix: 'b',
-  env: ENVIRONMENTS.TESTNET,
-  mainToken: TEST_NET_BINANCE_MAIN_TOKEN,
-  gasToken: TEST_NET_BINANCE_GAS_TOKEN,
-  isRsk: false,
-  isSide: true,
-  tokens: getTokensWithReceiveToken(TEST_NET_BINANCE_TOKENS, TEST_NET_RSK_CROSS_BINANCE_TOKENS),
-}
-
 export const TEST_NET_KOVAN_CONFIG = {
   networkId: chainId.TEST_NET_KOVAN,
   name: 'Kovan',
@@ -104,30 +72,6 @@ export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
 }
 TEST_NET_KOVAN_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_KOVAN_CONFIG
 
-export const TEST_NET_RSK_CROSS_BINANCE_CONFIG = {
-  networkId: chainId.TEST_NET_RSK,
-  name: 'RSK Testnet',
-  localStorageName: 'rsk-testnet',
-  bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
-  allowTokens: '0xc65bf0ae75dc1a5fc9e6f4215125692a548c773a',
-  federation: '0x5d663981d930e8ec108280b9d80885658148ab0f',
-  explorer: 'https://explorer.testnet.rsk.co',
-  explorerTokenTab: '?__tab=tokens%20transfers',
-  secondsPerBlock: 30,
-  rpc: 'https://public-node.testnet.rsk.co',
-  v2UpdateBlock: 1945524,
-  feePercentageDivider: 10_000,
-  crossToNetwork: TEST_NET_BINANCE_CONFIG,
-  tokenPrefix: 'b',
-  env: ENVIRONMENTS.TESTNET,
-  mainToken: TEST_NET_RSK_CROSS_BINANCE_MAIN_TOKEN,
-  gasToken: TEST_NET_RSK_CROSS_BINANCE_GAS_TOKEN,
-  isRsk: true,
-  isSide: false,
-  tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_BINANCE_TOKENS, TEST_NET_BINANCE_TOKENS),
-}
-TEST_NET_BINANCE_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_BINANCE_CONFIG
-
 export const MAIN_NET_ETH_CONFIG = {
   networkId: chainId.MAIN_NET_ETHEREUM,
   name: 'Ethereum',
@@ -174,11 +118,7 @@ export const MAIN_NET_RSK_CONFIG = {
 }
 MAIN_NET_ETH_CONFIG.crossToNetwork = MAIN_NET_RSK_CONFIG
 
-export const rskNetworks = [
-  MAIN_NET_RSK_CONFIG,
-  TEST_NET_RSK_CROSS_BINANCE_CONFIG,
-  TEST_NET_RSK_CROSS_KOVAN_CONFIG,
-]
+export const rskNetworks = [MAIN_NET_RSK_CONFIG, TEST_NET_RSK_CROSS_KOVAN_CONFIG]
 
 export const defaultNetworks = {
   [ENVIRONMENTS.MAINNET]: {

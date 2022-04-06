@@ -211,15 +211,14 @@ export default {
           break
         }
         case this.claimTypes.CONVERT_TO_RBTC: {
-          this.processing = true;
-          
-          const wBtcDest = this.toNetwork.tokens.find(x => x.token === 'WBTC');
+          this.processing = true
+
+          const wBtcDest = this.toNetwork.tokens.find((x) => x.token === 'WBTC')
           if (!wBtcDest) {
-            throw new Error('Unable to get decimals');
+            throw new Error('Unable to get decimals')
           }
 
-          
-          const weiDecimals = 18 - wBtcDest.decimals;
+          const weiDecimals = 18 - wBtcDest.decimals
 
           await this.recoverTransactionAmount()
           this.responseEstimatedGas = await this.getEstimatedGasPrice(this.amountInWei)
@@ -241,7 +240,8 @@ export default {
             const costInWei = new BigNumber(estimatedGas)
               .multipliedBy(gasPrice)
               .shiftedBy(-1 * weiDecimals)
-              .toPrecision(8).toString()
+              .toPrecision(8)
+              .toString()
 
             this.receiveAmount = new BigNumber(this.amount).minus(costInWei).toString()
 
@@ -299,7 +299,7 @@ export default {
         },
       }
     },
- 
+
     async getSignedData(params) {
       return new Promise((resolve, reject) => {
         this.sharedState.web3.currentProvider.sendAsync(
@@ -384,7 +384,6 @@ export default {
           }),
         })
         const responseObject = await response.json()
-        console.log(responseObject)
         await this.$attrs.on.onCloseClaimModal(CLAIM_TYPES.CONVERT_TO_RBTC, responseObject)
         this.$parent.handleCloseModal()
       } catch (responseError) {
