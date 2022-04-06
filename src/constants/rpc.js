@@ -1,6 +1,5 @@
 import * as chainId from './chainId'
 import {
-  TEST_NET_BINANCE_CONFIG,
   TEST_NET_KOVAN_CONFIG,
   TEST_NET_RSK_CROSS_KOVAN_CONFIG,
   MAIN_NET_ETH_CONFIG,
@@ -15,7 +14,6 @@ const mainChainId = mainChainIdStr ? parseInt(mainChainIdStr, 10) : chainId.MAIN
 
 // --------- CONFIGS ----------
 export const TEST_NET_RPC = {
-  [chainId.TEST_NET_BINANCE]: TEST_NET_BINANCE_CONFIG.rpc,
   [chainId.TEST_NET_KOVAN]: TEST_NET_KOVAN_CONFIG.rpc,
   [chainId.TEST_NET_RSK]: TEST_NET_RSK_CROSS_KOVAN_CONFIG.rpc,
 }
