@@ -8,8 +8,9 @@
 
 // /* eslint-disable import/no-extraneous-dependencies, global-require */
 // const webpack = require('@cypress/webpack-preprocessor')
-
+require('dotenv').config()
 module.exports = (on, config) => {
+  require('@synthetixio/synpress/plugins')(on, config)
   // on('file:preprocessor', webpack({
   //  webpackOptions: require('@vue/cli-service/webpack.config'),
   //  watchOptions: {}
