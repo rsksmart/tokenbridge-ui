@@ -9,12 +9,31 @@
 // /* eslint-disable import/no-extraneous-dependencies, global-require */
 // const webpack = require('@cypress/webpack-preprocessor')
 require('dotenv').config()
+const puppeteer = require('@synthetixio/synpress/commands/puppeteer')
 module.exports = (on, config) => {
   require('@synthetixio/synpress/plugins')(on, config)
   // on('file:preprocessor', webpack({
   //  webpackOptions: require('@vue/cli-service/webpack.config'),
   //  watchOptions: {}
   // }))
+
+  on('task', {
+    async switchMetamaskPopup() {
+      try {
+        await puppeteer.metamaskWindow().waitForTimeout(3000)
+        let pages = await puppeteer.puppeteerBrowser().pages()
+        for (const page of pages) {
+          if (page.url().includes('notification')) {
+            await page.bringToFront()
+            return page.url()
+          }
+        }
+        return null
+      } catch (e) {
+        return null
+      }
+    },
+  })
 
   return Object.assign({}, config, {
     fixturesFolder: 'tests/e2e/fixtures',

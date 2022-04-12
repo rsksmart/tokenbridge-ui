@@ -13,6 +13,13 @@ Cypress.Commands.add('connectWallet', () => {
     .children()
     .first()
     .click()
-    .get(METAMASK_CONFIRM_BUTTON_MODAL_ACCEPT)
-    .click()
+    .wait(1000)
+    .task('switchMetamaskPopup')
+    .then((page) => {
+      if (page) {
+        return cy.task('acceptMetamaskAccess').get(METAMASK_CONFIRM_BUTTON_MODAL_ACCEPT).click()
+      } else {
+        return cy.get(METAMASK_CONFIRM_BUTTON_MODAL_ACCEPT).click()
+      }
+    })
 })
