@@ -1,3 +1,6 @@
 {
-  "pluginsFile": "tests/e2e/plugins/index.js"
+  "pluginsFile": "tests/e2e/plugins/index.js",
+  "commandsFile": "tests/e2e/support/index.js",
+  "chromeWebSecurity": true,
+  "defaultCommandTimeout": 8000
 }
