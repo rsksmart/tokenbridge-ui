@@ -12,7 +12,6 @@ import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC72
 import { decodeCrossEvent } from '@/utils/decodeEvents'
 import { findNetworkByChainId } from '@/constants/networks'
 import WrongNetwork from '@/components/transactions/modals/WrongNetwork'
-import ClaimWRBTCModal from '../modals/ClaimWRBTCModal'
 import { CLAIM_TYPES } from '@/constants/claimTypes'
 import { waitForReceipt } from '../../../utils'
 
@@ -22,7 +21,6 @@ export default {
   components: {
     Modal,
     VotingInfo,
-    ClaimWRBTCModal,
   },
   inject: ['$services', '$modal'],
   props: {
@@ -329,66 +327,16 @@ export default {
         console.error(error)
       }
     },
-    async updateRBTCTransaction(responseObject) {
-      const data = this
-      data.loading = true
-      const { transactionHash } = responseObject
-
-      try {
-        const receipt = await waitForReceipt(transactionHash, this.sharedState.rskWeb3)
-        console.trace(receipt)
-
-        await this.$services.TransactionService.saveTransaction({
-          ...data.transaction,
-          currentStep: CROSSING_STEPS.ClaimedUsingSwap,
-        })
-
-        data.loading = false
-        data.showResultModal = true
-        data.currentStep = CROSSING_STEPS.ClaimedUsingSwap
-        this.$modal.value.showModal({
-          type: 'success',
-          options: {
-            modalProps: {
-              message: `Claimed transaction <a href="${this.sharedState.currentConfig.explorer}/tx/${transactionHash}">see the transaction</a>`,
-            },
-          },
-        })
-      } catch (error) {
-        data.loading = false
-        data.error = error.message
-        data.showResultModal = true
-        console.error(error)
-      }
-    },
     async onCloseClaimModal(claimType, ...params) {
       switch (claimType) {
         case CLAIM_TYPES.STANDARD:
           await this.claim()
-          break
-        case CLAIM_TYPES.CONVERT_TO_RBTC:
-          await this.updateRBTCTransaction(...params)
           break
         default:
           break
       }
     },
 
-    async claimWBTC() {
-      this.$modal.value.showModal({
-        type: 'custom',
-        options: {
-          customModalComponent: ClaimWRBTCModal,
-          modalProps: {
-            transaction: this.transaction,
-          },
-          modalEvents: {
-            onCloseClaimModal: this.onCloseClaimModal,
-          },
-          size: 'medium',
-        },
-      })
-    },
     async claimClick() {
       const data = this
       const sharedState = data.sharedState
@@ -410,8 +358,7 @@ export default {
       if (
         sharedState.accountAddress.toLowerCase() === data.transaction.receiverAddress.toLowerCase()
       ) {
-        await this.claimWBTC()
-        // await this.claim()
+        await this.claim()
       } else {
         data.showMismatchAddressModal = true
       }
