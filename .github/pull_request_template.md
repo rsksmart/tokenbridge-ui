@@ -19,11 +19,6 @@ The pull request should be described here
 $~ npm run serve
 ```
 
-2. Click on NFT
-
-__Expected Result__
-- The nft green block should change
-
 #### Case N...
 
 ### Checklist
