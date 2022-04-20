@@ -1,14 +1,14 @@
 <template>
   <section class="container main-div">
     <Title />
-    <FormWrapper
+    <cross-form
       :types-limits="settings.typesLimits"
       :rsk-fee="settings.rskFee"
       :side-fee="settings.sideFee"
       :rsk-confirmations="settings.rskConfirmations"
       :side-confirmations="settings.sideConfirmations"
       @new-transaction="newTransaction = $event"
-    />
+    ></cross-form>
   </section>
 </template>
 
@@ -20,20 +20,18 @@ import 'bootstrap'
 
 import Title from '@/components/title/Title.vue'
 import { store } from '@/store.js'
-import globalStore from '@/stores/global.store'
-import FormWrapper from '@/components/formWrapper/FormWrapper'
+import CrossForm from '@/components/crossForm/CrossForm.vue'
 
 export default {
   name: 'Home',
   components: {
-    FormWrapper,
+    CrossForm,
     Title,
   },
   data() {
     return {
       sharedState: store.state,
       newTransaction: null,
-      globalState: globalStore.state,
     }
   },
   computed: {

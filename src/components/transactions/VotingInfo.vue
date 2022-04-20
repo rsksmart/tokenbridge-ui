@@ -33,10 +33,7 @@ import FEDERATION_ABI from '@/constants/abis/federation.json'
 import Modal from '@/components/commons/Modal.vue'
 import { store } from '@/store.js'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
-import globalStore from '@/stores/global.store'
-import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
-import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 
 export default {
   name: 'VotingInfo',
@@ -56,7 +53,6 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      globalState: globalStore.state,
       showModal: false,
       votes: [],
     }
@@ -94,20 +90,12 @@ export default {
   },
   methods: {
     getParamsByTokenType(decodedEvent, event) {
-      switch (this.globalState.currentTokenType) {
-        case TOKEN_TYPE_ERC_20:
-          return ERC20TokenTransaction.getParamsForGetTransactionId(
-            decodedEvent,
-            event,
-            this.fromNetwork.networkId,
-            this.toNetwork.networkId,
-          )
-        case TOKEN_TYPE_ERC_721:
-          // TODO: Add origin and destination network to the params..
-          return ERC721NFTTransaction.getParamsForGetTransactionId(decodedEvent, event)
-        default:
-          throw new Error(`Token type ${this.globalState.currentTokenType} isn't supported`)
-      }
+      return ERC20TokenTransaction.getParamsForGetTransactionId(
+                  decodedEvent,
+                  event,
+                  this.fromNetwork.networkId,
+                  this.toNetwork.networkId,
+                )
     },
     async setVotesFromFedMembers() {
       const data = this
@@ -120,7 +108,6 @@ export default {
       const { event, decodedEvent } = decodeCrossEvent(
         data.originWeb3,
         receipt,
-        this.globalState.currentTokenType,
       )
       const federationContract = new data.destinationWeb3.eth.Contract(
         FEDERATION_ABI,
