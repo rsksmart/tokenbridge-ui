@@ -11,7 +11,6 @@ import { ALL_RPC } from '@/constants/rpc.js'
 import { convertToNumber } from '@/utils/text-helpers'
 import SideNetwork from '@/modules/networks/SideNetwork'
 import HostNetwork from '@/modules/networks/HostNetwork'
-import { blocksToTime } from '@/utils'
 
 export const store = {
   state: reactive({

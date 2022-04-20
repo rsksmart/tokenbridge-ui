@@ -9,8 +9,6 @@ import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC2
 import { decodeCrossEvent } from '@/utils/decodeEvents'
 import { findNetworkByChainId } from '@/constants/networks'
 import WrongNetwork from '@/components/transactions/modals/WrongNetwork'
-import { CLAIM_TYPES } from '@/constants/claimTypes'
-import { waitForReceipt } from '../../../utils'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -279,10 +277,7 @@ export default {
       // Always retrieve transaction block hash as data.transaction.blockHash
       // may not be the final block hash in RSK
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transaction.transactionHash)
-      const { decodedEvent, event } = decodeCrossEvent(
-        originWeb3,
-        receipt,
-      )
+      const { decodedEvent, event } = decodeCrossEvent(originWeb3, receipt)
       const tokenInstance = this.getTokenTypeInstance({ config: data.toNetwork })
 
       try {
@@ -307,15 +302,6 @@ export default {
         data.error = error.message
         data.showResultModal = true
         console.error(error)
-      }
-    },
-    async onCloseClaimModal(claimType, ...params) {
-      switch (claimType) {
-        case CLAIM_TYPES.STANDARD:
-          await this.claim()
-          break
-        default:
-          break
       }
     },
 

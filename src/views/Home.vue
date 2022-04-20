@@ -1,14 +1,14 @@
 <template>
   <section class="container main-div">
     <Title />
-    <cross-form
+    <CrossForm
       :types-limits="settings.typesLimits"
       :rsk-fee="settings.rskFee"
       :side-fee="settings.sideFee"
       :rsk-confirmations="settings.rskConfirmations"
       :side-confirmations="settings.sideConfirmations"
       @new-transaction="newTransaction = $event"
-    ></cross-form>
+    ></CrossForm>
   </section>
 </template>
 
