@@ -2,7 +2,6 @@ import BRIDGE_ABI from '@/constants/abis/bridge.json'
 import FEDERATION_ABI from '@/constants/abis/federation.json'
 import { blocksToTime, retry3Times } from '@/utils'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'
-import NFT_BRIDGE from '@/constants/abis/nft-bridge.json'
 
 export default class Network {
   config = null
@@ -61,15 +60,5 @@ export default class Network {
     const limits = await this.getTypesLimits(contract)
     const confirmations = await this.getConfirmations(contract)
     return { limits, confirmations }
-  }
-
-  async getFixedFee() {
-    const contract = new this.web3.eth.Contract(NFT_BRIDGE, this.config.nftBridge)
-    try {
-      const fee = await contract.methods.getFixedFee().call()
-      return fee / this.config.feePercentageDivider
-    } catch (error) {
-      throw new Error(`Error in getFixedFee ${error.message}`)
-    }
   }
 }
