@@ -79,14 +79,6 @@
               :disabled="!currentNetwork || !isOrigin || !selectedToken?.token"
               @input="handleChangeAmount"
             />
-            <div v-if="isOrigin">
-              <RangeInput
-                v-model:value="percentage"
-                step="1"
-                :disabled="!currentNetwork || !isOrigin || !selectedToken?.token"
-              />
-            </div>
-            <div v-else class="holder"></div>
           </div>
         </div>
       </div>
@@ -137,12 +129,10 @@
 
 <script>
 import { store } from '@/store'
-import RangeInput from '@/components/rangeInput/RangeInput'
 import BigNumber from 'bignumber.js'
 
 export default {
   name: 'Transfer',
-  components: { RangeInput },
   props: {
     amount: {
       required: true,
