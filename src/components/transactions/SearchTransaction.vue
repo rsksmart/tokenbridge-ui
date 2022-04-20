@@ -192,17 +192,15 @@ export default {
       decodedEvent._from = decodedEvent._from ?? decodedEvent._to
       let transaction = null
       const block = await originWeb3.eth.getBlock(receipt.blockNumber)
-        const token = data.selectedNetwork.tokens.find((token) => {
-          return (
-            token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
-            // When crossing back uses the original token address
-            token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
-          )
-        })
+      const token = data.selectedNetwork.tokens.find((token) => {
+        return (
+          token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
+          // When crossing back uses the original token address
+          token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
+        )
+      })
 
-      const receiveAmount = new BigNumber(decodedEvent._amount)
-        .div(10 ** token.decimals)
-        .toString()
+      const receiveAmount = new BigNumber(decodedEvent._amount).div(10 ** token.decimals).toString()
       const erc20TokenInstance = new ERC20TokenTransaction({
         web3: originWeb3,
         config: data.selectedNetwork,

@@ -91,11 +91,11 @@ export default {
   methods: {
     getParamsByTokenType(decodedEvent, event) {
       return ERC20TokenTransaction.getParamsForGetTransactionId(
-                  decodedEvent,
-                  event,
-                  this.fromNetwork.networkId,
-                  this.toNetwork.networkId,
-                )
+        decodedEvent,
+        event,
+        this.fromNetwork.networkId,
+        this.toNetwork.networkId,
+      )
     },
     async setVotesFromFedMembers() {
       const data = this
@@ -105,10 +105,7 @@ export default {
       const receipt = await data.originWeb3.eth.getTransactionReceipt(
         data.transaction.transactionHash,
       )
-      const { event, decodedEvent } = decodeCrossEvent(
-        data.originWeb3,
-        receipt,
-      )
+      const { event, decodedEvent } = decodeCrossEvent(data.originWeb3, receipt)
       const federationContract = new data.destinationWeb3.eth.Contract(
         FEDERATION_ABI,
         data.federationAddress,
