@@ -97,12 +97,8 @@ import BigNumber from 'bignumber.js'
 
 import { store } from '@/store.js'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
-import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TransactionTable from '@/components/transactions/transactionsTables/ERC20Table/ERC20TransactionTable'
-import ERC721TransactionTable from '@/components/transactions/transactionsTables/ERC721Table/ERC721TransactionTable'
-import globalStore from '@/stores/global.store'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
-import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 
 export default {
   name: 'TransactionList',
@@ -146,7 +142,6 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      globalState: globalStore.state,
       selectedNetwork: store.state.rskConfig,
       transactionHash: '',
       searchedTransaction: false,
@@ -157,14 +152,7 @@ export default {
   },
   computed: {
     currentTableType() {
-      switch (this.globalState.currentTokenType) {
-        case TOKEN_TYPE_ERC_20:
-          return ERC20TransactionTable
-        case TOKEN_TYPE_ERC_721:
-          return ERC721TransactionTable
-        default:
-          throw new Error(`Transaction type ${this.globalState.currentTokenType} is not supported`)
-      }
+      return ERC20TransactionTable
     },
   },
   methods: {
@@ -189,7 +177,7 @@ export default {
         data.isSearching = false
         return
       }
-      const result = decodeCrossEvent(originWeb3, receipt, this.globalState.currentTokenType)
+      const result = decodeCrossEvent(originWeb3, receipt)
       if (!result) {
         data.isCrossTransaction = false
         data.searchedTransaction = true
@@ -204,44 +192,28 @@ export default {
       decodedEvent._from = decodedEvent._from ?? decodedEvent._to
       let transaction = null
       const block = await originWeb3.eth.getBlock(receipt.blockNumber)
-      if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_20) {
-        const token = data.selectedNetwork.tokens.find((token) => {
-          return (
-            token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
-            // When crossing back uses the original token address
-            token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
-          )
-        })
+      const token = data.selectedNetwork.tokens.find((token) => {
+        return (
+          token.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase() ||
+          // When crossing back uses the original token address
+          token.receiveToken.address.toLowerCase() === decodedEvent._tokenAddress.toLowerCase()
+        )
+      })
 
-        const receiveAmount = new BigNumber(decodedEvent._amount)
-          .div(10 ** token.decimals)
-          .toString()
-        const erc20TokenInstance = new ERC20TokenTransaction({
-          web3: originWeb3,
-          config: data.selectedNetwork,
-        })
-        transaction = await erc20TokenInstance.saveTransaction(
-          receipt,
-          token,
-          decodedEvent._amount,
-          receiveAmount,
-          decodedEvent._from,
-          decodedEvent._to,
-          block.timestamp * 1000,
-        )
-      } else if (this.globalState.currentTokenType === TOKEN_TYPE_ERC_721) {
-        const erc721TokenInstance = new ERC721NFTTransaction({
-          web3: originWeb3,
-          config: data.selectedNetwork,
-        })
-        transaction = await erc721TokenInstance.saveTransaction(
-          receipt,
-          decodedEvent._tokenId,
-          decodedEvent._originalTokenAddress,
-          decodedEvent._to,
-          block.timestamp * 1000,
-        )
-      }
+      const receiveAmount = new BigNumber(decodedEvent._amount).div(10 ** token.decimals).toString()
+      const erc20TokenInstance = new ERC20TokenTransaction({
+        web3: originWeb3,
+        config: data.selectedNetwork,
+      })
+      transaction = await erc20TokenInstance.saveTransaction(
+        receipt,
+        token,
+        decodedEvent._amount,
+        receiveAmount,
+        decodedEvent._from,
+        decodedEvent._to,
+        block.timestamp * 1000,
+      )
       console.table(transaction)
 
       // await this.$services.TransactionService.saveTransaction(newTransaction)

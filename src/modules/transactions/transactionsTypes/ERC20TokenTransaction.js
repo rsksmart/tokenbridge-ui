@@ -6,8 +6,6 @@ import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import * as methodType from '@/constants/methodType'
 import { MAX_UINT256, retry3Times } from '@/utils'
 import BigNumber from 'bignumber.js'
-import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
-
 class ERC20TokenTransaction extends Transaction {
   static getParamsForGetTransactionId(decodedEvent, event, originChainId, destinationChainId) {
     return [
@@ -79,7 +77,7 @@ class ERC20TokenTransaction extends Transaction {
       receiverAddress,
       timestamp,
       accountsAddresses: [senderAddress.toLowerCase()],
-      tokenType: TOKEN_TYPE_ERC_20,
+      tokenType: 'ERC_20',
       destinationChainId: this.config.crossToNetwork.networkId,
       ...receipt,
     }

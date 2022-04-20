@@ -77,10 +77,7 @@
 
 <script>
 import { store } from '@/store.js'
-import globalStore from '@/stores/global.store'
 import ERC20TransactionTable from '@/components/transactions/transactionsTables/ERC20Table/ERC20TransactionTable'
-import ERC721TransactionTable from '@/components/transactions/transactionsTables/ERC721Table/ERC721TransactionTable'
-import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 
 export default {
   name: 'TransactionList',
@@ -130,7 +127,6 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      globalState: globalStore.state,
       offset: 0,
       limitSelect: 5,
     }
@@ -146,14 +142,7 @@ export default {
       return this.transactions.length
     },
     currentTableType() {
-      switch (this.globalState.currentTokenType) {
-        case TOKEN_TYPE_ERC_20:
-          return ERC20TransactionTable
-        case TOKEN_TYPE_ERC_721:
-          return ERC721TransactionTable
-        default:
-          throw new Error(`Transaction type ${this.globalState.currentTokenType} is not supported`)
-      }
+      return ERC20TransactionTable
     },
   },
   methods: {

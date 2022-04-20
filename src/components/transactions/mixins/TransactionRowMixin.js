@@ -5,15 +5,10 @@ import { wrappedFormat, blocksToTime, sanitizeTxHash, NULL_HASH } from '@/utils'
 import { CROSSING_STEPS } from '@/constants/enums.js'
 import VotingInfo from './../VotingInfo.vue'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
-import globalStore from '@/stores/global.store'
-import { TOKEN_TYPE_ERC_20, TOKEN_TYPE_ERC_721 } from '@/constants/tokenType'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
-import ERC721NFTTransaction from '@/modules/transactions/transactionsTypes/ERC721NFTTransaction'
 import { decodeCrossEvent } from '@/utils/decodeEvents'
 import { findNetworkByChainId } from '@/constants/networks'
 import WrongNetwork from '@/components/transactions/modals/WrongNetwork'
-import { CLAIM_TYPES } from '@/constants/claimTypes'
-import { waitForReceipt } from '../../../utils'
 
 const DEFAULT_COPY_ICON = 'far fa-clipboard'
 
@@ -60,7 +55,6 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      globalState: globalStore.state,
       currentStep: this.transaction.currentStep || 0,
       steps: CROSSING_STEPS,
       currentConfirmations: 0,
@@ -209,23 +203,10 @@ export default {
         : ''
     },
     getTokenTypeInstance({ web3, config } = {}) {
-      switch (this.globalState.currentTokenType) {
-        case TOKEN_TYPE_ERC_20:
-          return new ERC20TokenTransaction({
-            web3: web3 || this.sharedState?.web3,
-            config: config || this.sharedState?.currentConfig,
-          })
-        case TOKEN_TYPE_ERC_721:
-          return new ERC721NFTTransaction({
-            web3: web3 || this.sharedState?.web3,
-            config: config || this.sharedState?.currentConfig,
-          })
-        default:
-          return new ERC20TokenTransaction({
-            web3: web3 || this.sharedState?.web3,
-            config: config || this.sharedState?.currentConfig,
-          })
-      }
+      return new ERC20TokenTransaction({
+        web3: web3 || this.sharedState?.web3,
+        config: config || this.sharedState?.currentConfig,
+      })
     },
     async refreshStep() {
       const data = this
@@ -296,11 +277,7 @@ export default {
       // Always retrieve transaction block hash as data.transaction.blockHash
       // may not be the final block hash in RSK
       const receipt = await originWeb3.eth.getTransactionReceipt(data.transaction.transactionHash)
-      const { decodedEvent, event } = decodeCrossEvent(
-        originWeb3,
-        receipt,
-        this.globalState.currentTokenType,
-      )
+      const { decodedEvent, event } = decodeCrossEvent(originWeb3, receipt)
       const tokenInstance = this.getTokenTypeInstance({ config: data.toNetwork })
 
       try {
@@ -325,15 +302,6 @@ export default {
         data.error = error.message
         data.showResultModal = true
         console.error(error)
-      }
-    },
-    async onCloseClaimModal(claimType, ...params) {
-      switch (claimType) {
-        case CLAIM_TYPES.STANDARD:
-          await this.claim()
-          break
-        default:
-          break
       }
     },
 
