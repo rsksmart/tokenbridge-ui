@@ -63,7 +63,7 @@ export class TransactionService {
     }
   }
 
-  async getTransactions(accountAddress, networkIds, tokenTypes, { limit, offset }) {
+  async getTransactions(accountAddress, networkIds, { limit, offset }) {
     const transactionIncludeAddress = (transaction) => {
       const addressLowerCase = accountAddress.toLowerCase()
       if (Array.isArray(transaction.accountsAddresses)) {
@@ -83,7 +83,6 @@ export class TransactionService {
       // Should be enable for display transactions that respect the origin and destination selected
       .and((transaction) => networkIds.includes(transaction.destinationChainId))
       .and((transaction) => transactionIncludeAddress(transaction))
-      .and((transaction) => tokenTypes.includes(transaction.tokenType))
       .count()
 
     const data = await dbInstance.transactions
@@ -92,7 +91,6 @@ export class TransactionService {
       // Should be enable for display transactions that respect the origin and destination selected
       .and((transaction) => networkIds.includes(transaction.destinationChainId))
       .and((transaction) => transactionIncludeAddress(transaction))
-      .and((transaction) => tokenTypes.includes(transaction.tokenType))
       .reverse()
       .sortBy('timestamp')
     return {

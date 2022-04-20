@@ -8,15 +8,12 @@
 <script>
 import TokenList from '@/components/tokenList/TokenList'
 import { store } from '@/store'
-import globalStore from '@/stores/global.store'
-import { TOKEN_TYPE_ERC_20 } from '@/constants/tokenType'
 
 export default {
   name: 'TokenListPage',
   components: { TokenList },
   data() {
     return {
-      globalState: globalStore.state,
       sharedState: store.state,
     }
   },
@@ -25,10 +22,7 @@ export default {
       return this.sharedState.networkSettings
     },
     displayList() {
-      return (
-        this.globalState.currentTokenType === TOKEN_TYPE_ERC_20 &&
-        this.sharedState.rskConfig?.tokens.length > 0
-      )
+      return this.sharedState.rskConfig?.tokens.length > 0
     },
   },
 }

@@ -35,12 +35,8 @@ export const store = {
       typesLimits: [],
       rskFee: 0,
       sideFee: 0,
-      rskFeeNft: 0,
-      sideFeeNft: 0,
       rskConfirmations: {},
       sideConfirmations: {},
-      rskConfirmationsNft: {},
-      sideConfirmationsNft: {},
       rskFedMembers: [],
       sideFedMembers: [],
     },
@@ -75,26 +71,6 @@ export const store = {
     networkSettings.sideConfirmations = sideConfirmations
 
     networkSettings.sideFedMembers = await sideNetwork.getMembers()
-
-    // NFT
-    if (!rskConfig.nftBridge || !sideConfig.nftBridge) {
-      store.state.networkSettings = { ...networkSettings }
-      return
-    }
-    networkSettings.rskFeeNft = await hostNetwork.getFixedFee()
-
-    networkSettings.sideFeeNft = await sideNetwork.getFixedFee()
-
-    const NFT_FIXED_CONFIRMATIONS_BLOCK = 3 // maybe we are going to define it into the nft bridge contract
-
-    networkSettings.rskConfirmationsNft = {
-      confirmations: NFT_FIXED_CONFIRMATIONS_BLOCK,
-      time: blocksToTime(NFT_FIXED_CONFIRMATIONS_BLOCK, rskConfig.secondsPerBlock),
-    }
-    networkSettings.sideConfirmationsNft = {
-      confirmations: NFT_FIXED_CONFIRMATIONS_BLOCK,
-      time: blocksToTime(NFT_FIXED_CONFIRMATIONS_BLOCK, sideConfig.secondsPerBlock),
-    }
     store.state.networkSettings = { ...networkSettings }
   },
   async initMainSettings(chainId, rskConfig, sideConfig) {
