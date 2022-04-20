@@ -294,7 +294,7 @@ export default {
           this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee))
         })
       } else {
-        this.receiveAmount = 0
+        this.receiveAmount = new BigNumber(0)
       }
     },
     accountConnected(newValue) {
