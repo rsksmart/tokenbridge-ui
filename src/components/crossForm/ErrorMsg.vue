@@ -7,7 +7,7 @@
       role="alert"
     >
       <h4 class="alert-heading">Ups! there was an error</h4>
-      <p id="alert-danger-text">{{ error }}</p>
+      <p id="alert-danger-text" v-html="error"></p>
       <button type="button" class="close" aria-label="Close" @click="hide">
         <span aria-hidden="true">&times;</span>
       </button>
