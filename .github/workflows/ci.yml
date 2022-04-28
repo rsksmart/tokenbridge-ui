@@ -37,6 +37,5 @@ jobs:
         config_file: cypress.json
         spec: "tests/e2e/**/*"
       env:
-        CYPRESS_baseUrl: <http://localhost:8080/>
         SECRET_WORDS: "test test test test test test test test test test test junk"
         CYPRESS_REMOTE_DEBUGGING_PORT: 9992
