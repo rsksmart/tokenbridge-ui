@@ -14,7 +14,8 @@
     "prettier": "prettier './src/**/*.{js,vue}'",
     "prettier:autofix": "yarn prettier --write",
     "prettier:check": "yarn prettier --check",
-    "start": "npm run serve"
+    "start": "npm run serve",
+    "cypress": "./node_modules/.bin/cypress open"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",

@@ -28,7 +28,13 @@ jobs:
       
     - name: unit test
       run: npm run test:unit
-      
+
+    - name: run lint
+      run: npm run lint
+
+    - name: run prettier
+      run: npm run prettier
+
     - name: Cypress run
       uses: cypress-io/github-action@v2
       with:
@@ -38,3 +44,5 @@ jobs:
         spec: "tests/e2e/**/*"
       env:
         CYPRESS_baseUrl: <http://localhost:8080/>
+        SECRET_WORDS: "test test test test test test test test test test test junk"
+        CYPRESS_REMOTE_DEBUGGING_PORT: 9992
