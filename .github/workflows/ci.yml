@@ -21,9 +21,6 @@ jobs:
     - name: Install dependencies
       run: yarn    
      
-    - name: build
-      run: npm ci
-      
     - name: unit test
       run: npm run test:unit
 
