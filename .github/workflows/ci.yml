@@ -31,6 +31,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+
+    steps:
+
     - name: Checkout
       uses: actions/checkout@v3
       
@@ -38,8 +41,7 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '16'
-        
-    steps:
+
     - name: unit test
       run: npm run test:unit
 
