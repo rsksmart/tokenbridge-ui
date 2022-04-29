@@ -35,7 +35,7 @@ jobs:
     - name: Cypress run
       uses: cypress-io/github-action@v2
       with:
-        browser: firefox
+        browser: chrome
         start: yarn serve
       env:
         SECRET_WORDS: "test test test test test test test test test test test junk"
