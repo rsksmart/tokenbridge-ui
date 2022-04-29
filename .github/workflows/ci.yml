@@ -37,6 +37,9 @@ jobs:
       with:
         browser: chrome
         start: yarn serve
+        wait-on: 'http://localhost:8080'
+        wait-on-timeout: 120
+
       env:
         SECRET_WORDS: "test test test test test test test test test test test junk"
         CYPRESS_REMOTE_DEBUGGING_PORT: 9222
