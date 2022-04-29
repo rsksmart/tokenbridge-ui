@@ -1,7 +1,7 @@
 import {
   CONNECT_WALLET_BUTTON,
   MAIN_NETWORK_SELECT_TEXT,
-  SIDE_NETWORK_SELECT_TEXT,
+  //SIDE_NETWORK_SELECT_TEXT,
 } from '../../pages/home'
 import { MockProvider } from '@rsksmart/mock-web3-provider'
 
