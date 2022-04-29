@@ -35,6 +35,6 @@ jobs:
       uses: cypress-io/github-action@v2
       with:
         browser: firefox
-        start: yarn serve
+        start: yarn serve --port 9222
       env:
         SECRET_WORDS: "test test test test test test test test test test test junk"
