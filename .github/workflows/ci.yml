@@ -38,4 +38,3 @@ jobs:
         start: yarn serve
       env:
         SECRET_WORDS: "test test test test test test test test test test test junk"
-        CYPRESS_REMOTE_DEBUGGING_PORT: 9992
