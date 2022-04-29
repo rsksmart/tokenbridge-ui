@@ -385,6 +385,7 @@ export default {
     async handleSwitchNetwork() {
       this.switchNetwork = true
       try {
+        this.selectedToken = {};
         this.willReceiveToken = null
         const chainId = numToHex(this.sharedState.currentConfig.crossToNetwork.networkId)
         await window.ethereum.request({
