@@ -30,6 +30,9 @@ jobs:
       run: npm run prettier
 
   test:
+    runs-on: ubuntu-latest
+
+    steps:
     - name: unit test
       run: npm run test:unit
 
