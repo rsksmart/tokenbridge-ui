@@ -29,19 +29,6 @@ jobs:
     - name: run prettier
       run: npm run prettier
 
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v3
-      
-    - name: Use Node 16
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
-
     - name: unit test
       run: npm run test:unit
 
@@ -52,4 +39,4 @@ jobs:
         start: yarn serve
       env:
         SECRET_WORDS: "test test test test test test test test test test test junk"
-        CYPRESS_REMOTE_DEBUGGING_PORT: 9992
+        CYPRESS_REMOTE_DEBUGGING_PORT: 9222
