@@ -4,7 +4,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - 'main'
+  workflow_dispatch:
 
 jobs:
   ci:
@@ -33,9 +35,7 @@ jobs:
     - name: Cypress run
       uses: cypress-io/github-action@v2
       with:
-        start: yarn serve
-        config_file: cypress.json
-        spec: "tests/e2e/**/*"
+        browser: firefox
       env:
         SECRET_WORDS: "test test test test test test test test test test test junk"
         CYPRESS_REMOTE_DEBUGGING_PORT: 9992
