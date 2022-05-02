@@ -31,6 +31,9 @@ jobs:
       run: npm run test:unit
 
     - name: Cypress run
-      run: npm run test:e2e
+      uses: cypress-io/github-action@v2
+      with:
+        install: false
+        start: yarn serve --port 8080
       env:
         CYPRESS_REMOTE_DEBUGGING_PORT: 9222
