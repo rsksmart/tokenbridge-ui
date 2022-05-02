@@ -32,8 +32,5 @@ jobs:
 
     - name: Cypress run
       run: npm run test:e2e
-      with:
-        install: false
-        browser: chrome
       env:
         CYPRESS_REMOTE_DEBUGGING_PORT: 9222
