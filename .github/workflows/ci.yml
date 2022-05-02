@@ -31,9 +31,9 @@ jobs:
       run: npm run test:unit
 
     - name: Cypress run
-      uses: cypress-io/github-action@v2
+      run: npm run test:e2e
       with:
         install: false
-        start: yarn serve
+        browser: chrome
       env:
         CYPRESS_REMOTE_DEBUGGING_PORT: 9222
