@@ -20,6 +20,7 @@ describe('Wallet should be alive', () => {
         debug: true,
       })
     })
+    cy.wait(1000)
 
     cy.visit('/')
     cy.get(CONNECT_WALLET_BUTTON).contains('Connect wallet')
