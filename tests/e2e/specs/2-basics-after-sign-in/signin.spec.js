@@ -1,5 +1,4 @@
 import {
-  CONNECT_WALLET_BUTTON,
   MAIN_NETWORK_SELECT_TEXT,
   //SIDE_NETWORK_SELECT_TEXT,
 } from '../../pages/home'
@@ -20,7 +19,6 @@ describe('Wallet should be alive', () => {
       })
     })
     cy.visit('/')
-    cy.get(CONNECT_WALLET_BUTTON).contains('Connect wallet')
     cy.contains('Connect wallet').click()
     cy.contains('MetaMask').click()
     cy.contains('Confirm').click()
