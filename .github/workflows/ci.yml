@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 on:
@@ -36,8 +34,6 @@ jobs:
       uses: cypress-io/github-action@v2
       with:
         install: false
-        browser: chrome
         start: yarn serve
       env:
-        SECRET_WORDS: "test test test test test test test test test test test junk"
         CYPRESS_REMOTE_DEBUGGING_PORT: 9222
