@@ -60,7 +60,6 @@ describe('TransactionRowMixin.js Test', () => {
     expect(transactionRowMixin.vm.formattedReceiverAddress).toBe('0x2024...f15961')
     expect(transactionRowMixin.vm.latestBlock).toBe(RSK_BLOCK_NUMBER)
     expect(transactionRowMixin.vm.fedMembers).toStrictEqual([1])
-    expect(transactionRowMixin.vm.token.symbol).toBe(TUSD_TOKEN_SYMBOL)
     expect(transactionRowMixin.vm.txExplorerLink).toBe(
       `${TEST_NET_RSK_CROSS_KOVAN_CONFIG.explorer}/tx/${TRANSACTION_HASH}`,
     )
