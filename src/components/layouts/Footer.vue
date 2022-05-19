@@ -1,11 +1,11 @@
 <template>
-  <footer class="footer-rsk mb-5">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col ml-0">
-          <div class="row footer-logo mx-0">
-            <span>Built by</span>
-            <div class="col pl-0">
+  <v-footer padless color="white" class="footer-rsk d-flex justify-center">
+    <v-col cols="11" class="pb-0">
+      <v-row justify="center" align="start" class="mx-0 py-md-0 py-xl-6">
+        <v-col>
+          <v-row class="footer-logo mx-0" align="end">
+            <span class="pb-2">Built by</span>
+            <v-col class="pl-0 pb-2">
               <v-img
                 position="center left"
                 src="@/assets/logo-iov.svg"
@@ -14,21 +14,21 @@
                 contain
                 class="rsk-main-logo"
               />
-            </div>
-          </div>
+            </v-col>
+          </v-row>
           <p>Copyright © 2021 IOV Labs All rights reserved</p>
-        </div>
-        <div class="col-7">
-          <div class="row justify-content-center mx-0 footer-links h-100">
+        </v-col>
+        <v-col cols="7" class="pt-4">
+          <v-row justify="center" class="mx-0 footer-links">
             <a href="https://www.iovlabs.org/" target="_blank"> About IOV Labs </a>
             <a href="https://open-rsk-dev.slack.com/messages/support">Help</a>
             <a href="https://www.rsk.co/terms-conditions" target="_blank">
               Terms &amp; Conditions
             </a>
-          </div>
-        </div>
-        <div class="col">
-          <div class="row justify-content-end align-items-baseline mx-0 footer-icons">
+          </v-row>
+        </v-col>
+        <v-col class="pt-1">
+          <v-row justify="end" class="mx-0 footer-icons">
             <a href="https://twitter.com/rsksmart" target="_blank">
               <v-icon>mdi-twitter</v-icon>
             </a>
@@ -38,11 +38,11 @@
             <a href="https://open-rsk-dev.slack.com/messages/support" target="_blank">
               <v-icon>mdi-slack</v-icon>
             </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-col>
+  </v-footer>
 </template>
 
 <script>
