@@ -24,7 +24,7 @@
     "bignumber.js": "^9.0.1",
     "bootstrap": "4.6.0",
     "core-js": "^3.21.1",
-    "dexie": "^3.0.3",
+    "dexie": "^3.2.2",
     "jquery": "^3.6.0",
     "moment": "^2.29.2",
     "popper.js": "^1.16.1",
