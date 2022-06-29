@@ -12,34 +12,51 @@ import { convertToNumber } from '@/utils/text-helpers'
 import SideNetwork from '@/modules/networks/SideNetwork'
 import HostNetwork from '@/modules/networks/HostNetwork'
 
-export const store = {
-  state: reactive({
-    web3: null,
-    provider: null,
-    dataVault: null,
-    disconnect: null,
-    // rLogin: rLogin,
-    isConnected: false,
-    accountAddress: '',
-    currentConfig: null,
-    chainId: null,
-    rskWeb3: null,
-    sideWeb3: null,
-    rskConfig: null,
-    sideConfig: null,
-    connectionError: '',
-    networksAvailable: [],
-    preSettingsEnabled: false,
-    networkSettings: {
-      typesLimits: [],
-      rskFee: 0,
-      sideFee: 0,
-      rskConfirmations: {},
-      sideConfirmations: {},
-      rskFedMembers: [],
-      sideFedMembers: [],
+const initialState = {
+  web3: null,
+  provider: null,
+  dataVault: null,
+  disconnect: null,
+  // rLogin: rLogin,
+  isConnected: false,
+  accountAddress: '',
+  currentConfig: null,
+  chainId: null,
+  rskWeb3: null,
+  sideWeb3: null,
+  rskConfig: null,
+  sideConfig: null,
+  connectionError: '',
+  networksAvailable: [],
+  preSettingsEnabled: false,
+  networkSettings: {
+    typesLimits: [],
+    rskFee: 0,
+    sideFee: 0,
+    rskConfirmations: {},
+    sideConfirmations: {},
+    rskFedMembers: [],
+    sideFedMembers: [],
+  },
+}
+
+const supportedChains = [...new Set(getNetworksAvailable().map((network) => network.networkId))]
+const rLoginInstance = new RLogin({
+  cachedProvider: false,
+  providerOptions: {
+    walletconnect: {
+      package: WalletConnectProvider,
+      options: {
+        rpc: ALL_RPC,
+      },
     },
-  }),
+  },
+  ALL_RPC,
+  supportedChains,
+})
+
+export const store = {
+  state: reactive(initialState),
   accountsChanged(accounts) {
     if (accounts.length === 0) {
       store.state.connectionError =
@@ -113,36 +130,15 @@ export const store = {
     }
   },
   handleDisconnect() {
-    const state = store.state
-    if (state.disconnect) state.disconnect()
-    state.isConnected = false
-    state.accountAddress = ''
-    state.provider = null
-    state.dataVault = null
-    state.disconnect = null
-    state.web3 = null
-    state.currentConfig = null
-  },
-  getRLogin() {
-    const supportedChains = [...new Set(getNetworksAvailable().map((network) => network.networkId))]
-    return new RLogin({
-      cachedProvider: false,
-      providerOptions: {
-        walletconnect: {
-          package: WalletConnectProvider,
-          options: {
-            rpc: ALL_RPC,
-          },
-        },
-      },
-      supportedChains,
-    })
+    if (store.state.disconnect) {
+      store.state.disconnect()
+    } 
+    store.state = initialState
   },
   handleLogin() {
     const state = store.state
     state.connectionError = ''
-    const rLoginInstance = store.getRLogin()
-    return rLoginInstance
+    rLoginInstance
       .connect()
       .then(async function (rLoginResponse) {
         state.provider = rLoginResponse.provider
