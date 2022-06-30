@@ -130,10 +130,15 @@ export const store = {
     }
   },
   handleDisconnect() {
-    if (store.state.disconnect) {
-      store.state.disconnect()
-    } 
-    store.state = initialState
+    const state = store.state
+    if (state.disconnect) state.disconnect()
+    state.isConnected = false
+    state.accountAddress = ''
+    state.provider = null
+    state.dataVault = null
+    state.disconnect = null
+    state.web3 = null
+    state.currentConfig = null
   },
   handleLogin() {
     const state = store.state
