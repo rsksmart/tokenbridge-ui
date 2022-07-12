@@ -130,7 +130,6 @@
 <script>
 import { store } from '@/store'
 import BigNumber from 'bignumber.js'
-import { boolean } from 'yup/lib/locale'
 
 export default {
   name: 'Transfer',
