@@ -25,6 +25,7 @@
         transfer-type="origin"
         :disabled="disabled"
         :chain-id="originNetwork?.networkId"
+        :switchNetworkError="errorOnSwitchNetwork"
         @changeNetwork="handleChangeNetwork"
         @selectToken="selectToken"
       >
@@ -185,6 +186,7 @@ export default {
       receiveAmount: new BigNumber(0),
       showAddressWarning: false,
       showSendToContractWarning: false,
+      errorOnSwitchNetwork: false
     }
   },
   computed: {
@@ -329,12 +331,14 @@ export default {
   },
   methods: {
     async handleChangeNetwork(network) {
+      this.errorOnSwitchNetwork = false
       try {
         const chainId = numToHex(network.networkId)
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId }],
         })
+
         const networksConf = getNetworksConf(network.networkId)
         this.originNetworkSelected = network
         this.destinationNetworks = networksConf?.networks.map((record) => record.crossToNetwork)
@@ -342,6 +346,7 @@ export default {
         if (error.code === 4902) {
           await this.handleAddNetwork(network)
         }
+        this.errorOnSwitchNetwork = true
       }
     },
     handleChangeDestinationNetwork(network) {
