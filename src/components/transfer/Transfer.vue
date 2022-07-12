@@ -130,6 +130,7 @@
 <script>
 import { store } from '@/store'
 import BigNumber from 'bignumber.js'
+import { boolean } from 'yup/lib/locale'
 
 export default {
   name: 'Transfer',
@@ -176,12 +177,18 @@ export default {
       type: Boolean,
       required: false,
     },
+    switchNetworkError: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   emits: ['changeNetwork', 'selectToken', 'update:amount', 'update:address'],
   data() {
     return {
       sharedState: store.state,
       currentNetwork: null,
+      oldNetwork: null,
       selectedToken: null,
       selectedTokenError: '',
       tokens: [],
@@ -207,6 +214,15 @@ export default {
     },
   },
   watch: {
+    currentNetwork(newNetwork, oldNetwork) {
+      this.oldNetwork = oldNetwork;
+    },
+    switchNetworkError(value) {
+      if(value && this.oldNetwork !== null) {
+        this.currentNetwork = this.oldNetwork;
+        this.oldNetwork = null
+      }
+    },
     percentage(newPercentage) {
       const percentage = newPercentage / 100
       const amount = this.maxAmountBigNumber.multipliedBy(percentage).toNumber()
