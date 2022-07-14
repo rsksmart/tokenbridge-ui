@@ -413,7 +413,6 @@ export default {
           store.initNetworkSettings()
         }
       })
-      // this.resetForm()
     },
     initData() {
       this.erc20TokenInstance = new ERC20TokenTransaction({
@@ -423,11 +422,6 @@ export default {
       this.originNetworks = getNonDuplicateNetworks()
     },
     resetForm() {
-      this.selectedToken = {}
-      this.willReceiveToken = null
-      this.amount = 0
-    },
-    resetFormAfterTransaction() {
       this.willReceiveToken = null
       this.amount = 0
     },
@@ -592,7 +586,7 @@ export default {
         console.info('Transaction Saved')
         console.table(transactionSaved)
         this.$emit('newTransaction', transactionSaved)
-        this.resetFormAfterTransaction()
+        this.resetForm()
       } catch (error) {
         this.showSpinner = false
         this.showModal = false
