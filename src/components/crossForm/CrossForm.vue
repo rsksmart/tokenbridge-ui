@@ -25,7 +25,7 @@
         transfer-type="origin"
         :disabled="disabled"
         :chain-id="originNetwork?.networkId"
-        :switchNetworkError="errorOnSwitchNetwork"
+        :switch-network-error="errorOnSwitchNetwork"
         @changeNetwork="handleChangeNetwork"
         @selectToken="selectToken"
       >
@@ -186,7 +186,7 @@ export default {
       receiveAmount: new BigNumber(0),
       showAddressWarning: false,
       showSendToContractWarning: false,
-      errorOnSwitchNetwork: false
+      errorOnSwitchNetwork: false,
     }
   },
   computed: {
@@ -426,7 +426,10 @@ export default {
       this.selectedToken = {}
       this.willReceiveToken = null
       this.amount = 0
-      // this.$refs.crossForm.resetForm()
+    },
+    resetFormAfterTransaction() {
+      this.willReceiveToken = null
+      this.amount = 0
     },
     async refreshBalanceAndAllowance() {
       const web3 = this.sharedState.web3
@@ -589,7 +592,7 @@ export default {
         console.info('Transaction Saved')
         console.table(transactionSaved)
         this.$emit('newTransaction', transactionSaved)
-        this.resetForm()
+        this.resetFormAfterTransaction()
       } catch (error) {
         this.showSpinner = false
         this.showModal = false
