@@ -307,7 +307,6 @@ export default {
       }
     },
     async receiverAddress(address) {
-      this.wrongReceiverAddress = false;
       try {
         if (address === '' || address !== this.sharedState.accountAddress) {
           this.showAddressWarning = true
@@ -320,6 +319,7 @@ export default {
           this.wrongReceiverAddress = true;
           this.showSendToContractWarning = true
         } else {
+          this.wrongReceiverAddress = false;
           this.showSendToContractWarning = false
         }
       } catch (err) {
