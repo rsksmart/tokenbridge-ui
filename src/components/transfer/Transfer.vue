@@ -6,7 +6,7 @@
     <div class="transfer-body">
       <div class="row">
         <div class="col-md-12">
-          <label class="tokenAddress-label" for="networks">Origin Network</label>
+          <label class="tokenAddress-label" for="networks">{{title}} Network</label>
           <div class="form-group">
             <select
               id="networks"
