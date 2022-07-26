@@ -187,6 +187,7 @@ export default {
       showAddressWarning: false,
       showSendToContractWarning: false,
       errorOnSwitchNetwork: false,
+      wrongReceiverAddress: false,
     }
   },
   computed: {
@@ -250,6 +251,7 @@ export default {
         !this.sharedState.isConnected ||
         this.showSpinner ||
         this.receiverAddress === '' ||
+        this.wrongReceiverAddress ||
         this.amount <= 0 ||
         !this.selectedToken?.symbol ||
         this.receiveAmount === 0
@@ -314,12 +316,15 @@ export default {
         const web3 = this.sharedState.sideWeb3
         const code = await web3.eth.getCode(address)
         if (code !== '0x') {
+          this.wrongReceiverAddress = true;
           this.showSendToContractWarning = true
         } else {
+          this.wrongReceiverAddress = false;
           this.showSendToContractWarning = false
         }
       } catch (err) {
-        console.error(err)
+        console.error('Wrong address');
+        this.wrongReceiverAddress = true;
       }
     },
   },
