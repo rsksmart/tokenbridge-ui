@@ -6,14 +6,14 @@
     <div class="transfer-body">
       <div class="row">
         <div class="col-md-12">
-          <label class="tokenAddress-label" for="networks">{{title}} Network</label>
+          <label class="tokenAddress-label" for="networks">{{ title }} Network</label>
           <div class="form-group">
             <select
               id="networks"
               v-model="currentNetwork"
               name="networks"
               class="form-control select-networks"
-              :disabled="networks.length === 0 || disabled"
+              :disabled="networks.length === 0 || disabled || title === 'Destination'"
               @change="changeNetwork"
             >
               <option v-for="network in networks" :key="network.networkId" :value="network">
@@ -28,7 +28,17 @@
           <label class="tokenAddress-label" for="tokenAddress">
             Tokens to {{ isOrigin ? 'bridge' : 'receive' }}
           </label>
-          <div class="dropdown">
+          <div class="disabledText" v-if="title === 'Destination'">
+            <span v-if="defaultToken?.symbol">
+              <img
+                :src="defaultToken?.icon"
+                class="token-logo"
+                :alt="`${defaultToken?.name} Logo`"
+              />
+            </span>
+            {{ defaultToken?.symbol ? defaultToken.symbol : 'No token selected' }}
+          </div>
+          <div class="dropdown" v-if="title === 'Origin'">
             <button
               id="tokenAddress"
               class="btn dropdown-toggle"
@@ -179,8 +189,8 @@ export default {
     switchNetworkError: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   emits: ['changeNetwork', 'selectToken', 'update:amount', 'update:address'],
   data() {
@@ -214,11 +224,11 @@ export default {
   },
   watch: {
     currentNetwork(newNetwork, oldNetwork) {
-      this.oldNetwork = oldNetwork;
+      this.oldNetwork = oldNetwork
     },
     switchNetworkError(value) {
-      if(value && this.oldNetwork !== null) {
-        this.currentNetwork = this.oldNetwork;
+      if (value && this.oldNetwork !== null) {
+        this.currentNetwork = this.oldNetwork
         this.oldNetwork = null
       }
     },
@@ -366,5 +376,8 @@ input.transfer-different-address:focus {
 
 .holder {
   height: 3.7em;
+}
+.disabledText {
+  color: gray;
 }
 </style>
