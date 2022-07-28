@@ -298,6 +298,7 @@ export default {
           this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee))
         })
       } else {
+        this.amount = 0
         this.receiveAmount = new BigNumber(0)
       }
     },
