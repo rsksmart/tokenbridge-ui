@@ -298,7 +298,6 @@ export default {
           this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee))
         })
       } else {
-        this.amount = 0
         this.receiveAmount = new BigNumber(0)
       }
     },
@@ -444,7 +443,11 @@ export default {
         const ethBalance = await web3.eth.getBalance(this.sharedState.accountAddress)
         this.selectedTokenBalance = new BigNumber(ethBalance).shiftedBy(-decimals)
         if (new BigNumber(this.amount).isGreaterThan(this.selectedTokenBalance)) {
-          this.amount = this.selectedTokenBalance.toFixed(decimals)
+          if (this.selectedTokenBalance.toFixed(decimals) == 0) {
+            this.amount = 0;
+          } else {
+            this.amount = this.selectedTokenBalance.toFixed(decimals)
+          }
         }
         this.hasAllowance = true
       } else {
@@ -454,7 +457,11 @@ export default {
         )
         this.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
         if (new BigNumber(this.amount).isGreaterThan(this.selectedTokenBalance)) {
-          this.amount = this.selectedTokenBalance.toFixed(decimals)
+          if (this.selectedTokenBalance.toFixed(decimals) == 0) {
+            this.amount = 0;
+          } else {
+            this.amount = this.selectedTokenBalance.toFixed(decimals)
+          }
         }
         const allowance = await retry3Times(
           tokenContract.methods.allowance(this.sharedState.accountAddress, config.bridge).call,
