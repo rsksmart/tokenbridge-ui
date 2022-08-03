@@ -231,6 +231,7 @@ export default {
         this.currentNetwork = this.oldNetwork
         this.oldNetwork = null
       }
+      this.tokens = this.currentNetwork.tokens
     },
     percentage(newPercentage) {
       const percentage = newPercentage / 100
