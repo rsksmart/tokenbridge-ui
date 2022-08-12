@@ -550,10 +550,11 @@ export default {
       }
       const accountAddress = this.sharedState.accountAddress
       const tokenAddress = this.selectedToken.address
+      const maxValue = new BigNumber(this.selectedTokenMaxLimit.toString()).shiftedBy(this.selectedToken.decimals)
 
       try {
         this.showSpinner = true
-        const receipt = await this.erc20TokenInstance.approve(tokenAddress, {
+        const receipt = await this.erc20TokenInstance.approve(tokenAddress, maxValue, {
           from: accountAddress,
           gas: 70_000,
         })
