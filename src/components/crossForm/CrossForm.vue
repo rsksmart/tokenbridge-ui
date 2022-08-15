@@ -1,3 +1,4 @@
+import { all } from 'cypress/types/bluebird'
 <template>
   <div class="row">
     <div class="offset-md-2 col-md-8 col-12">
@@ -296,6 +297,7 @@ export default {
         this.$nextTick(() => {
           this.amount = bgAmount.toString()
           this.receiveAmount = bgAmount.minus(bgAmount.times(this.fee))
+          this.hasAllowanceCheck()
         })
       } else {
         this.receiveAmount = new BigNumber(0)
@@ -316,15 +318,15 @@ export default {
         const web3 = this.sharedState.sideWeb3
         const code = await web3.eth.getCode(address)
         if (code !== '0x') {
-          this.wrongReceiverAddress = true;
+          this.wrongReceiverAddress = true
           this.showSendToContractWarning = true
         } else {
-          this.wrongReceiverAddress = false;
+          this.wrongReceiverAddress = false
           this.showSendToContractWarning = false
         }
       } catch (err) {
-        console.error('Wrong address');
-        this.wrongReceiverAddress = true;
+        console.error('Wrong address')
+        this.wrongReceiverAddress = true
       }
     },
   },
@@ -444,7 +446,7 @@ export default {
         this.selectedTokenBalance = new BigNumber(ethBalance).shiftedBy(-decimals)
         if (new BigNumber(this.amount).isGreaterThan(this.selectedTokenBalance)) {
           if (this.selectedTokenBalance.toFixed(decimals) == 0) {
-            this.amount = 0;
+            this.amount = 0
           } else {
             this.amount = this.selectedTokenBalance.toFixed(decimals)
           }
@@ -458,19 +460,31 @@ export default {
         this.selectedTokenBalance = new BigNumber(balance).shiftedBy(-decimals)
         if (new BigNumber(this.amount).isGreaterThan(this.selectedTokenBalance)) {
           if (this.selectedTokenBalance.toFixed(decimals) == 0) {
-            this.amount = 0;
+            this.amount = 0
           } else {
             this.amount = this.selectedTokenBalance.toFixed(decimals)
           }
         }
-        const allowance = await retry3Times(
-          tokenContract.methods.allowance(this.sharedState.accountAddress, config.bridge).call,
-        )
-        // as we set the allowance to the highest uint256 it should always be bigger than selectedTokenMaxLimit
-        this.hasAllowance = new BigNumber(allowance)
-          .shiftedBy(-decimals)
-          .gte(this.selectedTokenMaxLimit)
+
+        await this.hasAllowanceCheck()
       }
+    },
+    async hasAllowanceCheck() {
+      const web3 = this.sharedState.web3
+      const config = this.sharedState.currentConfig
+      const token = this.selectedToken
+      const decimals = token.decimals
+
+      const tokenContract = new web3.eth.Contract(ERC20_ABI, token.address)
+      const allowance = await retry3Times(
+        tokenContract.methods.allowance(this.sharedState.accountAddress, config.bridge).call,
+      )
+
+      this.hasAllowance = (
+        new BigNumber(allowance).shiftedBy(-decimals).lte(this.selectedTokenMaxLimit) &&
+        new BigNumber(allowance).shiftedBy(-decimals).gte(this.amount) &&
+        new BigNumber(allowance).shiftedBy(-decimals).gt(new BigNumber(0))
+      )
     },
     async selectToken(token, event) {
       this.error = ''
@@ -536,10 +550,11 @@ export default {
       }
       const accountAddress = this.sharedState.accountAddress
       const tokenAddress = this.selectedToken.address
+      const maxValue = new BigNumber(this.selectedTokenMaxLimit.toString()).shiftedBy(this.selectedToken.decimals)
 
       try {
         this.showSpinner = true
-        const receipt = await this.erc20TokenInstance.approve(tokenAddress, {
+        const receipt = await this.erc20TokenInstance.approve(tokenAddress, maxValue, {
           from: accountAddress,
           gas: 70_000,
         })
