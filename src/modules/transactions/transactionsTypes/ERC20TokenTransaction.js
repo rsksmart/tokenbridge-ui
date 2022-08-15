@@ -26,13 +26,13 @@ class ERC20TokenTransaction extends Transaction {
    * @param {TransactionObject} transactionObject
    * @returns {Promise<unknown>}
    */
-  async approve(tokenAddress, transactionObject) {
+  async approve(tokenAddress, value, transactionObject) {
     // TODO MOVE THIS TO TRANSACTION ACTIONS
     const gasPrice = await this.getGasPriceHex()
     return new Promise((resolve, reject) => {
       const tokenContract = new this.web3.eth.Contract(ERC20_ABI, tokenAddress)
       tokenContract.methods
-        .approve(this.config.bridge, MAX_UINT256)
+        .approve(this.config.bridge, value > 0 ? value : MAX_UINT256)
         .send({ ...transactionObject, gasPrice }, this.callback({ resolve, reject }))
     })
   }
