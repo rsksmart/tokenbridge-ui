@@ -397,19 +397,22 @@ export default {
     async handleSwitchNetwork() {
       this.switchNetwork = true
       try {
-        this.selectedToken = {}
-        this.willReceiveToken = null
         const chainId = numToHex(this.sharedState.currentConfig.crossToNetwork.networkId)
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId }],
         })
+        this.selectedToken = {}
+        this.willReceiveToken = null
+        
       } catch (error) {
         console.log(error)
         if (error.code === 4902) {
           await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
         }
       }
+      
+      this.hasAllowanceCheck();
       this.switchNetwork = false
     },
     handleOnAccountConnected() {
@@ -550,7 +553,7 @@ export default {
       }
       const accountAddress = this.sharedState.accountAddress
       const tokenAddress = this.selectedToken.address
-      const maxValue = new BigNumber(this.selectedTokenMaxLimit.toString()).shiftedBy(this.selectedToken.decimals)
+      const maxValue = new BigNumber(this.amount).shiftedBy(this.selectedToken.decimals);
 
       try {
         this.showSpinner = true
