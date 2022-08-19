@@ -484,7 +484,6 @@ export default {
       )
 
       this.hasAllowance = (
-        new BigNumber(allowance).shiftedBy(-decimals).lte(this.selectedTokenMaxLimit) &&
         new BigNumber(allowance).shiftedBy(-decimals).gte(this.amount) &&
         new BigNumber(allowance).shiftedBy(-decimals).gt(new BigNumber(0))
       )
@@ -553,11 +552,10 @@ export default {
       }
       const accountAddress = this.sharedState.accountAddress
       const tokenAddress = this.selectedToken.address
-      const maxValue = new BigNumber(parseInt(this.amount)).shiftedBy(this.selectedToken.decimals);
       
       try {
         this.showSpinner = true
-        const receipt = await this.erc20TokenInstance.approve(tokenAddress, maxValue.toString(), {
+        const receipt = await this.erc20TokenInstance.approve(tokenAddress, {
           from: accountAddress,
           gas: 70_000,
         })
