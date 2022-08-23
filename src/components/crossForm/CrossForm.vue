@@ -560,7 +560,7 @@ export default {
           gas: 70_000,
         })
         console.info(receipt)
-        this.hasAllowance = true
+        await this.hasAllowanceCheck();
         this.showSpinner = false
       } catch (error) {
         this.hasAllowance = false
