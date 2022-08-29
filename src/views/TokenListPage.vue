@@ -22,7 +22,10 @@ export default {
       return this.sharedState.networkSettings
     },
     displayList() {
-      return this.sharedState.rskConfig?.tokens.length > 0
+      return (
+        this.sharedState.rskConfig?.tokens.length > 0 ||
+        this.sharedState.defaultRskConfig.tokens.length > 0
+      )
     },
   },
 }

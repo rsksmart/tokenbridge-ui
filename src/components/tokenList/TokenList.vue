@@ -2,16 +2,26 @@
   <div class="token-list main-div">
     <h2 id="token-list" class="subtitle">Token list</h2>
     <p class="text-center">
-      {{ sharedState.sideConfig.name }} native tokens will transform into
-      {{ sharedState.rskConfig.tokenPrefix }}(tokenName). {{ sharedState.rskConfig.name }} native
-      tokens will transform into {{ sharedState.sideConfig.tokenPrefix }}(tokenName)
+      {{ sharedState.sideConfig?.name || sharedState.defaultSideConfig.name }} native tokens will
+      transform into
+      {{
+        sharedState.rskConfig?.tokenPrefix || sharedState.defaultRskConfig.tokenPrefix
+      }}(tokenName). {{ sharedState.rskConfig?.name || sharedState.defaultRskConfig.name }} native
+      tokens will transform into
+      {{
+        sharedState.sideConfig?.tokenPrefix || sharedState.defaultSideConfig.tokenPrefix
+      }}(tokenName)
     </p>
     <table class="table">
       <thead>
         <tr>
           <th scope="col">#</th>
-          <th scope="col">{{ sharedState.rskConfig.name }}</th>
-          <th scope="col">{{ sharedState.sideConfig.name }}</th>
+          <th scope="col">
+            {{ sharedState.rskConfig?.name || sharedState.defaultRskConfig.name }}
+          </th>
+          <th scope="col">
+            {{ sharedState.sideConfig?.name || sharedState.defaultSideConfig.name }}
+          </th>
           <th scope="col">minimum</th>
           <th scope="col">maximum</th>
           <th scope="col">daily</th>
@@ -29,9 +39,9 @@
           </th>
         </tr>
       </thead>
-      <tbody v-if="sharedState.rskConfig.tokens.length > 0">
+      <tbody v-if="tokenList.length > 0">
         <TokenRow
-          v-for="token in sharedState.rskConfig.tokens"
+          v-for="token in tokenList"
           :key="token"
           :token="token"
           :types-limits="typesLimits"
@@ -58,6 +68,7 @@ export default {
   data() {
     return {
       sharedState: store.state,
+      tokenList: store.state.rskConfig?.tokens || store.state.defaultRskConfig.tokens || [],
     }
   },
 }
