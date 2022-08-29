@@ -12,6 +12,9 @@ import { convertToNumber } from '@/utils/text-helpers'
 import SideNetwork from '@/modules/networks/SideNetwork'
 import HostNetwork from '@/modules/networks/HostNetwork'
 
+//const parsedChainId = convertToNumber(process.env.VUE_APP_MAIN_CHAIN_ID)
+const initialData = getNetworksConf(31, 1)
+
 const initialState = {
   web3: null,
   provider: null,
@@ -29,6 +32,8 @@ const initialState = {
   connectionError: '',
   networksAvailable: [],
   preSettingsEnabled: false,
+  defaultRskConfig: initialData.rskConfig,
+  defaultSideConfig: initialData.sideConfig,
   networkSettings: {
     typesLimits: [],
     rskFee: 0,
