@@ -346,6 +346,8 @@ export default {
           params: [{ chainId }],
         })
 
+        this.amount = 0
+
         const networksConf = getNetworksConf(network.networkId)
         this.originNetworkSelected = network
         this.destinationNetworks = networksConf?.networks.map((record) => record.crossToNetwork)
@@ -369,6 +371,8 @@ export default {
         )
         this.originNetworks.splice(originNetworkIndex, 1, originNetwork)
       }
+
+      this.receiveAmount = 0
 
       store.initMainSettings(originNetwork.networkId, rskConfig, sideConfig)
     },
@@ -404,15 +408,14 @@ export default {
         })
         this.selectedToken = {}
         this.willReceiveToken = null
-        
       } catch (error) {
         console.log(error)
         if (error.code === 4902) {
           await this.handleAddNetwork(this.sharedState.currentConfig.crossToNetwork)
         }
       }
-      
-      this.hasAllowanceCheck();
+
+      this.hasAllowanceCheck()
       this.switchNetwork = false
     },
     handleOnAccountConnected() {
@@ -483,10 +486,9 @@ export default {
         tokenContract.methods.allowance(this.sharedState.accountAddress, config.bridge).call,
       )
 
-      this.hasAllowance = (
+      this.hasAllowance =
         new BigNumber(allowance).shiftedBy(-decimals).gte(this.amount) &&
         new BigNumber(allowance).shiftedBy(-decimals).gt(new BigNumber(0))
-      )
     },
     async selectToken(token, event) {
       this.error = ''
@@ -552,7 +554,7 @@ export default {
       }
       const accountAddress = this.sharedState.accountAddress
       const tokenAddress = this.selectedToken.address
-      
+
       try {
         this.showSpinner = true
         const receipt = await this.erc20TokenInstance.approve(tokenAddress, {
@@ -560,7 +562,7 @@ export default {
           gas: 70_000,
         })
         console.info(receipt)
-        await this.hasAllowanceCheck();
+        await this.hasAllowanceCheck()
         this.showSpinner = false
       } catch (error) {
         this.hasAllowance = false
