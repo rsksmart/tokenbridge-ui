@@ -43,6 +43,15 @@ const initialState = {
     rskFedMembers: [],
     sideFedMembers: [],
   },
+  defaultNetworkSettings: {
+    typesLimits: [],
+    rskFee: 0,
+    sideFee: 0,
+    rskConfirmations: {},
+    sideConfirmations: {},
+    rskFedMembers: [],
+    sideFedMembers: [],
+  },
 }
 
 const supportedChains = [...new Set(getNetworksAvailable().map((network) => network.networkId))]
@@ -93,6 +102,31 @@ export const store = {
 
     networkSettings.sideFedMembers = await sideNetwork.getMembers()
     store.state.networkSettings = { ...networkSettings }
+  },
+  async initDefaultNetworkSettings() {
+    const rskWeb3 = store.state.rskWeb3
+    const rskConfig = store.state.defaultRskConfig
+    const sideWeb3 = store.state.sideWeb3
+    const sideConfig = store.state.defaultSideConfig
+
+    const defaultSideNetwork = new SideNetwork(sideConfig, sideWeb3)
+    const defaultHostNetwork = new HostNetwork(rskConfig, rskWeb3)
+    const defaultNetworkSettings = {}
+    defaultNetworkSettings.rskFee = await defaultHostNetwork.getFeePercentage()
+
+    defaultNetworkSettings.sideFee = await defaultSideNetwork.getFeePercentage()
+    // We have the premice that the limits will be equal in Side and in RSK
+    // And the tokens wil have the same type on both networks
+    const { limits, confirmations } = await defaultHostNetwork.allowTokensActions()
+    defaultNetworkSettings.typesLimits = limits
+    defaultNetworkSettings.rskConfirmations = confirmations
+    defaultNetworkSettings.rskFedMembers = await defaultHostNetwork.getMembers()
+
+    const { confirmations: sideConfirmations } = await defaultSideNetwork.allowTokensActions()
+    defaultNetworkSettings.sideConfirmations = sideConfirmations
+
+    defaultNetworkSettings.sideFedMembers = await defaultSideNetwork.getMembers()
+    store.state.defaultNetworkSettings = { ...defaultNetworkSettings }
   },
   async initMainSettings(chainId, rskConfig, sideConfig) {
     const state = store.state
