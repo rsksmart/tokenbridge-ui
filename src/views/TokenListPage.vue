@@ -19,7 +19,15 @@ export default {
   },
   computed: {
     settings() {
-      return this.sharedState.networkSettings
+      let network
+      if (this.sharedState.networkSettings.typesLimits.length === 0) {
+        store.initDefaultNetworkSettings()
+        network = this.sharedState.defaultNetworkSettings
+      }
+      network = this.sharedState.networkSettings
+
+      console.log(network)
+      return network
     },
     displayList() {
       return (
