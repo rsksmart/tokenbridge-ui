@@ -51,7 +51,15 @@ export default {
       type: Array,
       required: true,
     },
+    emitClaim: {
+      type: Function,
+    },
+    claimed: {
+      type: Boolean,
+      default: false,
+    },
   },
+  emits: ['onSuccessClaim'],
   data() {
     return {
       sharedState: store.state,
@@ -176,6 +184,11 @@ export default {
       this.error = ''
       this.refreshStep().then(() => {})
     },
+    claimed() {
+      if (this.claimed) {
+        this.currentStep = this.steps.Claimed
+      }
+    },
   },
   async created() {
     await this.refreshStep()
@@ -292,10 +305,13 @@ export default {
           data.loading = false
           data.error = ''
           data.showResultModal = true
-          await this.$services.TransactionService.saveTransaction({
+          const savedtx = await this.$services.TransactionService.saveTransaction({
             ...data.transaction,
             currentStep: data.currentStep,
           })
+
+          data.loading = false
+          this.emitClaim(savedtx)
         }
       } catch (error) {
         data.loading = false

@@ -42,6 +42,7 @@
           :transactions="transactions"
           :rsk-block-number="rskBlockNumber"
           :side-block-number="sideBlockNumber"
+          :emit-claim="emitClaim"
         />
       </table>
       <div
@@ -123,7 +124,7 @@ export default {
       default: 0,
     },
   },
-  emits: ['changePagination', 'changeLimit'],
+  emits: ['changePagination', 'changeLimit', 'onSuccessClaim'],
   data() {
     return {
       sharedState: store.state,
@@ -162,6 +163,9 @@ export default {
         this.offset = 0
       }
       this.$emit('changePagination', { limit: this.limit, offset: this.offset })
+    },
+    emitClaim() {
+      this.$emit('onSuccessClaim', true)
     },
   },
 }
