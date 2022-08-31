@@ -85,6 +85,7 @@
           :transactions="[transaction]"
           :rsk-block-number="rskBlockNumber"
           :side-block-number="sideBlockNumber"
+          :claimed="claimed"
         />
       </table>
     </div>
@@ -136,6 +137,9 @@ export default {
     sideBlockNumber: {
       type: Number,
       required: true,
+    },
+    claimed: {
+      type: Boolean,
     },
   },
   emits: ['onSearchTransaction'],

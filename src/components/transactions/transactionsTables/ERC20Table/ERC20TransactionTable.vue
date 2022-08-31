@@ -1,4 +1,5 @@
 <template>
+  <h3>claimed on erc20 tx table: {{ claimed }}</h3>
   <thead>
     <tr>
       <th scope="col">Action</th>
@@ -24,6 +25,8 @@
       :side-block-number="sideBlockNumber"
       :rsk-fed-members="rskFedMembers"
       :side-fed-members="sideFedMembers"
+      :emit-claim="emitClaim"
+      :claimed="claimed"
     />
   </tbody>
 </template>
