@@ -9,6 +9,7 @@
       :side-fed-members="sideFedMembers"
       :rsk-block-number="rskBlockNumber"
       :side-block-number="sideBlockNumber"
+      :claimed="claimed"
       @onSearchTransaction="handleOnSearchTransaction"
     />
     <TransactionList
@@ -24,6 +25,7 @@
       :total-transactions="totalTransactions"
       @changePagination="changePagination"
       @changeLimit="changeLimit"
+      @onSuccessClaim="handleSuccessClaim"
     />
   </div>
 </template>
@@ -67,7 +69,12 @@ export default {
       type: Object,
       default: null,
     },
+    claimLoading: {
+      type: Boolean,
+      default: false,
+    },
   },
+  emits: ['onSearchTransaction'],
   data() {
     return {
       sharedState: store.state,
@@ -77,6 +84,7 @@ export default {
       pollingBlockNumber: null,
       limit: 5,
       totalTransactions: 0,
+      claimed: false,
     }
   },
   computed: {
@@ -116,6 +124,9 @@ export default {
     clearInterval(this.pollingBlockNumber)
   },
   methods: {
+    handleSuccessClaim() {
+      this.claimed = true
+    },
     handleOnSearchTransaction() {
       this.refreshTransactions({ limit: this.limit, offset: 0 })
     },
