@@ -104,9 +104,9 @@ export const store = {
     store.state.networkSettings = { ...networkSettings }
   },
   async initDefaultNetworkSettings() {
-    const rskWeb3 = store.state.rskWeb3
+    const rskWeb3 = new Web3(store.state.defaultRskConfig.rpc)
+    const sideWeb3 = new Web3(store.state.defaultSideConfig.rpc)
     const rskConfig = store.state.defaultRskConfig
-    const sideWeb3 = store.state.sideWeb3
     const sideConfig = store.state.defaultSideConfig
 
     const defaultSideNetwork = new SideNetwork(sideConfig, sideWeb3)
