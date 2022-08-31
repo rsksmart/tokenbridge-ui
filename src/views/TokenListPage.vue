@@ -20,13 +20,13 @@ export default {
   computed: {
     settings() {
       let network
-      if (this.sharedState.networkSettings.typesLimits.length === 0) {
-        store.initDefaultNetworkSettings()
-        network = this.sharedState.defaultNetworkSettings
-      }
-      network = this.sharedState.networkSettings
 
-      console.log(network)
+      if (this.sharedState.networkSettings.typesLimits.length === 0) {
+        network = this.sharedState.defaultNetworkSettings
+      } else {
+        network = this.sharedState.networkSettings
+      }
+
       return network
     },
     displayList() {
@@ -35,6 +35,9 @@ export default {
         this.sharedState.defaultRskConfig.tokens.length > 0
       )
     },
+  },
+  async created() {
+    await store.initDefaultNetworkSettings()
   },
 }
 </script>
