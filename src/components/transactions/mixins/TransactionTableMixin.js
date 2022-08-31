@@ -32,5 +32,12 @@ export default {
       type: Number,
       required: true,
     },
+    claimed: {
+      type: Boolean,
+      default: false,
+    },
+    emitClaim: {
+      type: Function,
+    },
   },
 }
