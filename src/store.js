@@ -13,7 +13,7 @@ import SideNetwork from '@/modules/networks/SideNetwork'
 import HostNetwork from '@/modules/networks/HostNetwork'
 
 //const parsedChainId = convertToNumber(process.env.VUE_APP_MAIN_CHAIN_ID)
-const initialData = getNetworksConf(31, 1)
+const initialData = getNetworksConf(31, 42)
 
 const initialState = {
   web3: null,
