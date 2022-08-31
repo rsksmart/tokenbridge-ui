@@ -99,5 +99,6 @@ import TransactionRowMixin from '@/components/transactions/mixins/TransactionRow
 export default {
   name: 'ERC20TransactionRow',
   mixins: [TransactionRowMixin],
+  emits: ['onSuccessClaim'],
 }
 </script>
