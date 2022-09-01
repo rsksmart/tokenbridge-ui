@@ -12,8 +12,9 @@ import { convertToNumber } from '@/utils/text-helpers'
 import SideNetwork from '@/modules/networks/SideNetwork'
 import HostNetwork from '@/modules/networks/HostNetwork'
 
-//const parsedChainId = convertToNumber(process.env.VUE_APP_MAIN_CHAIN_ID)
-const initialData = getNetworksConf(31, 42)
+const parsedMainChainId = convertToNumber(process.env.VUE_APP_MAIN_CHAIN_ID)
+const parsedSideChainId = convertToNumber(process.env.VUE_APP_SIDE_CHAIN_ID)
+const initialData = getNetworksConf(parsedMainChainId, parsedSideChainId)
 
 const initialState = {
   web3: null,
