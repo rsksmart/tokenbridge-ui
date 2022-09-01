@@ -12,6 +12,10 @@ import { convertToNumber } from '@/utils/text-helpers'
 import SideNetwork from '@/modules/networks/SideNetwork'
 import HostNetwork from '@/modules/networks/HostNetwork'
 
+const parsedMainChainId = convertToNumber(process.env.VUE_APP_MAIN_CHAIN_ID)
+const parsedSideChainId = convertToNumber(process.env.VUE_APP_SIDE_CHAIN_ID)
+const initialData = getNetworksConf(parsedMainChainId, parsedSideChainId)
+
 const initialState = {
   web3: null,
   provider: null,
@@ -29,7 +33,18 @@ const initialState = {
   connectionError: '',
   networksAvailable: [],
   preSettingsEnabled: false,
+  defaultRskConfig: initialData.rskConfig,
+  defaultSideConfig: initialData.sideConfig,
   networkSettings: {
+    typesLimits: [],
+    rskFee: 0,
+    sideFee: 0,
+    rskConfirmations: {},
+    sideConfirmations: {},
+    rskFedMembers: [],
+    sideFedMembers: [],
+  },
+  defaultNetworkSettings: {
     typesLimits: [],
     rskFee: 0,
     sideFee: 0,
@@ -88,6 +103,31 @@ export const store = {
 
     networkSettings.sideFedMembers = await sideNetwork.getMembers()
     store.state.networkSettings = { ...networkSettings }
+  },
+  async initDefaultNetworkSettings() {
+    const rskWeb3 = new Web3(store.state.defaultRskConfig.rpc)
+    const sideWeb3 = new Web3(store.state.defaultSideConfig.rpc)
+    const rskConfig = store.state.defaultRskConfig
+    const sideConfig = store.state.defaultSideConfig
+
+    const defaultSideNetwork = new SideNetwork(sideConfig, sideWeb3)
+    const defaultHostNetwork = new HostNetwork(rskConfig, rskWeb3)
+    const defaultNetworkSettings = {}
+    defaultNetworkSettings.rskFee = await defaultHostNetwork.getFeePercentage()
+
+    defaultNetworkSettings.sideFee = await defaultSideNetwork.getFeePercentage()
+    // We have the premice that the limits will be equal in Side and in RSK
+    // And the tokens wil have the same type on both networks
+    const { limits, confirmations } = await defaultHostNetwork.allowTokensActions()
+    defaultNetworkSettings.typesLimits = limits
+    defaultNetworkSettings.rskConfirmations = confirmations
+    defaultNetworkSettings.rskFedMembers = await defaultHostNetwork.getMembers()
+
+    const { confirmations: sideConfirmations } = await defaultSideNetwork.allowTokensActions()
+    defaultNetworkSettings.sideConfirmations = sideConfirmations
+
+    defaultNetworkSettings.sideFedMembers = await defaultSideNetwork.getMembers()
+    store.state.defaultNetworkSettings = { ...defaultNetworkSettings }
   },
   async initMainSettings(chainId, rskConfig, sideConfig) {
     const state = store.state

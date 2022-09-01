@@ -19,11 +19,25 @@ export default {
   },
   computed: {
     settings() {
-      return this.sharedState.networkSettings
+      let network
+
+      if (this.sharedState.networkSettings.typesLimits.length === 0) {
+        network = this.sharedState.defaultNetworkSettings
+      } else {
+        network = this.sharedState.networkSettings
+      }
+
+      return network
     },
     displayList() {
-      return this.sharedState.rskConfig?.tokens.length > 0
+      return (
+        this.sharedState.rskConfig?.tokens.length > 0 ||
+        this.sharedState.defaultRskConfig.tokens.length > 0
+      )
     },
+  },
+  async created() {
+    await store.initDefaultNetworkSettings()
   },
 }
 </script>

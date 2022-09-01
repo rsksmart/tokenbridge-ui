@@ -51,22 +51,26 @@ export default {
   },
   computed: {
     rskExplorerUrl() {
-      return `${this.sharedState.rskConfig.explorer}/address/${this.rskTokenAddress}`
+      const baseUrl =
+        this.sharedState.rskConfig?.explorer || this.sharedState.defaultRskConfig.explorer
+      return `${baseUrl}/address/${this.rskTokenAddress}`
     },
     rskTokenAddress() {
       return this.token.address.toLowerCase()
     },
     sideExplorerUrl() {
-      return `${this.sharedState.sideConfig.explorer}/address/${this.sideTokenAddress}`
+      const baseUrl =
+        this.sharedState.sideConfig?.explorer || this.sharedState.defaultSideConfig.explorer
+      return `${baseUrl}/address/${this.sideTokenAddress}`
     },
     sideTokenAddress() {
       return this.token.receiveToken.address.toLowerCase()
     },
     rskNetworkId() {
-      return this.sharedState.rskConfig.networkId
+      return this.sharedState.rskConfig?.networkId || this.sharedState.defaultRskConfig.networkId
     },
     ethNetworkId() {
-      return this.sharedState.sideConfig.networkId
+      return this.sharedState.sideConfig?.networkId || this.sharedState.defaultSideConfig.networkId
     },
     limits() {
       return this.typesLimits[this.token.typeId]
