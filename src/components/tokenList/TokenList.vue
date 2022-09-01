@@ -68,7 +68,14 @@ export default {
   data() {
     return {
       sharedState: store.state,
-      tokenList: store.state.rskConfig?.tokens || store.state.defaultRskConfig.tokens || [],
+      tokenList: [],
+    }
+  },
+  created() {
+    if (store.state.rskConfig) {
+      this.tokenList = store.state.rskConfig.tokens
+    } else {
+      this.tokenList = store.state.defaultRskConfig.tokens
     }
   },
 }
