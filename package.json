@@ -62,7 +62,7 @@
     "vue-cli-plugin-vuetify": "~2.4.5",
     "vue-jest": "^5.0.0-0",
     "vuetify-loader": "^2.0.0-alpha.0",
-    "webpack": "^5.69.1"
+    "webpack": "^5.76.0"
   },
   "browserslist": [
     "> 1%",
