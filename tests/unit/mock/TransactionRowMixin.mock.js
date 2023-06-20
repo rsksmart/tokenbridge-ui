@@ -1,9 +1,9 @@
 import TransactionRowMixin from '@/components/transactions/mixins/TransactionRowMixin'
-import { TEST_NET_RSK_CROSS_KOVAN_CONFIG } from '@/constants/networks'
+import { TEST_NET_RSK_CROSS_SEPOLIA_CONFIG } from '@/constants/networks'
 import { shallowMount } from '@vue/test-utils'
 import _ from 'lodash'
 
-export const TEST_NET_KOVAN_ID = 31
+export const TEST_NET_SEPOLIA_ID = 11155111
 
 export const typesLimitsMock = [
   [
@@ -119,8 +119,8 @@ const defaultParams = {
           defaultAccount: '0xCD9Fe961b7bd1b92EDA518077a349e2376a3a19a',
         },
         currentConfig: {
-          networkId: TEST_NET_KOVAN_ID,
-          explorer: TEST_NET_RSK_CROSS_KOVAN_CONFIG.explorer,
+          networkId: TEST_NET_SEPOLIA_ID,
+          explorer: TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorer,
         },
         accountAddress: SENDER_ADDRESS,
       },

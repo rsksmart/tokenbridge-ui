@@ -1,38 +1,38 @@
 import * as tokensInfo from '../tokensInfo'
 import * as methodType from '../methodType'
 
-export const TEST_NET_KOVAN_GAS_TOKEN = {
+export const TEST_NET_SEPOLIA_GAS_TOKEN = {
   ...tokensInfo.TOKEN_WETH_INFO,
-  symbol: 'ETH',
+  symbol: 'SepoliaETH',
 }
 
-export const TEST_NET_KOVAN_MAIN_TOKEN = {
+export const TEST_NET_SEPOLIA_MAIN_TOKEN = {
   ...tokensInfo.TOKEN_WETH_INFO,
-  symbol: 'ETH',
-  address: '0xd0A1E359811322d97991E03f863a0C30C2cF029C',
+  symbol: 'SepoliaETH',
+  address: '0xe21bC895ff273c7a60Fda822Fc224A393B45aDE9',
   decimals: 18,
   methodType: methodType.DEPOSITOR,
 }
 
-export const TEST_NET_KOVAN_TOKENS = [
+export const TEST_NET_SEPOLIA_TOKENS = [
   {
     ...tokensInfo.TOKEN_DAI_INFO,
     symbol: 'DAI',
-    address: '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa',
+    address: '0x53844F9577C2334e541Aec7Df7174ECe5dF1fCf0',
     decimals: 18,
     methodType: methodType.RECEIVER,
   },
   {
     ...tokensInfo.TOKEN_LINK_INFO,
     symbol: 'LINK',
-    address: '0xa36085F69e2889c224210F603D836748e7dC0088',
+    address: '0x779877A7B0D9E8603169DdbD7836e478b4624789',
     decimals: 18,
     methodType: methodType.RECEIVER,
   },
   {
     ...tokensInfo.TOKEN_USDT_INFO,
     symbol: 'USDT',
-    address: '0x13512979ade267ab5100878e2e0f485b568328a4',
+    address: '0x7169D38820dfd117C3FA1f22a697dBA58d90BA06',
     decimals: 6,
     methodType: methodType.RECEIVER,
   },

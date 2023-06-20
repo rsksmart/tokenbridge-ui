@@ -1,7 +1,7 @@
 import BRIDGE_ABI_V2 from '@/constants/abis/bridge_v2.json'
 import BRIDGE_ABI_V1 from '@/constants/abis/bridge_v1.json'
 import BRIDGE_ABI_V0 from '@/constants/abis/bridge_v0.json'
-import BRIDGE_ABI_V4 from '@/constants/abis/bridge.json'
+import BRIDGE_ABI_V4 from '@/constants/abis/bridge_v2.json'
 
 export function decodeCrossEvent(web3, receipt) {
   return decodeERC20CrossEvent(web3, receipt)
