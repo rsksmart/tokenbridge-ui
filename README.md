@@ -35,7 +35,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Network configuration
 Create an `.env` file in the project's root directory (e.g.: copy-pasting the existing `.env.example` file into a new `.env` file).
-If we want to use RSK testnet as the main chain and Ethereum's Kovan as the side chain, our `.env` file would look like this:
+If we want to use RSK testnet as the main chain and Ethereum's Sepolia as the side chain, our `.env` file would look like this:
 ```
 VUE_APP_INFURA_KEY=YOUR_INFURA_KEY_HERE
 VUE_APP_OFFLINE_DB=offline-db-name
