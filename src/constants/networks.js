@@ -10,67 +10,67 @@ import {
   MAIN_NET_RSK_CROSS_ETHEREUM_GAS_TOKEN,
 } from './tokens/mainNetRskCrossEthereum'
 import {
-  TEST_NET_KOVAN_TOKENS,
-  TEST_NET_KOVAN_MAIN_TOKEN,
-  TEST_NET_KOVAN_GAS_TOKEN,
-} from './tokens/testNetKovan'
+  TEST_NET_SEPOLIA_TOKENS,
+  TEST_NET_SEPOLIA_MAIN_TOKEN,
+  TEST_NET_SEPOLIA_GAS_TOKEN,
+} from './tokens/testNetSepolia'
 import {
-  TEST_NET_RSK_CROSS_KOVAN_TOKENS,
-  TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
-  TEST_NET_RSK_CROSS_KOVAN_GAS_TOKEN,
-} from './tokens/testNetRskCrossKovan'
+  TEST_NET_RSK_CROSS_SEPOLIA_TOKENS,
+  TEST_NET_RSK_CROSS_SEPOLIA_MAIN_TOKEN,
+  TEST_NET_RSK_CROSS_SEPOLIA_GAS_TOKEN,
+} from './tokens/testNetRskCrossSepolia'
 import ENVIRONMENTS from '@/constants/environments'
 
 const infuraKey = process.env.VUE_APP_INFURA_KEY
 
 // --------- CONFIGS ----------
-export const TEST_NET_KOVAN_CONFIG = {
-  networkId: chainId.TEST_NET_KOVAN,
-  name: 'Kovan',
-  localStorageName: 'ethereum-kovan',
-  bridge: '0x12ed69359919fc775bc2674860e8fe2d2b6a7b5d',
-  allowTokens: '0x92BF86334583909B60F9b798A9Dd7Debd899fEc4',
-  federation: '0xa347438BC288f56Cb6083A79133e70DD2d1f6c2d',
-  explorer: 'https://kovan.etherscan.io',
+export const TEST_NET_SEPOLIA_CONFIG = {
+  networkId: chainId.TEST_NET_SEPOLIA,
+  name: 'Sepolia',
+  localStorageName: 'ethereum-sepolia',
+  bridge: '0xd31e66af9d830bfc35e493929a8f6523ca2b01b1',
+  allowTokens: '0x926d302f3b6bc4d0eeea9caf6942fd7e0a9a0422',
+  federation: '0x091e26c96e7f4aaef0d85746bb99b733ec28df90',
+  explorer: 'https://sepolia.etherscan.io',
   explorerTokenTab: '#tokentxns',
   secondsPerBlock: 5,
-  rpc: `https://kovan.infura.io/v3/${infuraKey}`,
-  v2UpdateBlock: 25547922,
+  rpc: `https://eth-sepolia.g.alchemy.com/v2/XYoI2LCj_cewOlIkbbUGCAbjDOGRiAAL`,
+  v2UpdateBlock: 3724896,
   feePercentageDivider: 10_000,
-  tokenPrefix: 'e',
+  tokenPrefix: '',
   env: ENVIRONMENTS.TESTNET,
-  mainToken: TEST_NET_KOVAN_MAIN_TOKEN,
-  gasToken: TEST_NET_KOVAN_GAS_TOKEN,
+  mainToken: TEST_NET_SEPOLIA_MAIN_TOKEN,
+  gasToken: TEST_NET_SEPOLIA_GAS_TOKEN,
   isRsk: false,
   isSide: true,
-  tokens: getTokensWithReceiveToken(TEST_NET_KOVAN_TOKENS, TEST_NET_RSK_CROSS_KOVAN_TOKENS),
+  tokens: getTokensWithReceiveToken(TEST_NET_SEPOLIA_TOKENS, TEST_NET_RSK_CROSS_SEPOLIA_TOKENS),
 }
 
-export const TEST_NET_RSK_CROSS_KOVAN_CONFIG = {
+export const TEST_NET_RSK_CROSS_SEPOLIA_CONFIG = {
   networkId: chainId.TEST_NET_RSK,
   name: 'RSK Testnet',
   localStorageName: 'rsk-testnet',
-  bridge: '0x684a8a976635fb7ad74a0134ace990a6a0fcce84',
-  allowTokens: '0xc65bf0ae75dc1a5fc9e6f4215125692a548c773a',
-  federation: '0x5d663981d930e8ec108280b9d80885658148ab0f',
+  bridge: '0x21df59aef6175467fefb9e44fbb98911978a13f2',
+  allowTokens: '0xa683146bb93544068737dfca59f098e7844cdfa8',
+  federation: '0x73de98b3eb19cae5dfc71fb3e54f3ffd4aa02705',
   relayer: '0x7c77704007C9996Ee591C516f7319828BA49d91E',
   swapRbtcProxy: '0x7c77704007C9996Ee591C516f7319828BA49d91E',
   explorer: 'https://explorer.testnet.rsk.co',
   explorerTokenTab: '?__tab=tokens%20transfers',
   secondsPerBlock: 30,
   rpc: 'https://public-node.testnet.rsk.co',
-  v2UpdateBlock: 1945524,
+  v2UpdateBlock: 3987787,
   feePercentageDivider: 10_000,
-  crossToNetwork: TEST_NET_KOVAN_CONFIG,
+  crossToNetwork: TEST_NET_SEPOLIA_CONFIG,
   tokenPrefix: 'r',
   env: ENVIRONMENTS.TESTNET,
-  mainToken: TEST_NET_RSK_CROSS_KOVAN_MAIN_TOKEN,
-  gasToken: TEST_NET_RSK_CROSS_KOVAN_GAS_TOKEN,
+  mainToken: TEST_NET_RSK_CROSS_SEPOLIA_MAIN_TOKEN,
+  gasToken: TEST_NET_RSK_CROSS_SEPOLIA_GAS_TOKEN,
   isRsk: true,
   isSide: false,
-  tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_KOVAN_TOKENS, TEST_NET_KOVAN_TOKENS),
+  tokens: getTokensWithReceiveToken(TEST_NET_RSK_CROSS_SEPOLIA_TOKENS, TEST_NET_SEPOLIA_TOKENS),
 }
-TEST_NET_KOVAN_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_KOVAN_CONFIG
+TEST_NET_SEPOLIA_CONFIG.crossToNetwork = TEST_NET_RSK_CROSS_SEPOLIA_CONFIG
 
 export const MAIN_NET_ETH_CONFIG = {
   networkId: chainId.MAIN_NET_ETHEREUM,
@@ -118,7 +118,7 @@ export const MAIN_NET_RSK_CONFIG = {
 }
 MAIN_NET_ETH_CONFIG.crossToNetwork = MAIN_NET_RSK_CONFIG
 
-export const rskNetworks = [MAIN_NET_RSK_CONFIG, TEST_NET_RSK_CROSS_KOVAN_CONFIG]
+export const rskNetworks = [MAIN_NET_RSK_CONFIG, TEST_NET_RSK_CROSS_SEPOLIA_CONFIG]
 
 export const defaultNetworks = {
   [ENVIRONMENTS.MAINNET]: {
@@ -126,8 +126,8 @@ export const defaultNetworks = {
     sideConfig: MAIN_NET_ETH_CONFIG,
   },
   [ENVIRONMENTS.TESTNET]: {
-    rskConfig: TEST_NET_RSK_CROSS_KOVAN_CONFIG,
-    sideConfig: TEST_NET_KOVAN_CONFIG,
+    rskConfig: TEST_NET_RSK_CROSS_SEPOLIA_CONFIG,
+    sideConfig: TEST_NET_SEPOLIA_CONFIG,
   },
 }
 

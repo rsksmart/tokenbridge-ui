@@ -4,7 +4,7 @@ describe('Wallet should be alive', () => {
   it('Allows the user to connect to a wallet', () => {
     cy.connectWallet()
       .get(MAIN_NETWORK_SELECT_TEXT)
-      .should('contains.text', 'Kovan')
+      .should('contains.text', 'Sepolia')
       .get(SIDE_NETWORK_SELECT_TEXT)
       .should('contains.text', 'RSK Testnet')
   })

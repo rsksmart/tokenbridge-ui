@@ -33,11 +33,4 @@ export const MAIN_NET_RSK_CROSS_ETHEREUM_TOKENS = [
     decimals: 18,
     methodType: methodType.RECEIVER,
   },
-  {
-    ...tokensInfo.TOKEN_BUND_INFO,
-    symbol: 'rBUND',
-    address: '0x4991516df6053121121274397a8c1dad608bc95b',
-    decimals: 18,
-    methodType: methodType.RECEIVER,
-  },
 ]
