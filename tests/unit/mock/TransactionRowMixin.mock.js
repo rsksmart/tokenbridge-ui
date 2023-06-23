@@ -3,7 +3,7 @@ import { TEST_NET_RSK_CROSS_SEPOLIA_CONFIG } from '@/constants/networks'
 import { shallowMount } from '@vue/test-utils'
 import _ from 'lodash'
 
-export const TEST_NET_SEPOLIA_ID = 11155111
+export const TEST_NET_SEPOLIA_ID = parseInt(process.env.VUE_APP_SIDE_CHAIN_ID)
 
 export const typesLimitsMock = [
   [
