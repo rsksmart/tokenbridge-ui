@@ -1,5 +1,5 @@
 import { CROSSING_STEPS } from '@/constants/enums'
-import { TEST_NET_KOVAN_CONFIG, TEST_NET_RSK_CROSS_KOVAN_CONFIG } from '@/constants/networks'
+import { TEST_NET_SEPOLIA_CONFIG, TEST_NET_RSK_CROSS_SEPOLIA_CONFIG } from '@/constants/networks'
 import ERC20TokenTransaction from '@/modules/transactions/transactionsTypes/ERC20TokenTransaction'
 import {
   RECEIVER_ADDRESS,
@@ -21,7 +21,7 @@ describe('TransactionRowMixin.js Test', () => {
     const transactionRowMixin = useTransactionRowMixinMock({
       computed: {
         fromNetwork() {
-          return TEST_NET_RSK_CROSS_KOVAN_CONFIG
+          return TEST_NET_RSK_CROSS_SEPOLIA_CONFIG
         },
         toNetwork() {
           return {
@@ -43,17 +43,17 @@ describe('TransactionRowMixin.js Test', () => {
       '0x840870aC9bB243cf30c1C4C8423dF1D0074D403C',
     )
     expect(transactionRowMixin.vm.transactionHashExplorerUrl).toBe(
-      `${TEST_NET_RSK_CROSS_KOVAN_CONFIG.explorer}/tx/${TRANSACTION_HASH}`,
+      `${TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorer}/tx/${TRANSACTION_HASH}`,
     )
-    expect(transactionRowMixin.vm.isSenderNetwork).toBeTruthy()
+    expect(transactionRowMixin.vm.isSenderNetwork).toBeFalsy()
     expect(transactionRowMixin.vm.isReceiverNetwork).toBeFalsy()
-    expect(transactionRowMixin.vm.isSenderAddress).toBeTruthy()
+    expect(transactionRowMixin.vm.isSenderAddress).toBeFalsy()
     expect(transactionRowMixin.vm.isReceiverAddress).toBeFalsy()
     expect(transactionRowMixin.vm.senderAddressExplorerUrl).toBe(
-      `${TEST_NET_RSK_CROSS_KOVAN_CONFIG.explorer}/address/${SENDER_ADDRESS}${TEST_NET_RSK_CROSS_KOVAN_CONFIG.explorerTokenTab}`,
+      `${TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorer}/address/${SENDER_ADDRESS}${TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorerTokenTab}`,
     )
     expect(transactionRowMixin.vm.receiverAddressExplorerUrl).toBe(
-      `${TEST_NET_KOVAN_CONFIG.explorer}/address/${RECEIVER_ADDRESS}${TEST_NET_KOVAN_CONFIG.explorerTokenTab}`,
+      `${TEST_NET_SEPOLIA_CONFIG.explorer}/address/${RECEIVER_ADDRESS}${TEST_NET_SEPOLIA_CONFIG.explorerTokenTab}`,
     )
     expect(transactionRowMixin.vm.formattedTransactionHash).toBe('0xeba2...f8a30e')
     expect(transactionRowMixin.vm.formattedSenderAddress).toBe('0x39AC...C67572')
@@ -61,17 +61,17 @@ describe('TransactionRowMixin.js Test', () => {
     expect(transactionRowMixin.vm.latestBlock).toBe(RSK_BLOCK_NUMBER)
     expect(transactionRowMixin.vm.fedMembers).toStrictEqual([1])
     expect(transactionRowMixin.vm.txExplorerLink).toBe(
-      `${TEST_NET_RSK_CROSS_KOVAN_CONFIG.explorer}/tx/${TRANSACTION_HASH}`,
+      `${TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorer}/tx/${TRANSACTION_HASH}`,
     )
     expect(transactionRowMixin.vm.amountAndSymbol).toBe(`10000 ${TUSD_TOKEN_SYMBOL}`)
   })
 
-  it('given fromNetwork TEST_NET_RSK_CROSS_KOVAN_CONFIG and toNetwork TEST_NET_KOVAN_CONFIG when Component is mounted then fromNetwork and toNetwork should be as expected', () => {
+  it('given fromNetwork TEST_NET_RSK_CROSS_SEPOLIA_CONFIG and toNetwork TEST_NET_SEPOLIA_CONFIG when Component is mounted then fromNetwork and toNetwork should be as expected', () => {
     const transactionRowMixin = useTransactionRowMixinMock({
       propsData: {
         transaction: {
-          networkId: TEST_NET_RSK_CROSS_KOVAN_CONFIG.networkId,
-          destinationChainId: TEST_NET_KOVAN_CONFIG.networkId,
+          networkId: TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.networkId,
+          destinationChainId: TEST_NET_SEPOLIA_CONFIG.networkId,
         },
       },
       methods: {
@@ -81,7 +81,7 @@ describe('TransactionRowMixin.js Test', () => {
 
     runAsync().then(() => {
       expect(transactionRowMixin.vm.fromNetwork.name).toBe('RSK Testnet')
-      expect(transactionRowMixin.vm.toNetwork.name).toBe('Kovan')
+      expect(transactionRowMixin.vm.toNetwork.name).toBe('Sepolia')
     })
   })
 
@@ -111,10 +111,10 @@ describe('TransactionRowMixin.js Test', () => {
       },
       computed: {
         fromNetwork() {
-          return TEST_NET_RSK_CROSS_KOVAN_CONFIG
+          return TEST_NET_RSK_CROSS_SEPOLIA_CONFIG
         },
         toNetwork() {
-          return TEST_NET_KOVAN_CONFIG
+          return TEST_NET_SEPOLIA_CONFIG
         },
         latestBlock() {
           return 5
@@ -140,10 +140,10 @@ describe('TransactionRowMixin.js Test', () => {
       },
       computed: {
         fromNetwork() {
-          return TEST_NET_RSK_CROSS_KOVAN_CONFIG
+          return TEST_NET_RSK_CROSS_SEPOLIA_CONFIG
         },
         toNetwork() {
-          return TEST_NET_KOVAN_CONFIG
+          return TEST_NET_SEPOLIA_CONFIG
         },
         latestBlock() {
           return 5

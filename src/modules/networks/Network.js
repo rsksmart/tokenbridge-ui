@@ -1,4 +1,4 @@
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import BRIDGE_ABI from '@/constants/abis/bridge_v2.json'
 import FEDERATION_ABI from '@/constants/abis/federation.json'
 import { blocksToTime, retry3Times } from '@/utils'
 import ALLOW_TOKENS_ABI from '@/constants/abis/allowTokens.json'

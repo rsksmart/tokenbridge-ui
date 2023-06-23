@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import BRIDGE_ABI from '@/constants/abis/bridge_v2.json'
 import { waitForReceipt } from '@/utils'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import * as methodType from '@/constants/methodType'

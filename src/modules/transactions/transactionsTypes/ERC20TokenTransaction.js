@@ -1,7 +1,7 @@
 import Transaction from '@/modules/transactions/transaction'
 import { TransactionService } from '@/modules/transactions/transactions.service'
 import ERC20_ABI from '@/constants/abis/erc20.json'
-import BRIDGE_ABI from '@/constants/abis/bridge.json'
+import BRIDGE_ABI from '@/constants/abis/bridge_v2.json'
 import { ESTIMATED_GAS_AVG } from '@/constants/transactions'
 import * as methodType from '@/constants/methodType'
 import { MAX_UINT256, retry3Times } from '@/utils'
@@ -47,12 +47,12 @@ class ERC20TokenTransaction extends Transaction {
     })
   }
 
-  async receiveTokensTo({ destinationChainId, tokenToUse, to, amount }, transactionObject) {
+  async receiveTokensTo({  tokenToUse, to, amount }, transactionObject) {
     // TODO MOVE THIS TO TRANSACTION ACTIONS
     const bridgeContract = new this.web3.eth.Contract(BRIDGE_ABI, this.config.bridge)
     return new Promise((resolve, reject) => {
       bridgeContract.methods
-        .receiveTokensTo(destinationChainId, tokenToUse, to, amount)
+        .receiveTokensTo( tokenToUse, to, amount)
         .send(transactionObject, this.callback({ resolve, reject }))
     })
   }
