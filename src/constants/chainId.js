@@ -1,6 +1,6 @@
 // TEST NET
-export const TEST_NET_SEPOLIA = 11155111
-export const TEST_NET_RSK = 31
+export const TEST_NET_SEPOLIA = parseInt(process.env.VUE_APP_SIDE_CHAIN_ID)
+export const TEST_NET_RSK = parseInt(process.env.VUE_APP_MAIN_CHAIN_ID)
 
 export const SUPPORTED_CHAINS_TEST_NET = [TEST_NET_SEPOLIA, TEST_NET_RSK]
 
