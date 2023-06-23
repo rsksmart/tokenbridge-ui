@@ -45,9 +45,9 @@ describe('TransactionRowMixin.js Test', () => {
     expect(transactionRowMixin.vm.transactionHashExplorerUrl).toBe(
       `${TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorer}/tx/${TRANSACTION_HASH}`,
     )
-    expect(transactionRowMixin.vm.isSenderNetwork).toBeTruthy()
+    expect(transactionRowMixin.vm.isSenderNetwork).toBeFalsy()
     expect(transactionRowMixin.vm.isReceiverNetwork).toBeFalsy()
-    expect(transactionRowMixin.vm.isSenderAddress).toBeTruthy()
+    expect(transactionRowMixin.vm.isSenderAddress).toBeFalsy()
     expect(transactionRowMixin.vm.isReceiverAddress).toBeFalsy()
     expect(transactionRowMixin.vm.senderAddressExplorerUrl).toBe(
       `${TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorer}/address/${SENDER_ADDRESS}${TEST_NET_RSK_CROSS_SEPOLIA_CONFIG.explorerTokenTab}`,
